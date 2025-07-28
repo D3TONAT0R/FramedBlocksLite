@@ -55,20 +55,10 @@ import xfacthd.framedblocks.common.block.interactive.button.*;
 import xfacthd.framedblocks.common.block.interactive.pressureplate.*;
 import xfacthd.framedblocks.common.block.pane.*;
 import xfacthd.framedblocks.common.block.pillar.*;
-import xfacthd.framedblocks.common.block.prism.*;
-import xfacthd.framedblocks.common.block.rail.fancy.*;
-import xfacthd.framedblocks.common.block.rail.vanillaslope.*;
-import xfacthd.framedblocks.common.block.sign.*;
 import xfacthd.framedblocks.common.block.slab.*;
-import xfacthd.framedblocks.common.block.slope.*;
-import xfacthd.framedblocks.common.block.slopeedge.*;
-import xfacthd.framedblocks.common.block.slopepanel.*;
-import xfacthd.framedblocks.common.block.slopepanelcorner.*;
-import xfacthd.framedblocks.common.block.slopeslab.*;
 import xfacthd.framedblocks.common.block.special.*;
 import xfacthd.framedblocks.common.block.stairs.standard.*;
 import xfacthd.framedblocks.common.block.stairs.vertical.*;
-import xfacthd.framedblocks.common.block.torch.*;
 import xfacthd.framedblocks.common.blockentity.doubled.prism.*;
 import xfacthd.framedblocks.common.blockentity.doubled.rail.*;
 import xfacthd.framedblocks.common.blockentity.doubled.slab.*;
@@ -91,20 +81,14 @@ import xfacthd.framedblocks.common.data.FramedToolType;
 import xfacthd.framedblocks.common.data.blueprint.auxdata.DoorAuxBlueprintData;
 import xfacthd.framedblocks.common.data.camo.block.BlockCamoContainerFactory;
 import xfacthd.framedblocks.common.data.camo.fluid.FluidCamoContainerFactory;
-import xfacthd.framedblocks.common.data.component.AdjustableDoubleBlockData;
-import xfacthd.framedblocks.common.data.component.CollapsibleBlockData;
-import xfacthd.framedblocks.common.data.component.CollapsibleCopycatBlockData;
 import xfacthd.framedblocks.common.data.component.FramedMap;
-import xfacthd.framedblocks.common.data.component.PottedFlower;
 import xfacthd.framedblocks.common.data.component.TargetColor;
 import xfacthd.framedblocks.common.data.loot.BoardAdditionalItemCountNumberProvider;
 import xfacthd.framedblocks.common.data.loot.LayeredCubeAdditionalItemCountNumberProvider;
 import xfacthd.framedblocks.common.item.FramedBlueprintItem;
 import xfacthd.framedblocks.common.item.FramedToolItem;
 import xfacthd.framedblocks.common.item.PhantomPasteItem;
-import xfacthd.framedblocks.common.menu.FramedStorageMenu;
 import xfacthd.framedblocks.common.menu.FramingSawMenu;
-import xfacthd.framedblocks.common.menu.PoweredFramingSawMenu;
 import xfacthd.framedblocks.common.particle.FluidParticleOptions;
 import xfacthd.framedblocks.common.util.FramedCreativeTab;
 import xfacthd.framedblocks.common.util.registration.DeferredAuxDataTypeRegister;
@@ -211,29 +195,9 @@ public final class FBContent
             "framed_map",
             builder -> builder.persistent(FramedMap.CODEC).networkSynchronized(FramedMap.STREAM_CODEC)
     );
-    public static final DeferredDataComponentType<CollapsibleBlockData> DC_TYPE_COLLAPSIBLE_BLOCK_DATA = DATA_COMPONENTS.registerComponentType(
-            "collapsible_block",
-            builder -> builder.persistent(CollapsibleBlockData.CODEC).networkSynchronized(CollapsibleBlockData.STREAM_CODEC)
-    );
-    public static final DeferredDataComponentType<CollapsibleCopycatBlockData> DC_TYPE_COLLAPSIBLE_COPYCAT_BLOCK_DATA = DATA_COMPONENTS.registerComponentType(
-            "collapsible_copycat_block",
-            builder -> builder.persistent(CollapsibleCopycatBlockData.CODEC).networkSynchronized(CollapsibleCopycatBlockData.STREAM_CODEC)
-    );
-    public static final DeferredDataComponentType<PottedFlower> DC_TYPE_POTTED_FLOWER = DATA_COMPONENTS.registerComponentType(
-            "potted_flower",
-            builder -> builder.persistent(PottedFlower.CODEC).networkSynchronized(PottedFlower.STREAM_CODEC)
-    );
     public static final DeferredDataComponentType<TargetColor> DC_TYPE_TARGET_COLOR = DATA_COMPONENTS.registerComponentType(
             "target_color",
             builder -> builder.persistent(TargetColor.CODEC).networkSynchronized(TargetColor.STREAM_CODEC)
-    );
-    public static final DeferredDataComponentType<AdjustableDoubleBlockData> DC_TYPE_ADJ_DOUBLE_BLOCK_DATA = DATA_COMPONENTS.registerComponentType(
-            "adjustable_double_block",
-            builder -> builder.persistent(AdjustableDoubleBlockData.CODEC).networkSynchronized(AdjustableDoubleBlockData.STREAM_CODEC)
-    );
-    public static final DeferredDataComponentType<SimpleFluidContent> DC_TYPE_TANK_CONTENTS = DATA_COMPONENTS.registerComponentType(
-            "tank_contents",
-            builder -> builder.persistent(SimpleFluidContent.CODEC).networkSynchronized(SimpleFluidContent.STREAM_CODEC)
     );
     // endregion
 
