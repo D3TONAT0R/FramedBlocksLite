@@ -13,8 +13,6 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import org.jetbrains.annotations.Nullable;
 import xfacthd.framedblocks.api.util.Utils;
 import xfacthd.framedblocks.client.screen.FramingSawScreen;
-import xfacthd.framedblocks.client.screen.FramingSawWithEncoderScreen;
-import xfacthd.framedblocks.client.screen.PoweredFramingSawScreen;
 import xfacthd.framedblocks.common.FBContent;
 import xfacthd.framedblocks.common.compat.jei.camo.CamoCraftingHelper;
 import xfacthd.framedblocks.common.compat.jei.camo.CamoCraftingRecipeExtension;
@@ -77,10 +75,6 @@ public final class FramedJeiPlugin implements IModPlugin
                 new FramingSawTransferHandler.FramingSaw(registration.getTransferHelper()),
                 FRAMING_SAW_RECIPE_TYPE
         );
-        registration.addRecipeTransferHandler(
-                new FramingSawTransferHandler.PoweredFramingSaw(registration.getTransferHelper()),
-                FRAMING_SAW_RECIPE_TYPE
-        );
     }
 
     @Override
@@ -90,35 +84,15 @@ public final class FramedJeiPlugin implements IModPlugin
                 new ItemStack(FBContent.BLOCK_FRAMING_SAW.value()),
                 FRAMING_SAW_RECIPE_TYPE
         );
-        registration.addRecipeCatalyst(
-                new ItemStack(FBContent.BLOCK_POWERED_FRAMING_SAW.value()),
-                FRAMING_SAW_RECIPE_TYPE
-        );
     }
 
     @Override
     public void registerGuiHandlers(IGuiHandlerRegistration registration)
     {
         IIngredientManager ingredientManager = registration.getJeiHelpers().getIngredientManager();
-        registration.addGhostIngredientHandler(
-                FramingSawWithEncoderScreen.class,
-                new FramingSawGhostIngredientHandler()
-        );
-        registration.addGuiContainerHandler(
-                FramingSawWithEncoderScreen.class,
-                new FramingSawWithEncoderGuiContainerHandler(ingredientManager)
-        );
         registration.addGuiContainerHandler(
                 FramingSawScreen.class,
                 new FramingSawGuiContainerHandler<>(ingredientManager)
-        );
-        registration.addGhostIngredientHandler(
-                PoweredFramingSawScreen.class,
-                new PoweredFramingSawGhostIngredientHandler()
-        );
-        registration.addGuiContainerHandler(
-                PoweredFramingSawScreen.class,
-                new PoweredFramingSawGuiContainerHandler(ingredientManager)
         );
     }
 

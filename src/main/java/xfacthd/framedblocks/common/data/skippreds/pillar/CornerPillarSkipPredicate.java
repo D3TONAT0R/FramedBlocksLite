@@ -17,12 +17,7 @@ import xfacthd.framedblocks.common.data.property.HorizontalRotation;
 import xfacthd.framedblocks.common.data.property.SlopeType;
 import xfacthd.framedblocks.common.data.property.StairsType;
 import xfacthd.framedblocks.common.data.skippreds.CullTest;
-import xfacthd.framedblocks.common.data.skippreds.misc.MiscDirs;
 import xfacthd.framedblocks.common.data.skippreds.slab.SlabDirs;
-import xfacthd.framedblocks.common.data.skippreds.slope.SlopeDirs;
-import xfacthd.framedblocks.common.data.skippreds.slopeedge.SlopeEdgeDirs;
-import xfacthd.framedblocks.common.data.skippreds.slopepanel.SlopePanelDirs;
-import xfacthd.framedblocks.common.data.skippreds.slopepanelcorner.SlopePanelCornerDirs;
 import xfacthd.framedblocks.common.data.skippreds.stairs.StairsDirs;
 
 /**
@@ -43,24 +38,6 @@ public final class CornerPillarSkipPredicate implements SideSkipPredicate
                 case FRAMED_CORNER_PILLAR -> testAgainstCornerPillar(
                         dir, adjState, side
                 );
-                case FRAMED_HALF_SLOPE -> testAgainstHalfSlope(
-                        dir, adjState, side
-                );
-                case FRAMED_SLOPE_EDGE -> testAgainstSlopeEdge(
-                        dir, adjState, side
-                );
-                case FRAMED_ELEVATED_SLOPE_EDGE -> testAgainstElevatedSlopeEdge(
-                        dir, adjState, side
-                );
-                case FRAMED_CORNER_SLOPE_EDGE -> testAgainstCornerSlopeEdge(
-                        dir, adjState, side
-                );
-                case FRAMED_INNER_CORNER_SLOPE_EDGE -> testAgainstInnerCornerSlopeEdge(
-                        dir, adjState, side
-                );
-                case FRAMED_ELEVATED_CORNER_SLOPE_EDGE -> testAgainstElevatedCornerSlopeEdge(
-                        dir, adjState, side
-                );
                 case FRAMED_SLAB_CORNER -> testAgainstSlabCorner(
                         dir, adjState, side
                 );
@@ -74,45 +51,6 @@ public final class CornerPillarSkipPredicate implements SideSkipPredicate
                         dir, adjState, side
                 );
                 case FRAMED_VERTICAL_STAIRS -> testAgainstVerticalStairs(
-                        dir, adjState, side
-                );
-                case FRAMED_VERTICAL_SLOPED_STAIRS -> testAgainstVerticalSlopedStairs(
-                        dir, adjState, side
-                );
-                case FRAMED_THREEWAY_CORNER_PILLAR -> testAgainstThreewayCornerPillar(
-                        dir, adjState, side
-                );
-                case FRAMED_SLOPE_PANEL -> testAgainstSlopePanel(
-                        dir, adjState, side
-                );
-                case FRAMED_EXTENDED_SLOPE_PANEL -> testAgainstExtendedSlopePanel(
-                        dir, adjState, side
-                );
-                case FRAMED_COMPOUND_SLOPE_PANEL -> testAgainstCompoundSlopePanel(
-                        dir, adjState, side
-                );
-                case FRAMED_FLAT_INNER_SLOPE_PANEL_CORNER -> testAgainstFlatInnerSlopePanelCorner(
-                        dir, adjState, side
-                );
-                case FRAMED_FLAT_EXT_SLOPE_PANEL_CORNER -> testAgainstFlatExtendedSlopePanelCorner(
-                        dir, adjState, side
-                );
-                case FRAMED_SMALL_CORNER_SLOPE_PANEL -> testAgainstSmallCornerSlopePanel(
-                        dir, adjState, side
-                );
-                case FRAMED_SMALL_INNER_CORNER_SLOPE_PANEL -> testAgainstSmallInnerCornerSlopePanel(
-                        dir, adjState, side
-                );
-                case FRAMED_EXT_CORNER_SLOPE_PANEL -> testAgainstExtendedCornerSlopePanel(
-                        dir, adjState, side
-                );
-                case FRAMED_ELEVATED_PYRAMID_SLAB -> testAgainstElevatedPyramidSlab(
-                        dir, adjState, side
-                );
-                case FRAMED_CHECKERED_PANEL_SEGMENT -> testAgainstCheckeredPanelSegment(
-                        dir, adjState, side
-                );
-                case FRAMED_LAYERED_CUBE -> testAgainstLayeredCube(
                         dir, adjState, side
                 );
                 default -> false;
@@ -129,18 +67,6 @@ public final class CornerPillarSkipPredicate implements SideSkipPredicate
         Direction adjDir = adjState.getValue(FramedProperties.FACING_HOR);
         return PillarDirs.CornerPillar.getHalfDir(dir, side).isEqualTo(PillarDirs.CornerPillar.getHalfDir(adjDir, side.getOpposite())) ||
                PillarDirs.CornerPillar.getCornerDir(dir, side).isEqualTo(PillarDirs.CornerPillar.getCornerDir(adjDir, side.getOpposite()));
-    }
-
-    @CullTest.TestTarget(BlockType.FRAMED_HALF_SLOPE)
-    private static boolean testAgainstHalfSlope(
-            Direction dir, BlockState adjState, Direction side
-    )
-    {
-        Direction adjDir = adjState.getValue(FramedProperties.FACING_HOR);
-        boolean adjTop = adjState.getValue(FramedProperties.TOP);
-        boolean adjRight = adjState.getValue(PropertyHolder.RIGHT);
-
-        return PillarDirs.CornerPillar.getHalfDir(dir, side).isEqualTo(SlopeDirs.HalfSlope.getHalfDir(adjDir, adjTop, adjRight, side.getOpposite()));
     }
 
     @CullTest.TestTarget(BlockType.FRAMED_SLOPE_EDGE)

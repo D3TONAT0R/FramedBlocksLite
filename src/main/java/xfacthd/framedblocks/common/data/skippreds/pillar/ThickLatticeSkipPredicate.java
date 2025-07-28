@@ -12,7 +12,6 @@ import xfacthd.framedblocks.common.data.BlockType;
 import xfacthd.framedblocks.common.data.PropertyHolder;
 import xfacthd.framedblocks.common.data.property.PillarConnection;
 import xfacthd.framedblocks.common.data.skippreds.CullTest;
-import xfacthd.framedblocks.common.data.skippreds.slope.SlopeDirs;
 
 /**
  This class is machine-generated, any manual changes to this class will be overwritten.
@@ -99,38 +98,5 @@ public final class ThickLatticeSkipPredicate implements SideSkipPredicate
     {
         Direction adjDir = adjState.getValue(BlockStateProperties.FACING);
         return (PillarDirs.ThickLattice.isPillarDir(xAxis, yAxis, zAxis, side) && PillarDirs.HalfPillar.isPillarDir(adjDir, side.getOpposite()));
-    }
-
-    @CullTest.TestTarget(BlockType.FRAMED_PYRAMID)
-    private static boolean testAgainstPyramid(
-            boolean xAxis, boolean yAxis, boolean zAxis, BlockState adjState, Direction side
-    )
-    {
-        Direction adjDir = adjState.getValue(BlockStateProperties.FACING);
-        PillarConnection adjConnection = adjState.getValue(PropertyHolder.PILLAR_CONNECTION);
-
-        return (PillarDirs.ThickLattice.isPillarDir(xAxis, yAxis, zAxis, side) && SlopeDirs.Pyramid.isPillarDir(adjDir, adjConnection, side.getOpposite()));
-    }
-
-    @CullTest.TestTarget(BlockType.FRAMED_ELEVATED_PYRAMID_SLAB)
-    private static boolean testAgainstElevatedPyramidSlab(
-            boolean xAxis, boolean yAxis, boolean zAxis, BlockState adjState, Direction side
-    )
-    {
-        Direction adjDir = adjState.getValue(BlockStateProperties.FACING);
-        PillarConnection adjConnection = adjState.getValue(PropertyHolder.PILLAR_CONNECTION);
-
-        return (PillarDirs.ThickLattice.isPillarDir(xAxis, yAxis, zAxis, side) && SlopeDirs.ElevatedPyramidSlab.isPillarDir(adjDir, adjConnection, side.getOpposite()));
-    }
-
-    @CullTest.TestTarget(BlockType.FRAMED_UPPER_PYRAMID_SLAB)
-    private static boolean testAgainstUpperPyramidSlab(
-            boolean xAxis, boolean yAxis, boolean zAxis, BlockState adjState, Direction side
-    )
-    {
-        Direction adjDir = adjState.getValue(BlockStateProperties.FACING);
-        PillarConnection adjConnection = adjState.getValue(PropertyHolder.PILLAR_CONNECTION);
-
-        return (PillarDirs.ThickLattice.isPillarDir(xAxis, yAxis, zAxis, side) && SlopeDirs.UpperPyramidSlab.isPillarDir(adjDir, adjConnection, side.getOpposite()));
     }
 }

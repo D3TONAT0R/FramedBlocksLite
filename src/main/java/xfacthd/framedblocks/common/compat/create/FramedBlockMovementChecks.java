@@ -8,7 +8,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import xfacthd.framedblocks.api.block.IFramedBlock;
 import xfacthd.framedblocks.api.block.FramedProperties;
-import xfacthd.framedblocks.common.block.sign.AbstractFramedSignBlock;
 import xfacthd.framedblocks.common.data.BlockType;
 
 public final class FramedBlockMovementChecks implements
@@ -39,10 +38,6 @@ public final class FramedBlockMovementChecks implements
     public BlockMovementChecks.CheckResult isBrittle(BlockState state)
     {
         Block block = state.getBlock();
-        if (block instanceof AbstractFramedSignBlock)
-        {
-            return BlockMovementChecks.CheckResult.SUCCESS;
-        }
         return BlockMovementChecks.CheckResult.PASS;
     }
 
