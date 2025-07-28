@@ -7,7 +7,6 @@ import net.minecraft.world.level.Level;
 import xfacthd.framedblocks.api.blueprint.BlueprintData;
 import xfacthd.framedblocks.common.FBContent;
 import xfacthd.framedblocks.common.blockentity.special.FramedCollapsibleCopycatBlockEntity;
-import xfacthd.framedblocks.common.data.component.CollapsibleCopycatBlockData;
 
 public final class CollapsibleCopycatBlockCopyBehaviour extends DummyDataHandlingCopyBehaviour<CollapsibleCopycatBlockData>
 {

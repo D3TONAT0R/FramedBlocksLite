@@ -7,7 +7,6 @@ import net.minecraft.world.level.Level;
 import xfacthd.framedblocks.api.blueprint.BlueprintData;
 import xfacthd.framedblocks.common.FBContent;
 import xfacthd.framedblocks.common.blockentity.special.FramedCollapsibleBlockEntity;
-import xfacthd.framedblocks.common.data.component.CollapsibleBlockData;
 import xfacthd.framedblocks.common.data.property.NullableDirection;
 import xfacthd.framedblocks.common.data.PropertyHolder;
 

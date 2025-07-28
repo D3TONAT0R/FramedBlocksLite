@@ -4,7 +4,6 @@ import net.minecraft.world.item.ItemStack;
 import xfacthd.framedblocks.api.blueprint.BlueprintCopyBehaviour;
 import xfacthd.framedblocks.api.blueprint.BlueprintData;
 import xfacthd.framedblocks.common.FBContent;
-import xfacthd.framedblocks.common.data.component.PottedFlower;
 
 import java.util.List;
 
