@@ -55,10 +55,6 @@ public final class DiagonalBlocksCompat
         return (loaded && GuardedAccess.isFramedFence(state)) || state.getBlock() instanceof FramedFenceBlock;
     }
 
-    public static boolean isFramedPane(BlockState state)
-    {
-        return (loaded && GuardedAccess.isFramedPane(state)) || state.getBlock() instanceof FramedPaneBlock;
-    }
 
 
 
@@ -85,11 +81,6 @@ public final class DiagonalBlocksCompat
         public static boolean isFramedFence(BlockState state)
         {
             return state.getBlock() instanceof FramedDiagonalFenceBlock;
-        }
-
-        public static boolean isFramedPane(BlockState state)
-        {
-            return state.getBlock() instanceof FramedDiagonalGlassPaneBlock;
         }
 
         private static Optional<Holder.Reference<Block>> getBlock(DiagonalBlockType type, Holder<Block> srcBlock)

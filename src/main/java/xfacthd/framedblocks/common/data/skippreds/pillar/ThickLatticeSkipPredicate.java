@@ -46,15 +46,6 @@ public final class ThickLatticeSkipPredicate implements SideSkipPredicate
                 case FRAMED_HALF_PILLAR -> testAgainstHalfPillar(
                         xAxis, yAxis, zAxis, adjState, side
                 );
-                case FRAMED_PYRAMID -> testAgainstPyramid(
-                        xAxis, yAxis, zAxis, adjState, side
-                );
-                case FRAMED_ELEVATED_PYRAMID_SLAB -> testAgainstElevatedPyramidSlab(
-                        xAxis, yAxis, zAxis, adjState, side
-                );
-                case FRAMED_UPPER_PYRAMID_SLAB -> testAgainstUpperPyramidSlab(
-                        xAxis, yAxis, zAxis, adjState, side
-                );
                 default -> false;
             };
         }

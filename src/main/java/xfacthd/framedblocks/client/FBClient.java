@@ -38,7 +38,6 @@ import xfacthd.framedblocks.api.screen.overlay.RegisterBlockInteractOverlaysEven
 import xfacthd.framedblocks.api.util.ClientUtils;
 import xfacthd.framedblocks.api.util.FramedConstants;
 import xfacthd.framedblocks.api.util.Utils;
-import xfacthd.framedblocks.client.data.BlockOutlineRenderers;
 import xfacthd.framedblocks.client.data.GhostRenderBehaviours;
 import xfacthd.framedblocks.client.data.extensions.block.NoEffectsClientBlockExtensions;
 import xfacthd.framedblocks.client.model.FluidModel;
@@ -53,7 +52,6 @@ import xfacthd.framedblocks.client.model.geometry.stairs.*;
 import xfacthd.framedblocks.client.model.item.BlockItemModelProviders;
 import xfacthd.framedblocks.client.model.item.DynamicItemTintProviders;
 import xfacthd.framedblocks.client.model.item.FramedBlockItemModel;
-import xfacthd.framedblocks.client.model.item.TankItemModel;
 import xfacthd.framedblocks.client.model.item.modelprovider.FenceBlockItemModelProvider;
 import xfacthd.framedblocks.client.model.loader.fallback.FallbackLoader;
 import xfacthd.framedblocks.client.model.overlaygen.OverlayQuadGenerator;
@@ -121,7 +119,6 @@ public final class FBClient
         modBus.addListener(FBClient::onRegisterClientTooltipComponentFactories);
         modBus.addListener(FBClient::onRegisterPictureInPictureRenderers);
         modBus.addListener(KeyMappings::onRegisterKeyMappings);
-        modBus.addListener(BlockOutlineRenderers::onRegisterOutlineRenderers);
         modBus.addListener(GhostRenderBehaviours::onRegisterGhostRenderBehaviours);
         modBus.addListener(FramedRenderPipelines::onRegisterRenderPipelines);
         modBus.addListener(ClientNetworkHandler::onRegisterPayloadHandlers);
@@ -143,7 +140,6 @@ public final class FBClient
     private static void onRegisterItemModels(RegisterItemModelsEvent event)
     {
         event.register(FramedBlockItemModel.Unbaked.ID, FramedBlockItemModel.Unbaked.CODEC);
-        event.register(TankItemModel.Unbaked.ID, TankItemModel.Unbaked.CODEC);
     }
 
     private static void onRegisterSpecialModelRenderers(RegisterSpecialModelRendererEvent event)
@@ -202,16 +198,12 @@ public final class FBClient
     private static void onRegisterBlockInteractOverlays(RegisterBlockInteractOverlaysEvent event)
     {
         event.register("state_lock", new StateLockOverlay());
-        event.register("toggle_waterloggable", new ToggleWaterloggableOverlay());
         event.register("toggle_y_slope", new ToggleYSlopeOverlay());
         event.register("reinforcement", new ReinforcementOverlay());
-        event.register("prism_offset", new PrismOffsetOverlay());
         event.register("split_line", new SplitLineOverlay());
-        event.register("one_way_window", new OneWayWindowOverlay());
         event.register("frame_background", new FrameBackgroundOverlay());
         event.register("camo_rotation", new CamoRotationOverlay());
         event.register("trapdoor_texture_rotation", new TrapdoorTextureRotationOverlay());
-        event.register("copycat_style", new CopycatStyleOverlay());
     }
 
     private static void onGeometryLoaderRegister(ModelEvent.RegisterLoaders event)
@@ -348,7 +340,6 @@ public final class FBClient
 
     private static boolean useDefaultColorHandler(IFramedBlock block)
     {
-        IBlockType type = block.getBlockType();
-        return type != BlockType.FRAMED_FLOWER_POT && type != BlockType.FRAMED_TARGET;
+        return true;
     }
 }

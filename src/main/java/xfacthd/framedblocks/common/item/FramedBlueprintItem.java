@@ -311,11 +311,6 @@ public class FramedBlueprintItem extends FramedToolItem
         {
             materials.add(new ItemStack(FBContent.ITEM_FRAMED_REINFORCEMENT.value(), reinforcement));
         }
-        int emissive = behaviour.getEmissiveCount(data);
-        if (emissive > 0)
-        {
-            materials.add(new ItemStack(FBContent.ITEM_GLOW_PASTE, emissive));
-        }
         materials.addAll(behaviour.getAdditionalConsumedMaterials(data));
         return materials;
     }

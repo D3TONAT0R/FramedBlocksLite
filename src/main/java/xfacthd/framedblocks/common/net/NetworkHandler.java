@@ -5,9 +5,7 @@ import net.neoforged.neoforge.network.registration.HandlerThread;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import xfacthd.framedblocks.common.net.payload.clientbound.ClientboundCullingUpdatePayload;
 import xfacthd.framedblocks.common.net.payload.clientbound.ClientboundOpenSignScreenPayload;
-import xfacthd.framedblocks.common.net.payload.serverbound.ServerboundEncodeFramingSawPatternPayload;
 import xfacthd.framedblocks.common.net.payload.serverbound.ServerboundSelectFramingSawRecipePayload;
-import xfacthd.framedblocks.common.net.payload.serverbound.ServerboundSignUpdatePayload;
 
 public final class NetworkHandler
 {
@@ -22,12 +20,6 @@ public final class NetworkHandler
 
     private static void registerNetworkThreadPayloads(PayloadRegistrar registrar)
     {
-        registrar.executesOn(HandlerThread.NETWORK)
-                .playToServer(
-                        ServerboundSignUpdatePayload.TYPE,
-                        ServerboundSignUpdatePayload.CODEC,
-                        ServerboundSignUpdatePayload::handle
-                );
     }
 
     private static void registerMainThreadPayloads(PayloadRegistrar registrar)
@@ -45,11 +37,6 @@ public final class NetworkHandler
                         ServerboundSelectFramingSawRecipePayload.TYPE,
                         ServerboundSelectFramingSawRecipePayload.CODEC,
                         ServerboundSelectFramingSawRecipePayload::handle
-                )
-                .playToServer(
-                        ServerboundEncodeFramingSawPatternPayload.TYPE,
-                        ServerboundEncodeFramingSawPatternPayload.STREAM_CODEC,
-                        ServerboundEncodeFramingSawPatternPayload::handle
                 );
     }
 

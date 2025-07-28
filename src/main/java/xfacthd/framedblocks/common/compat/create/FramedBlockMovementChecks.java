@@ -22,13 +22,7 @@ public final class FramedBlockMovementChecks implements
     {
         if (state.getBlock() instanceof IFramedBlock block && block.getBlockType() instanceof BlockType type)
         {
-            return switch (type)
-            {
-                case FRAMED_SIGN, FRAMED_FLOWER_POT -> result(side == Direction.DOWN);
-                case FRAMED_WALL_SIGN -> result(state.getValue(FramedProperties.FACING_HOR) == side.getOpposite());
-                case FRAMED_BOARD -> result(FramedBoardBlock.isFacePresent(state, side));
-                default -> BlockMovementChecks.CheckResult.PASS;
-            };
+            return BlockMovementChecks.CheckResult.PASS;
         }
         return BlockMovementChecks.CheckResult.PASS;
     }

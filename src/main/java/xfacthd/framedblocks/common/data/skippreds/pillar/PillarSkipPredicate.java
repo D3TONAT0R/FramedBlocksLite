@@ -44,15 +44,6 @@ public final class PillarSkipPredicate implements SideSkipPredicate
                 case FRAMED_HALF_PILLAR -> testAgainstHalfPillar(
                         axis, adjState, side
                 );
-                case FRAMED_PYRAMID -> testAgainstPyramid(
-                        axis, adjState, side
-                );
-                case FRAMED_ELEVATED_PYRAMID_SLAB -> testAgainstElevatedPyramidSlab(
-                        axis, adjState, side
-                );
-                case FRAMED_UPPER_PYRAMID_SLAB -> testAgainstUpperPyramidSlab(
-                        axis, adjState, side
-                );
                 default -> false;
             };
         }

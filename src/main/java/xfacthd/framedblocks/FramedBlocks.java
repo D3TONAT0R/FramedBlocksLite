@@ -97,7 +97,7 @@ public final class FramedBlocks
 
     private static void onExtendPoiTypes(ExtendPoiTypesEvent event)
     {
-        event.addBlockToPoi(PoiTypes.LIGHTNING_ROD, FBContent.BLOCK_FRAMED_LIGHTNING_ROD.value());
+
     }
 
     private static String getBlockEntityWarning()

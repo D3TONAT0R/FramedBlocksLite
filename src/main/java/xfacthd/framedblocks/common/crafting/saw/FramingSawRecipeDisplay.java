@@ -35,8 +35,7 @@ public record FramingSawRecipeDisplay(int materialAmount, List<AdditiveDisplay> 
     public FramingSawRecipeDisplay(int materialAmount, List<AdditiveDisplay> additives, SlotDisplay result)
     {
         this(materialAmount, additives, result, new SlotDisplay.Composite(List.of(
-                new SlotDisplay.ItemSlotDisplay(FBContent.BLOCK_FRAMING_SAW.value().asItem()),
-                new SlotDisplay.ItemSlotDisplay(FBContent.BLOCK_POWERED_FRAMING_SAW.value().asItem())
+                new SlotDisplay.ItemSlotDisplay(FBContent.BLOCK_FRAMING_SAW.value().asItem())
         )));
     }
 
