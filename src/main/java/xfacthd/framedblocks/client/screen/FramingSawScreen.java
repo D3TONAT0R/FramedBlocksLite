@@ -34,7 +34,6 @@ import xfacthd.framedblocks.api.util.Utils;
 import xfacthd.framedblocks.client.screen.widget.BlockPreviewTooltipComponent;
 import xfacthd.framedblocks.client.screen.widget.SearchEditBox;
 import xfacthd.framedblocks.common.FBContent;
-import xfacthd.framedblocks.common.compat.ae2.AppliedEnergisticsCompat;
 import xfacthd.framedblocks.common.compat.searchables.SearchablesCompat;
 import xfacthd.framedblocks.common.crafting.saw.FramingSawRecipe;
 import xfacthd.framedblocks.common.crafting.saw.FramingSawRecipeAdditive;
@@ -711,10 +710,6 @@ public class FramingSawScreen extends AbstractContainerScreen<FramingSawMenu> im
 
     public static FramingSawScreen create(FramingSawMenu menu, Inventory inv, Component title)
     {
-        if (AppliedEnergisticsCompat.isLoaded())
-        {
-            return new FramingSawWithEncoderScreen(menu, inv, title);
-        }
         return new FramingSawScreen(menu, inv, title);
     }
 

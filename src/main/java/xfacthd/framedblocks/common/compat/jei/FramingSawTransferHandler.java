@@ -17,15 +17,13 @@ import xfacthd.framedblocks.common.crafting.saw.FramingSawRecipe;
 import xfacthd.framedblocks.common.crafting.saw.FramingSawRecipeCache;
 import xfacthd.framedblocks.common.menu.FramingSawMenu;
 import xfacthd.framedblocks.common.menu.IFramingSawMenu;
-import xfacthd.framedblocks.common.menu.PoweredFramingSawMenu;
 import xfacthd.framedblocks.common.net.payload.serverbound.ServerboundSelectFramingSawRecipePayload;
 
 import java.util.List;
 import java.util.Optional;
 
-public abstract sealed class FramingSawTransferHandler<C extends AbstractContainerMenu & IFramingSawMenu>
+public abstract class FramingSawTransferHandler<C extends AbstractContainerMenu & IFramingSawMenu>
         implements IRecipeTransferHandler<C, FramingSawRecipe>
-        permits FramingSawTransferHandler.FramingSaw, FramingSawTransferHandler.PoweredFramingSaw
 {
     private final IRecipeTransferHandlerHelper transferHelper;
     private final IRecipeTransferInfo<C, FramingSawRecipe> transferInfo;
@@ -104,14 +102,6 @@ public abstract sealed class FramingSawTransferHandler<C extends AbstractContain
         public FramingSaw(IRecipeTransferHandlerHelper transferHelper)
         {
             super(transferHelper, FramingSawMenu.class, FBContent.MENU_TYPE_FRAMING_SAW.get());
-        }
-    }
-
-    public static final class PoweredFramingSaw extends FramingSawTransferHandler<PoweredFramingSawMenu>
-    {
-        public PoweredFramingSaw(IRecipeTransferHandlerHelper transferHelper)
-        {
-            super(transferHelper, PoweredFramingSawMenu.class, FBContent.MENU_TYPE_POWERED_FRAMING_SAW.get());
         }
     }
 }

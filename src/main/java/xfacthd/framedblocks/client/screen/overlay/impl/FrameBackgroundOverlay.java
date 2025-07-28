@@ -9,7 +9,6 @@ import xfacthd.framedblocks.api.screen.overlay.BlockInteractOverlay;
 import xfacthd.framedblocks.api.util.Utils;
 import xfacthd.framedblocks.common.config.ClientConfig;
 import xfacthd.framedblocks.common.FBContent;
-import xfacthd.framedblocks.common.block.interactive.FramedItemFrameBlock;
 import xfacthd.framedblocks.common.data.PropertyHolder;
 
 import java.util.List;
@@ -42,7 +41,7 @@ public final class FrameBackgroundOverlay extends BlockInteractOverlay
     @Override
     public boolean isValidTarget(Target target)
     {
-        return target.state().getBlock() instanceof FramedItemFrameBlock;
+        return false;
     }
 
     @Override

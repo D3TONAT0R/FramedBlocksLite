@@ -21,7 +21,6 @@ import xfacthd.framedblocks.api.util.Utils;
 import xfacthd.framedblocks.common.FBContent;
 import xfacthd.framedblocks.common.block.FramedBlock;
 import xfacthd.framedblocks.common.block.IPillarLikeBlock;
-import xfacthd.framedblocks.common.block.slope.FramedConnectingPyramidBlock;
 import xfacthd.framedblocks.common.data.BlockType;
 import xfacthd.framedblocks.common.data.property.PillarConnection;
 
@@ -130,10 +129,6 @@ public class FramedLatticeBlock extends FramedBlock implements IPillarLikeBlock
         {
             return true;
         }
-        if (state.getBlock() instanceof FramedConnectingPyramidBlock)
-        {
-            return state.getValue(BlockStateProperties.FACING) == side.getOpposite();
-        }
         return false;
     }
 
@@ -197,10 +192,6 @@ public class FramedLatticeBlock extends FramedBlock implements IPillarLikeBlock
 
     private static boolean canConnectThin(Direction side, BlockState state)
     {
-        if (state.is(FBContent.BLOCK_FRAMED_POST.value()))
-        {
-            return side.getAxis() == state.getValue(BlockStateProperties.AXIS);
-        }
         return Utils.isY(side) && state.is(BlockTags.FENCES);
     }
 

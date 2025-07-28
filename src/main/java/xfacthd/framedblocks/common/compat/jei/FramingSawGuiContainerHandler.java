@@ -8,7 +8,7 @@ import xfacthd.framedblocks.client.screen.FramingSawScreen;
 
 import java.util.Optional;
 
-public sealed class FramingSawGuiContainerHandler<T extends FramingSawScreen> implements IGuiContainerHandler<T> permits FramingSawWithEncoderGuiContainerHandler
+public class FramingSawGuiContainerHandler<T extends FramingSawScreen> implements IGuiContainerHandler<T>
 {
     @Override
     public Optional<IClickableIngredient<ItemStack>> getClickableIngredientUnderMouse(

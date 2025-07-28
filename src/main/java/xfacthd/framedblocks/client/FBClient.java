@@ -47,56 +47,34 @@ import xfacthd.framedblocks.client.model.baked.FramedBlockModel;
 import xfacthd.framedblocks.client.model.geometry.cube.*;
 import xfacthd.framedblocks.client.model.geometry.door.*;
 import xfacthd.framedblocks.client.model.geometry.interactive.*;
-import xfacthd.framedblocks.client.model.geometry.pane.*;
 import xfacthd.framedblocks.client.model.geometry.pillar.*;
-import xfacthd.framedblocks.client.model.geometry.prism.*;
-import xfacthd.framedblocks.client.model.geometry.rail.*;
 import xfacthd.framedblocks.client.model.geometry.slab.*;
-import xfacthd.framedblocks.client.model.geometry.slope.*;
-import xfacthd.framedblocks.client.model.geometry.slopeedge.*;
-import xfacthd.framedblocks.client.model.geometry.slopepanel.*;
-import xfacthd.framedblocks.client.model.geometry.slopepanelcorner.*;
-import xfacthd.framedblocks.client.model.geometry.slopeslab.*;
 import xfacthd.framedblocks.client.model.geometry.stairs.*;
-import xfacthd.framedblocks.client.model.geometry.torch.*;
 import xfacthd.framedblocks.client.model.item.BlockItemModelProviders;
 import xfacthd.framedblocks.client.model.item.DynamicItemTintProviders;
 import xfacthd.framedblocks.client.model.item.FramedBlockItemModel;
 import xfacthd.framedblocks.client.model.item.TankItemModel;
 import xfacthd.framedblocks.client.model.item.modelprovider.FenceBlockItemModelProvider;
-import xfacthd.framedblocks.client.model.item.tintprovider.FramedTargetItemTintProvider;
 import xfacthd.framedblocks.client.model.loader.fallback.FallbackLoader;
 import xfacthd.framedblocks.client.model.overlaygen.OverlayQuadGenerator;
 import xfacthd.framedblocks.client.model.unbaked.FramedBlockModelDefinition;
 import xfacthd.framedblocks.client.model.wrapping.ModelWrappingManager;
 import xfacthd.framedblocks.client.net.ClientNetworkHandler;
-import xfacthd.framedblocks.client.render.block.FramedChestRenderer;
-import xfacthd.framedblocks.client.render.block.FramedHangingSignRenderer;
-import xfacthd.framedblocks.client.render.block.FramedItemFrameRenderer;
-import xfacthd.framedblocks.client.render.block.FramedSignRenderer;
-import xfacthd.framedblocks.client.render.block.FramedTankRenderer;
-import xfacthd.framedblocks.client.render.color.FramedFlowerPotColor;
-import xfacthd.framedblocks.client.render.color.FramedTargetBlockColor;
 import xfacthd.framedblocks.client.render.debug.FramedBlockDebugRenderer;
 import xfacthd.framedblocks.client.render.debug.impl.ConnectionPredicateDebugRenderer;
 import xfacthd.framedblocks.client.render.debug.impl.DoubleBlockPartDebugRenderer;
 import xfacthd.framedblocks.client.render.debug.impl.QuadWindingDebugRenderer;
 import xfacthd.framedblocks.client.render.item.BlueprintProperty;
-import xfacthd.framedblocks.client.render.item.TankItemRenderer;
 import xfacthd.framedblocks.client.render.particle.FluidSpriteParticle;
 import xfacthd.framedblocks.client.render.special.BlockOutlineRenderer;
-import xfacthd.framedblocks.client.render.special.CollapsibleBlockIndicatorRenderer;
 import xfacthd.framedblocks.client.render.special.GhostBlockRenderer;
 import xfacthd.framedblocks.client.render.util.AnimationSplitterSource;
 import xfacthd.framedblocks.client.render.util.FramedRenderPipelines;
-import xfacthd.framedblocks.client.screen.FramedStorageScreen;
 import xfacthd.framedblocks.client.screen.FramingSawScreen;
-import xfacthd.framedblocks.client.screen.PoweredFramingSawScreen;
 import xfacthd.framedblocks.client.screen.overlay.BlockInteractOverlayLayer;
 import xfacthd.framedblocks.client.screen.overlay.impl.*;
 import xfacthd.framedblocks.client.screen.pip.BlockPictureInPictureRenderer;
 import xfacthd.framedblocks.client.screen.pip.SpinningItemPictureInPictureRenderer;
-import xfacthd.framedblocks.client.screen.pip.SignBlockPictureInPictureRenderer;
 import xfacthd.framedblocks.client.screen.widget.BlockPreviewTooltipComponent;
 import xfacthd.framedblocks.client.util.ClientEventHandler;
 import xfacthd.framedblocks.client.util.ClientTaskQueue;
@@ -106,7 +84,6 @@ import xfacthd.framedblocks.common.block.door.FramedDoorBlock;
 import xfacthd.framedblocks.common.block.door.FramedFenceGateBlock;
 import xfacthd.framedblocks.common.block.interactive.button.FramedButtonBlock;
 import xfacthd.framedblocks.common.block.interactive.button.FramedLargeButtonBlock;
-import xfacthd.framedblocks.common.block.interactive.pressureplate.FramedWeightedPressurePlateBlock;
 import xfacthd.framedblocks.common.block.stairs.standard.FramedStairsBlock;
 import xfacthd.framedblocks.common.data.BlockType;
 import xfacthd.framedblocks.common.data.camo.fluid.FluidCamoClientHandler;
@@ -154,7 +131,6 @@ public final class FBClient
         NeoForge.EVENT_BUS.addListener(KeyMappings::onClientTick);
         NeoForge.EVENT_BUS.addListener(GhostBlockRenderer::onRenderLevelStage);
         NeoForge.EVENT_BUS.addListener(ClientEventHandler::onClientDisconnect);
-        NeoForge.EVENT_BUS.addListener(EventPriority.LOW, true, CollapsibleBlockIndicatorRenderer::onRenderBlockHighlight);
 
         container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
     }
@@ -172,7 +148,6 @@ public final class FBClient
 
     private static void onRegisterSpecialModelRenderers(RegisterSpecialModelRendererEvent event)
     {
-        event.register(TankItemRenderer.Unbaked.ID, TankItemRenderer.Unbaked.CODEC);
     }
 
     private static void onRegisterMenuScreens(RegisterMenuScreensEvent event)
@@ -215,7 +190,6 @@ public final class FBClient
     {
         event.register(Utils.rl("single"), FramedBlockItemTintProvider.INSTANCE_SINGLE);
         event.register(Utils.rl("double"), FramedBlockItemTintProvider.INSTANCE_DOUBLE);
-        event.register(Utils.rl("target"), FramedTargetItemTintProvider.INSTANCE);
     }
 
     private static void onRegisterGuiLayers(RegisterGuiLayersEvent event)
@@ -272,8 +246,6 @@ public final class FBClient
         WrapHelper.wrap(FBContent.BLOCK_FRAMED_STONE_BUTTON, FramedStoneButtonGeometry::create, FramedButtonBlock.STATE_MERGER);
         WrapHelper.wrap(FBContent.BLOCK_FRAMED_LARGE_BUTTON, FramedLargeButtonGeometry::new, FramedLargeButtonBlock.LARGE_STATE_MERGER);
         WrapHelper.wrap(FBContent.BLOCK_FRAMED_LARGE_STONE_BUTTON, FramedLargeStoneButtonGeometry::create, FramedLargeButtonBlock.LARGE_STATE_MERGER);
-        WrapHelper.wrap(FBContent.BLOCK_FRAMED_BOARD, FramedBoardGeometry::new, WrapHelper.IGNORE_DEFAULT);
-        WrapHelper.wrap(FBContent.BLOCK_FRAMED_CORNER_STRIP, FramedCornerStripGeometry::new, WrapHelper.IGNORE_WATERLOGGED);
         WrapHelper.wrap(FBContent.BLOCK_FRAMED_PILLAR, FramedPillarGeometry::new, WrapHelper.IGNORE_WATERLOGGED);
         WrapHelper.wrap(FBContent.BLOCK_FRAMED_HALF_PILLAR, FramedHalfPillarGeometry::new, WrapHelper.IGNORE_WATERLOGGED);
         WrapHelper.wrap(FBContent.BLOCK_FRAMED_GATE, FramedDoorGeometry::wood, FramedDoorBlock.DoorStateMerger.INSTANCE);
@@ -297,7 +269,6 @@ public final class FBClient
     private static void onModelsLoaded(ModelEvent.BakingCompleted event)
     {
         FluidCamoClientHandler.clearModelCache();
-        FramedChestRenderer.onModelsLoaded(event.getBakingResult());
         ReinforcementModel.reload(event.getBakingResult().standaloneModels());
         FramedBlockModel.collectCubeBaseModels(event.getBakingResult().blockStateModels());
 
@@ -359,7 +330,6 @@ public final class FBClient
 
     private static void onRegisterPictureInPictureRenderers(RegisterPictureInPictureRenderersEvent event)
     {
-        event.register(SignBlockPictureInPictureRenderer.RenderState.class, SignBlockPictureInPictureRenderer::new);
         event.register(SpinningItemPictureInPictureRenderer.RenderState.class, SpinningItemPictureInPictureRenderer::new);
         event.register(BlockPictureInPictureRenderer.RenderState.class, BlockPictureInPictureRenderer::new);
     }
