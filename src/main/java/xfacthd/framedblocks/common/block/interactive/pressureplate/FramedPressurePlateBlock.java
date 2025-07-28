@@ -28,31 +28,6 @@ import java.util.Map;
 
 public class FramedPressurePlateBlock extends PressurePlateBlock implements IFramedBlock
 {
-    private static final Map<BlockType, BlockType> WATERLOGGING_SWITCH = Map.of(
-            BlockType.FRAMED_PRESSURE_PLATE, BlockType.FRAMED_WATERLOGGABLE_PRESSURE_PLATE,
-            BlockType.FRAMED_WATERLOGGABLE_PRESSURE_PLATE, BlockType.FRAMED_PRESSURE_PLATE,
-            BlockType.FRAMED_STONE_PRESSURE_PLATE, BlockType.FRAMED_WATERLOGGABLE_STONE_PRESSURE_PLATE,
-            BlockType.FRAMED_WATERLOGGABLE_STONE_PRESSURE_PLATE, BlockType.FRAMED_STONE_PRESSURE_PLATE,
-            BlockType.FRAMED_OBSIDIAN_PRESSURE_PLATE, BlockType.FRAMED_WATERLOGGABLE_OBSIDIAN_PRESSURE_PLATE,
-            BlockType.FRAMED_WATERLOGGABLE_OBSIDIAN_PRESSURE_PLATE, BlockType.FRAMED_OBSIDIAN_PRESSURE_PLATE
-    );
-    private static final BlockSetType OBSIDIAN = BlockSetType.register(new BlockSetType(
-            FramedConstants.MOD_ID + ":obsidian",
-            true,
-            true,
-            false,
-            BlockSetType.PressurePlateSensitivity.MOBS,
-            SoundType.STONE,
-            SoundEvents.IRON_DOOR_CLOSE,
-            SoundEvents.IRON_DOOR_OPEN,
-            SoundEvents.IRON_TRAPDOOR_CLOSE,
-            SoundEvents.IRON_TRAPDOOR_OPEN,
-            SoundEvents.STONE_PRESSURE_PLATE_CLICK_OFF,
-            SoundEvents.STONE_PRESSURE_PLATE_CLICK_ON,
-            SoundEvents.STONE_BUTTON_CLICK_OFF,
-            SoundEvents.STONE_BUTTON_CLICK_ON
-    ));
-
     private final BlockType blockType;
 
     protected FramedPressurePlateBlock(BlockType type, BlockSetType blockSet, Properties props)
@@ -95,7 +70,7 @@ public class FramedPressurePlateBlock extends PressurePlateBlock implements IFra
             {
                 Utils.wrapInStateCopy(level, pos, player, ItemStack.EMPTY, false, false, () ->
                 {
-                    BlockState newState = getCounterpart().defaultBlockState();
+                    BlockState newState = state;
                     level.setBlockAndUpdate(pos, newState);
                 });
             }
@@ -125,10 +100,6 @@ public class FramedPressurePlateBlock extends PressurePlateBlock implements IFra
     @Override
     protected int getSignalStrength(Level level, BlockPos pos)
     {
-        if (type == OBSIDIAN)
-        {
-            return getEntityCount(level, TOUCH_AABB.move(pos), Player.class) > 0 ? 15 : 0;
-        }
         return super.getSignalStrength(level, pos);
     }
 
@@ -148,11 +119,6 @@ public class FramedPressurePlateBlock extends PressurePlateBlock implements IFra
     public BlockType getBlockType()
     {
         return blockType;
-    }
-
-    protected final Block getCounterpart()
-    {
-        return FBContent.byType(WATERLOGGING_SWITCH.get(blockType));
     }
 
     @Override
@@ -186,59 +152,12 @@ public class FramedPressurePlateBlock extends PressurePlateBlock implements IFra
         );
     }
 
-    public static FramedPressurePlateBlock woodWaterloggable()
-    {
-        return new FramedWaterloggablePressurePlateBlock(
-                BlockType.FRAMED_WATERLOGGABLE_PRESSURE_PLATE,
-                BlockSetType.OAK,
-                IFramedBlock.createProperties(BlockType.FRAMED_WATERLOGGABLE_PRESSURE_PLATE)
-                        .noCollission()
-                        .strength(0.5F)
-        );
-    }
-
-    public static FramedPressurePlateBlock stone()
+    public static FramedPressurePlateBlock stone(Properties props)
     {
         return new FramedPressurePlateBlock(
                 BlockType.FRAMED_STONE_PRESSURE_PLATE,
                 BlockSetType.STONE,
                 IFramedBlock.createProperties(BlockType.FRAMED_STONE_PRESSURE_PLATE)
-                        .requiresCorrectToolForDrops()
-                        .noCollission()
-                        .strength(0.5F)
-        );
-    }
-
-    public static FramedPressurePlateBlock stoneWaterloggable()
-    {
-        return new FramedWaterloggablePressurePlateBlock(
-                BlockType.FRAMED_WATERLOGGABLE_STONE_PRESSURE_PLATE,
-                BlockSetType.STONE,
-                IFramedBlock.createProperties(BlockType.FRAMED_WATERLOGGABLE_STONE_PRESSURE_PLATE)
-                        .requiresCorrectToolForDrops()
-                        .noCollission()
-                        .strength(0.5F)
-        );
-    }
-
-    public static FramedPressurePlateBlock obsidian() // Player-only
-    {
-        return new FramedPressurePlateBlock(
-                BlockType.FRAMED_OBSIDIAN_PRESSURE_PLATE,
-                OBSIDIAN,
-                IFramedBlock.createProperties(BlockType.FRAMED_OBSIDIAN_PRESSURE_PLATE)
-                        .requiresCorrectToolForDrops()
-                        .noCollission()
-                        .strength(0.5F)
-        );
-    }
-
-    public static FramedPressurePlateBlock obsidianWaterloggable() // Player-only
-    {
-        return new FramedWaterloggablePressurePlateBlock(
-                BlockType.FRAMED_WATERLOGGABLE_OBSIDIAN_PRESSURE_PLATE,
-                OBSIDIAN,
-                IFramedBlock.createProperties(BlockType.FRAMED_WATERLOGGABLE_OBSIDIAN_PRESSURE_PLATE)
                         .requiresCorrectToolForDrops()
                         .noCollission()
                         .strength(0.5F)

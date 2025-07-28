@@ -36,7 +36,7 @@ public final class SplitLineOverlay extends BlockInteractOverlay
     @Override
     protected boolean isValidTarget(Target target)
     {
-        return target.state().getBlock() == FBContent.BLOCK_FRAMED_COLLAPSIBLE_BLOCK.value();
+        return false;
     }
 
     @Override

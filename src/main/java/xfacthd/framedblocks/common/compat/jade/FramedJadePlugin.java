@@ -20,8 +20,6 @@ public final class FramedJadePlugin implements IWailaPlugin
             registration.registerBlockIcon(FramedBlockComponentProvider.INSTANCE, target);
             registration.registerBlockComponent(FramedBlockComponentProvider.INSTANCE, target);
         }
-
-        registration.addRayTraceCallback(new FramedOneWayWindowRayTraceCallback(registration));
     }
 
     private static Set<Class<? extends Block>> collectTargetClasses()

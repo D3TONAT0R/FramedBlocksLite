@@ -33,9 +33,6 @@ public enum BlockType implements IBlockType
 {
     FRAMED_CUBE                                     ( true, false, false, false,  true,  true, false, false, ConTexMode.FULL_FACE, Shapes.block()),
     FRAMED_DOUBLE_CORNER                            ( true, false,  true, false,  true,  true,  true, false, ConTexMode.FULL_FACE, Shapes.block()),
-    FRAMED_PRISM_CORNER                             (false,  true, false,  true,  true,  true, false, false, ConTexMode.FULL_EDGE, PrismCornerShapes.OUTER),
-    FRAMED_INNER_PRISM_CORNER                       ( true,  true, false,  true,  true,  true, false, false, ConTexMode.FULL_FACE, PrismCornerShapes.INNER),
-    FRAMED_DOUBLE_PRISM_CORNER                      ( true, false,  true, false,  true,  true,  true, false, ConTexMode.FULL_FACE, Shapes.block()),
     FRAMED_SLAB                                     ( true, false, false,  true,  true,  true, false, false, ConTexMode.FULL_FACE, CommonShapes.SLAB_GENERATOR),
     FRAMED_DOUBLE_SLAB                              ( true, false, false, false,  true,  true,  true, false, ConTexMode.FULL_FACE, Shapes.block()),
     FRAMED_SLAB_EDGE                                (false, false, false,  true,  true,  true, false, false, ConTexMode.FULL_EDGE, SlabEdgeShapes::generate),

@@ -11,7 +11,6 @@ public final class ClientNetworkHandler
 {
     public static void onRegisterPayloadHandlers(RegisterClientPayloadHandlersEvent event)
     {
-        event.register(ClientboundOpenSignScreenPayload.TYPE, ClientNetworkHandler::handleOpenSignScreen);
         event.register(ClientboundCullingUpdatePayload.TYPE, ClientNetworkHandler::handleCullingUpdate);
     }
 

@@ -35,6 +35,7 @@ import xfacthd.framedblocks.api.type.IBlockType;
 import xfacthd.framedblocks.api.util.FramedConstants;
 import xfacthd.framedblocks.api.util.Utils;
 import xfacthd.framedblocks.client.data.*;
+import xfacthd.framedblocks.client.data.GhostRenderBehaviours;
 import xfacthd.framedblocks.client.data.extensions.block.NoEffectsClientBlockExtensions;
 import xfacthd.framedblocks.client.model.FluidModel;
 import xfacthd.framedblocks.client.model.ReinforcementModel;
@@ -48,7 +49,6 @@ import xfacthd.framedblocks.client.model.geometry.stairs.*;
 import xfacthd.framedblocks.client.model.item.BlockItemModelProviders;
 import xfacthd.framedblocks.client.model.item.DynamicItemTintProviders;
 import xfacthd.framedblocks.client.model.item.FramedBlockItemModel;
-import xfacthd.framedblocks.client.model.item.TankItemModel;
 import xfacthd.framedblocks.client.model.item.modelprovider.FenceBlockItemModelProvider;
 import xfacthd.framedblocks.client.model.loader.fallback.FallbackLoader;
 import xfacthd.framedblocks.client.model.overlaygen.OverlayQuadGenerator;
@@ -118,6 +118,8 @@ public final class FBClient
         modBus.addListener(FBClient::onRegisterClientExtensions);
         modBus.addListener(FBClient::onRegisterClientTooltipComponentFactories);
         modBus.addListener(BlockOutlineRenderers::onRegisterOutlineRenderers);
+        modBus.addListener(FBClient::onRegisterPictureInPictureRenderers);
+        modBus.addListener(KeyMappings::onRegisterKeyMappings);
         modBus.addListener(GhostRenderBehaviours::onRegisterGhostRenderBehaviours);
 
         NeoForge.EVENT_BUS.addListener(ClientTaskQueue::onClientTick);
@@ -138,7 +140,6 @@ public final class FBClient
     private static void onRegisterItemModels(RegisterItemModelsEvent event)
     {
         event.register(FramedBlockItemModel.Unbaked.ID, FramedBlockItemModel.Unbaked.CODEC);
-        event.register(TankItemModel.Unbaked.ID, TankItemModel.Unbaked.CODEC);
     }
 
     private static void onRegisterSpecialModelRenderers(RegisterSpecialModelRendererEvent event)
@@ -388,7 +389,6 @@ public final class FBClient
 
     private static boolean useDefaultColorHandler(IFramedBlock block)
     {
-        IBlockType type = block.getBlockType();
-        return type != BlockType.FRAMED_FLOWER_POT && type != BlockType.FRAMED_TARGET;
+        return true;
     }
 }

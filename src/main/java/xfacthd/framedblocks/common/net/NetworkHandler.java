@@ -2,8 +2,10 @@ package xfacthd.framedblocks.common.net;
 
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.HandlerThread;
-import xfacthd.framedblocks.common.data.cullupdate.ClientCullingUpdateTracker;
-import xfacthd.framedblocks.common.net.payload.*;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import xfacthd.framedblocks.common.net.payload.clientbound.ClientboundCullingUpdatePayload;
+import xfacthd.framedblocks.common.net.payload.clientbound.ClientboundOpenSignScreenPayload;
+import xfacthd.framedblocks.common.net.payload.serverbound.ServerboundSelectFramingSawRecipePayload;
 
 public final class NetworkHandler
 {
@@ -32,11 +34,6 @@ public final class NetworkHandler
                         ServerboundSelectFramingSawRecipePayload.TYPE,
                         ServerboundSelectFramingSawRecipePayload.CODEC,
                         ServerboundSelectFramingSawRecipePayload::handle
-                )
-                .playToServer(
-                        ServerboundEncodeFramingSawPatternPayload.TYPE,
-                        ServerboundEncodeFramingSawPatternPayload.STREAM_CODEC,
-                        ServerboundEncodeFramingSawPatternPayload::handle
                 );
     }
 

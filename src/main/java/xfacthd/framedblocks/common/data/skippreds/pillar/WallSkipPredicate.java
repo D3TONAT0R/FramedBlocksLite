@@ -40,15 +40,6 @@ public final class WallSkipPredicate implements SideSkipPredicate
                 case FRAMED_HALF_PILLAR -> testAgainstHalfPillar(
                         up, adjState, side
                 );
-                case FRAMED_PYRAMID -> testAgainstPyramid(
-                        up, adjState, side
-                );
-                case FRAMED_ELEVATED_PYRAMID_SLAB -> testAgainstElevatedPyramidSlab(
-                        up, adjState, side
-                );
-                case FRAMED_UPPER_PYRAMID_SLAB -> testAgainstUpperPyramidSlab(
-                        up, adjState, side
-                );
                 default -> false;
             };
         }
