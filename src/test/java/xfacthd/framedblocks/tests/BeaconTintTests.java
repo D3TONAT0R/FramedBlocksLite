@@ -42,9 +42,7 @@ public final class BeaconTintTests
             BlockType.FRAMED_BUTTON,
             BlockType.FRAMED_STONE_BUTTON,
             BlockType.FRAMED_VERTICAL_STAIRS,
-            BlockType.FRAMED_HALF_STAIRS,
-            BlockType.FRAMED_GATE,
-            BlockType.FRAMED_IRON_GATE
+            BlockType.FRAMED_HALF_STAIRS
     );
 
     /*@GameTestGenerator
@@ -80,7 +78,6 @@ public final class BeaconTintTests
             {
                 case FRAMED_PILLAR -> state.setValue(BlockStateProperties.AXIS, Direction.Axis.Y);
                 case FRAMED_HALF_PILLAR -> state.setValue(BlockStateProperties.FACING, Direction.DOWN);
-                case FRAMED_LARGE_BUTTON, FRAMED_LARGE_STONE_BUTTON -> state.setValue(BlockStateProperties.ATTACH_FACE, AttachFace.FLOOR);
                 default -> state;
             };
         }

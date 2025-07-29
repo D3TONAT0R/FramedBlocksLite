@@ -44,12 +44,8 @@ public final class ConnectionPredicates extends BlockTypeMap<ConnectionPredicate
         put(BlockType.FRAMED_STONE_PRESSURE_PLATE, ConnectionPredicate.FALSE);
         put(BlockType.FRAMED_BUTTON, ConnectionPredicate.FALSE);
         put(BlockType.FRAMED_STONE_BUTTON, ConnectionPredicate.FALSE);
-        put(BlockType.FRAMED_LARGE_BUTTON, ConnectionPredicate.FALSE);
-        put(BlockType.FRAMED_LARGE_STONE_BUTTON, ConnectionPredicate.FALSE);
         put(BlockType.FRAMED_PILLAR, PillarConnectionPredicate.INSTANCE);
         put(BlockType.FRAMED_HALF_PILLAR, new HalfPillarConnectionPredicate());
-        put(BlockType.FRAMED_GATE, DoorConnectionPredicate.INSTANCE);
-        put(BlockType.FRAMED_IRON_GATE, DoorConnectionPredicate.INSTANCE);
         put(BlockType.FRAMED_BOOKSHELF, new BookshelfConnectionPredicate());
         put(BlockType.FRAMED_CHISELED_BOOKSHELF, new ChiseledBookshelfConnectionPredicate());
     }

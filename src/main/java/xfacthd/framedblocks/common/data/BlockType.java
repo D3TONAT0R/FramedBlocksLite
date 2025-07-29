@@ -58,12 +58,8 @@ public enum BlockType implements IBlockType
     FRAMED_STONE_PRESSURE_PLATE                     (false, false, false, false,  true, false, false, false, null),
     FRAMED_BUTTON                                   (false, false, false, false,  true, false, false, false, null),
     FRAMED_STONE_BUTTON                             (false, false, false, false,  true, false, false, false, null),
-    FRAMED_LARGE_BUTTON                             (false, false, false, false,  true, false, false, false, null),
-    FRAMED_LARGE_STONE_BUTTON                       (false, false, false, false,  true, false, false, false, null),
     FRAMED_PILLAR                                   (false, false, false,  true,  true,  true, false, false, ConTexMode.DETAILED, PillarShapes.PILLAR),
     FRAMED_HALF_PILLAR                              (false, false, false,  true,  true,  true, false, false, ConTexMode.DETAILED, HalfPillarShapes::generate),
-    FRAMED_GATE                                     ( true, false, false, false,  true, false, false, false, ConTexMode.FULL_FACE, GateShapes::generate),
-    FRAMED_IRON_GATE                                ( true, false, false, false,  true, false, false, false, ConTexMode.FULL_FACE, GateShapes::generate),
     FRAMED_BOOKSHELF                                ( true, false, false, false,  true,  true, false, false, ConTexMode.FULL_FACE, Shapes.block()),
     FRAMED_CHISELED_BOOKSHELF                       ( true, false,  true, false,  true,  true, false, false, ConTexMode.FULL_FACE, Shapes.block()),
     ;
