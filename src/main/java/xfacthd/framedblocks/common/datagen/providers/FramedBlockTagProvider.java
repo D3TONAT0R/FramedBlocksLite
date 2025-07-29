@@ -41,26 +41,6 @@ public final class FramedBlockTagProvider extends BlockTagsProvider
         tag(BlockTags.FENCES).add(FBContent.BLOCK_FRAMED_FENCE.value());
         tag(BlockTags.DOORS).add(FBContent.BLOCK_FRAMED_DOOR.value(), FBContent.BLOCK_FRAMED_IRON_DOOR.value());
         tag(BlockTags.TRAPDOORS).add(FBContent.BLOCK_FRAMED_TRAP_DOOR.value(), FBContent.BLOCK_FRAMED_IRON_TRAP_DOOR.value());
-        tag(BlockTags.CLIMBABLE).add(FBContent.BLOCK_FRAMED_LADDER.value());
-        tag(BlockTags.STANDING_SIGNS).add(FBContent.BLOCK_FRAMED_SIGN.value());
-        tag(BlockTags.WALL_SIGNS).add(FBContent.BLOCK_FRAMED_WALL_SIGN.value());
-        tag(BlockTags.CEILING_HANGING_SIGNS).add(FBContent.BLOCK_FRAMED_HANGING_SIGN.value());
-        tag(BlockTags.WALL_HANGING_SIGNS).add(FBContent.BLOCK_FRAMED_WALL_HANGING_SIGN.value());
-        tag(Tags.Blocks.CHESTS).add(FBContent.BLOCK_FRAMED_CHEST.value());
-        tag(BlockTags.RAILS).add(
-                FBContent.BLOCK_FRAMED_RAIL_SLOPE.value(),
-                FBContent.BLOCK_FRAMED_POWERED_RAIL_SLOPE.value(),
-                FBContent.BLOCK_FRAMED_DETECTOR_RAIL_SLOPE.value(),
-                FBContent.BLOCK_FRAMED_ACTIVATOR_RAIL_SLOPE.value(),
-                FBContent.BLOCK_FRAMED_FANCY_RAIL.value(),
-                FBContent.BLOCK_FRAMED_FANCY_POWERED_RAIL.value(),
-                FBContent.BLOCK_FRAMED_FANCY_DETECTOR_RAIL.value(),
-                FBContent.BLOCK_FRAMED_FANCY_ACTIVATOR_RAIL.value(),
-                FBContent.BLOCK_FRAMED_FANCY_RAIL_SLOPE.value(),
-                FBContent.BLOCK_FRAMED_FANCY_POWERED_RAIL_SLOPE.value(),
-                FBContent.BLOCK_FRAMED_FANCY_DETECTOR_RAIL_SLOPE.value(),
-                FBContent.BLOCK_FRAMED_FANCY_ACTIVATOR_RAIL_SLOPE.value()
-        );
         tag(BlockTags.ENCHANTMENT_POWER_PROVIDER).add(FBContent.BLOCK_FRAMED_BOOKSHELF.value());
         tag(Tags.Blocks.BOOKSHELVES).add(FBContent.BLOCK_FRAMED_BOOKSHELF.value());
 
@@ -130,12 +110,6 @@ public final class FramedBlockTagProvider extends BlockTagsProvider
                 .map(BlockBehaviour.BlockStateBase::getBlock)
                 .forEach(fullGroupTag::add);
         // Special cases which are not captured by the checks above
-        fullGroupTag.add(FBContent.BLOCK_FRAMED_ONE_WAY_WINDOW.value());
-
-        Set<Block> noToolBlocks = Set.of(
-                FBContent.BLOCK_FRAMED_ITEM_FRAME.value(),
-                FBContent.BLOCK_FRAMED_GLOWING_ITEM_FRAME.value()
-        );
 
         Set<Block> pickaxeBlocks = new LinkedHashSet<>();
 
@@ -143,19 +117,15 @@ public final class FramedBlockTagProvider extends BlockTagsProvider
         pickaxeBlocks.add(FBContent.BLOCK_FRAMED_IRON_TRAP_DOOR.value());
         pickaxeBlocks.add(FBContent.BLOCK_FRAMED_IRON_GATE.value());
         pickaxeBlocks.add(FBContent.BLOCK_FRAMING_SAW.value());
-        pickaxeBlocks.add(FBContent.BLOCK_POWERED_FRAMING_SAW.value());
 
         IntrinsicTagAppender<Block> axeTag = tag(BlockTags.MINEABLE_WITH_AXE);
         FBContent.getRegisteredBlocks()
                 .stream()
                 .map(Holder::value)
                 .filter(b -> b instanceof IFramedBlock)
-                .filter(b -> !noToolBlocks.contains(b))
                 .filter(b -> !pickaxeBlocks.contains(b))
                 .forEach(axeTag::add);
 
         tag(BlockTags.MINEABLE_WITH_PICKAXE).add(pickaxeBlocks.toArray(Block[]::new));
-
-        tag(BlockTags.create(Utils.rl("diagonalwindows", "non_diagonal_panes"))).add(FBContent.BLOCK_FRAMED_BARS.value());
     }
 }
