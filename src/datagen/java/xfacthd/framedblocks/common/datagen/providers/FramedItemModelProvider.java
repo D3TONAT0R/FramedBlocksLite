@@ -17,7 +17,6 @@ import xfacthd.framedblocks.api.util.Utils;
 import xfacthd.framedblocks.client.model.loader.fallback.FallbackLoaderBuilder;
 import xfacthd.framedblocks.client.render.item.BlueprintProperty;
 import xfacthd.framedblocks.common.FBContent;
-import xfacthd.framedblocks.common.compat.ae2.AppliedEnergisticsCompat;
 import xfacthd.framedblocks.common.datagen.GeneratorHandler;
 
 import java.util.Objects;
@@ -42,10 +41,8 @@ public final class FramedItemModelProvider extends AbstractFramedItemModelProvid
         itemModels.generateFlatItem(FBContent.ITEM_FRAMED_SCREWDRIVER.value(), HANDHELD_CUTOUT);
 
         itemModels.generateFlatItem(FBContent.ITEM_FRAMED_REINFORCEMENT.value(), FLAT_CUTOUT);
-        itemModels.generateFlatItem(FBContent.ITEM_PHANTOM_PASTE.value(), FLAT_CUTOUT);
-        itemModels.generateFlatItem(FBContent.ITEM_GLOW_PASTE.value(), FLAT_CUTOUT);
 
-        ResourceLocation patternTexture = Utils.rl(AppliedEnergisticsCompat.MOD_ID, "item/crafting_pattern");
+        /*
         Item patternItem = Objects.requireNonNull(GeneratorHandler.framingSawPattern).asItem();
         itemModels.itemModelOutput.accept(patternItem, ItemModelUtils.plainModel(
                 ModelTemplates.FLAT_ITEM
@@ -53,11 +50,12 @@ public final class FramedItemModelProvider extends AbstractFramedItemModelProvid
                         .customLoader(FallbackLoaderBuilder::new, loader ->
                                 loader.addCondition(new ModLoadedCondition(AppliedEnergisticsCompat.MOD_ID))
                                         // Random fallback to avoid texture reference errors when AE2 is not present
-                                        .setFallback(mcLocation("item/paper"))
+                                        .setFallback()
                         )
                         .build()
                         .create(patternItem, TextureMapping.layer0(patternTexture), itemModels.modelOutput)
         ));
+        */
 
         itemModels.itemModelOutput.accept(FBContent.ITEM_FRAMED_BLUEPRINT.value(), ItemModelUtils.conditional(
                 BlueprintProperty.INSTANCE,
@@ -75,8 +73,6 @@ public final class FramedItemModelProvider extends AbstractFramedItemModelProvid
                 FBContent.ITEM_FRAMED_KEY,
                 FBContent.ITEM_FRAMED_SCREWDRIVER,
                 FBContent.ITEM_FRAMED_REINFORCEMENT,
-                FBContent.ITEM_PHANTOM_PASTE,
-                FBContent.ITEM_GLOW_PASTE,
                 FBContent.ITEM_FRAMED_BLUEPRINT
         );
     }

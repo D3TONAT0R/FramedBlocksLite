@@ -10,7 +10,6 @@ import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.Nullable;
 import xfacthd.framedblocks.api.util.FramedConstants;
-import xfacthd.framedblocks.common.compat.ae2.AppliedEnergisticsCompat;
 import xfacthd.framedblocks.common.datagen.providers.*;
 
 @Mod(value = FramedConstants.MOD_ID, dist = Dist.CLIENT)
@@ -28,7 +27,6 @@ public final class GeneratorHandler
 
             DeferredRegister.Items items = DeferredRegister.createItems(FramedConstants.MOD_ID);
             items.register(modBus);
-            framingSawPattern = items.registerSimpleItem(AppliedEnergisticsCompat.SAW_PATTERN_ID);
         }
     }
 

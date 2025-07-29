@@ -51,60 +51,10 @@ public final class FramedLootTableProvider extends LootTableProvider
         @Override
         protected void generate()
         {
-            dropOtherWithCamo(FBContent.BLOCK_FRAMED_WATERLOGGABLE_PRESSURE_PLATE.value(), FBContent.BLOCK_FRAMED_PRESSURE_PLATE.value());
-            dropOtherWithCamo(FBContent.BLOCK_FRAMED_WATERLOGGABLE_STONE_PRESSURE_PLATE.value(), FBContent.BLOCK_FRAMED_STONE_PRESSURE_PLATE.value());
-            dropOtherWithCamo(FBContent.BLOCK_FRAMED_WATERLOGGABLE_OBSIDIAN_PRESSURE_PLATE.value(), FBContent.BLOCK_FRAMED_OBSIDIAN_PRESSURE_PLATE.value());
-            dropOtherWithCamo(FBContent.BLOCK_FRAMED_WATERLOGGABLE_GOLD_PRESSURE_PLATE.value(), FBContent.BLOCK_FRAMED_GOLD_PRESSURE_PLATE.value());
-            dropOtherWithCamo(FBContent.BLOCK_FRAMED_WATERLOGGABLE_IRON_PRESSURE_PLATE.value(), FBContent.BLOCK_FRAMED_IRON_PRESSURE_PLATE.value());
-
             dropDoorWithCamo(FBContent.BLOCK_FRAMED_DOOR.value());
             dropDoorWithCamo(FBContent.BLOCK_FRAMED_IRON_DOOR.value());
             dropMultipleWithCamo(FBContent.BLOCK_FRAMED_DOUBLE_SLAB.value(), FBContent.BLOCK_FRAMED_SLAB.value(), 2);
             dropMultipleWithCamo(FBContent.BLOCK_FRAMED_DOUBLE_PANEL.value(), FBContent.BLOCK_FRAMED_PANEL.value(), 2);
-
-            dropOtherWithCamo(FBContent.BLOCK_FRAMED_VERTICAL_HALF_SLOPE.value(), FBContent.BLOCK_FRAMED_HALF_SLOPE.value());
-            dropOtherWithCamo(FBContent.BLOCK_FRAMED_VERTICAL_DOUBLE_HALF_SLOPE.value(), FBContent.BLOCK_FRAMED_DOUBLE_HALF_SLOPE.value());
-
-            add(
-                    FBContent.BLOCK_FRAMED_BOARD.value(),
-                    LootTable.lootTable()
-                            .withPool(createDropWithCamoPool(FBContent.BLOCK_FRAMED_BOARD.value()))
-                            .withPool(applyExplosionCondition(
-                                    FBContent.BLOCK_FRAMED_BOARD.value(),
-                                    LootPool.lootPool()
-                                            .setRolls(ConstantValue.exactly(1.0F))
-                                            .add(applyExplosionDecay(
-                                                    FBContent.BLOCK_FRAMED_BOARD.value(),
-                                                    LootItem.lootTableItem(FBContent.BLOCK_FRAMED_BOARD.value())
-                                            ).apply(SetItemCountFunction.setCount(BoardAdditionalItemCountNumberProvider.INSTANCE)))
-                            ))
-            );
-
-            dropSelfWithCamo(FBContent.BLOCK_FRAMED_TANK.value(), builder -> builder.apply(
-                    CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
-                            .include(FBContent.DC_TYPE_TANK_CONTENTS.value())
-            ));
-
-            add(
-                    FBContent.BLOCK_FRAMED_LAYERED_CUBE.value(),
-                    LootTable.lootTable()
-                            .withPool(createDropWithCamoPool(FBContent.BLOCK_FRAMED_LAYERED_CUBE.value()))
-                            .withPool(applyExplosionCondition(
-                                    FBContent.BLOCK_FRAMED_LAYERED_CUBE.value(),
-                                    LootPool.lootPool()
-                                            .setRolls(ConstantValue.exactly(1.0F))
-                                            .add(applyExplosionDecay(
-                                                    FBContent.BLOCK_FRAMED_LAYERED_CUBE.value(),
-                                                    LootItem.lootTableItem(FBContent.BLOCK_FRAMED_LAYERED_CUBE.value())
-                                            ).apply(SetItemCountFunction.setCount(LayeredCubeAdditionalItemCountNumberProvider.INSTANCE)))
-                            ))
-            );
-
-            add(FBContent.BLOCK_FRAMED_UPPER_PYRAMID_SLAB.value(), noDrop());
-            add(FBContent.BLOCK_FRAMED_MASONRY_CORNER_SEGMENT.value(), noDrop());
-            add(FBContent.BLOCK_FRAMED_CHECKERED_CUBE_SEGMENT.value(), noDrop());
-            add(FBContent.BLOCK_FRAMED_CHECKERED_SLAB_SEGMENT.value(), noDrop());
-            add(FBContent.BLOCK_FRAMED_CHECKERED_PANEL_SEGMENT.value(), noDrop());
 
             FBContent.getRegisteredBlocks()
                     .stream()
@@ -114,7 +64,6 @@ public final class FramedLootTableProvider extends LootTableProvider
                     .forEach(this::dropSelfWithCamo);
 
             dropSelf(FBContent.BLOCK_FRAMING_SAW.value());
-            dropSelf(FBContent.BLOCK_POWERED_FRAMING_SAW.value());
         }
     }
 }
