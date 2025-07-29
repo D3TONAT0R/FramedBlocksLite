@@ -16,9 +16,6 @@ import xfacthd.framedblocks.common.datagen.providers.*;
 @SuppressWarnings("UtilityClassWithPublicConstructor")
 public final class GeneratorHandler
 {
-    @Nullable
-    public static DeferredItem<Item> framingSawPattern;
-
     public GeneratorHandler(IEventBus modBus)
     {
         if (DatagenModLoader.isRunningDataGen())

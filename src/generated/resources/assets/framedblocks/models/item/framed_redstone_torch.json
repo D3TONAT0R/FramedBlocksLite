@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "framedblocks:block/framed_redstone_torch"
-  }
-}

@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "hasFramedPost": {
+    "hasFramedCube": {
       "conditions": {
         "items": [
           {
-            "items": "framedblocks:framed_post"
+            "items": "framedblocks:framed_cube"
           }
         ]
       },
@@ -21,7 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "hasFramedPost"
+      "hasFramedCube"
     ]
   ],
   "rewards": {

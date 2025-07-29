@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "building",
   "ingredients": [
-    "framedblocks:framed_post"
+    "framedblocks:framed_cube"
   ],
   "result": {
     "count": 1,
