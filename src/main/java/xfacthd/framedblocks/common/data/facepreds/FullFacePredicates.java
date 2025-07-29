@@ -41,12 +41,8 @@ public final class FullFacePredicates extends BlockTypeMap<FullFacePredicate>
         put(BlockType.FRAMED_STONE_PRESSURE_PLATE, FullFacePredicate.FALSE);
         put(BlockType.FRAMED_BUTTON, FullFacePredicate.FALSE);
         put(BlockType.FRAMED_STONE_BUTTON, FullFacePredicate.FALSE);
-        put(BlockType.FRAMED_LARGE_BUTTON, FullFacePredicate.FALSE);
-        put(BlockType.FRAMED_LARGE_STONE_BUTTON, FullFacePredicate.FALSE);
         put(BlockType.FRAMED_PILLAR, FullFacePredicate.FALSE);
         put(BlockType.FRAMED_HALF_PILLAR, FullFacePredicate.FALSE);
-        put(BlockType.FRAMED_GATE, DoorFullFacePredicate.INSTANCE);
-        put(BlockType.FRAMED_IRON_GATE, DoorFullFacePredicate.INSTANCE);
         put(BlockType.FRAMED_BOOKSHELF, FullFacePredicate.Y_AXIS);
         put(BlockType.FRAMED_CHISELED_BOOKSHELF, FullFacePredicate.NOT_HOR_DIR);
     }

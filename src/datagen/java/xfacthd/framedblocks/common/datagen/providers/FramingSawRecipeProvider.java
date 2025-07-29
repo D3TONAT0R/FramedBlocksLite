@@ -120,30 +120,12 @@ public final class FramingSawRecipeProvider extends AbstractFramingSawRecipeProv
                 .additive(additive(Tags.Items.STONES))
                 .save(output);
 
-        sawRecipe(FBContent.BLOCK_FRAMED_LARGE_BUTTON)
-                .material(CUBE_MATERIAL_VALUE / 4)
-                .save(output);
-
-        sawRecipe(FBContent.BLOCK_FRAMED_LARGE_STONE_BUTTON)
-                .material(CUBE_MATERIAL_VALUE / 4)
-                .additive(additive(Tags.Items.STONES))
-                .save(output);
-
         sawRecipe(FBContent.BLOCK_FRAMED_PILLAR)
                 .material(CUBE_MATERIAL_VALUE / 4)
                 .save(output);
 
         sawRecipe(FBContent.BLOCK_FRAMED_HALF_PILLAR)
                 .material(CUBE_MATERIAL_VALUE / 8)
-                .save(output);
-
-        sawRecipe(FBContent.BLOCK_FRAMED_GATE)
-                .material(CUBE_MATERIAL_VALUE / 4)
-                .save(output);
-
-        sawRecipe(FBContent.BLOCK_FRAMED_IRON_GATE)
-                .material(CUBE_MATERIAL_VALUE / 4)
-                .additive(additive(Tags.Items.INGOTS_IRON))
                 .save(output);
 
         sawRecipe(FBContent.BLOCK_FRAMED_BOOKSHELF)

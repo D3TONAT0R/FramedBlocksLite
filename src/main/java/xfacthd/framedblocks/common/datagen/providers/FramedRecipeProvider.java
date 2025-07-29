@@ -190,20 +190,6 @@ public final class FramedRecipeProvider extends RecipeProvider
                 .unlockedBy(FBContent.BLOCK_FRAMED_CUBE)
                 .save(consumer);
 
-        shapedBuildingBlock(FBContent.BLOCK_FRAMED_LARGE_BUTTON.value())
-                .pattern("BB")
-                .pattern("BB")
-                .define('B', FBContent.BLOCK_FRAMED_BUTTON.value())
-                .unlockedBy(FBContent.BLOCK_FRAMED_BUTTON)
-                .save(consumer);
-
-        shapedBuildingBlock(FBContent.BLOCK_FRAMED_LARGE_STONE_BUTTON.value())
-                .pattern("BB")
-                .pattern("BB")
-                .define('B', FBContent.BLOCK_FRAMED_STONE_BUTTON.value())
-                .unlockedBy(FBContent.BLOCK_FRAMED_STONE_BUTTON)
-                .save(consumer);
-
         shapelessBuildingBlock(FBContent.BLOCK_FRAMED_PILLAR.value(), 1)
                 .requires(FBContent.BLOCK_FRAMED_CORNER_PILLAR.value())
                 .unlockedBy(FBContent.BLOCK_FRAMED_CORNER_PILLAR)
@@ -223,25 +209,6 @@ public final class FramedRecipeProvider extends RecipeProvider
                 .requires(FBContent.BLOCK_FRAMED_HALF_PILLAR.value())
                 .unlockedBy(FBContent.BLOCK_FRAMED_HALF_PILLAR)
                 .save(consumer, Utils.rl("framed_slab_corner_from_half_pillar"));
-
-        shapelessBuildingBlock(FBContent.BLOCK_FRAMED_FENCE.value(), 1)
-                .requires(FBContent.BLOCK_FRAMED_CUBE.value())
-                .unlockedBy(FBContent.BLOCK_FRAMED_CUBE)
-                .save(output, key("framed_fence_from_post"));
-
-        shapedBuildingBlock(FBContent.BLOCK_FRAMED_GATE.value(), 4)
-                .pattern("DD")
-                .pattern("DD")
-                .define('D', FBContent.BLOCK_FRAMED_DOOR.value())
-                .unlockedBy(FBContent.BLOCK_FRAMED_DOOR)
-                .save(consumer);
-
-        shapedBuildingBlock(FBContent.BLOCK_FRAMED_IRON_GATE.value(), 4)
-                .pattern("DD")
-                .pattern("DD")
-                .define('D', FBContent.BLOCK_FRAMED_IRON_DOOR.value())
-                .unlockedBy(FBContent.BLOCK_FRAMED_IRON_DOOR)
-                .save(consumer);
 
         shapedBuildingBlock(FBContent.BLOCK_FRAMED_BOOKSHELF.value())
                 .pattern("FFF")

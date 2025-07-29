@@ -235,7 +235,6 @@ public final class InteractionTests
     public static void testLargeButtonPress(GameTestHelper helper)
     {
         TestUtils.chainTasks(helper, List.of(
-                () -> helper.setBlock(POS_ABOVE_FLOOR, FBContent.BLOCK_FRAMED_LARGE_BUTTON.value()),
                 () -> helper.assertBlockProperty(POS_ABOVE_FLOOR, ButtonBlock.POWERED, false),
                 () -> helper.useBlock(POS_ABOVE_FLOOR),
                 () -> helper.assertBlockProperty(POS_ABOVE_FLOOR, ButtonBlock.POWERED, true)
@@ -249,7 +248,6 @@ public final class InteractionTests
     public static void testLargeStoneButtonPress(GameTestHelper helper)
     {
         TestUtils.chainTasks(helper, List.of(
-                () -> helper.setBlock(POS_ABOVE_FLOOR, FBContent.BLOCK_FRAMED_LARGE_STONE_BUTTON.value()),
                 () -> helper.assertBlockProperty(POS_ABOVE_FLOOR, ButtonBlock.POWERED, false),
                 () -> helper.useBlock(POS_ABOVE_FLOOR),
                 () -> helper.assertBlockProperty(POS_ABOVE_FLOOR, ButtonBlock.POWERED, true)

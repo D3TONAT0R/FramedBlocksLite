@@ -81,12 +81,8 @@ public final class FramedLanguageProvider extends LanguageProvider
         add(FBContent.BLOCK_FRAMED_STONE_PRESSURE_PLATE.value(), "Framed Stone Pressure Plate");
         add(FBContent.BLOCK_FRAMED_BUTTON.value(), "Framed Button");
         add(FBContent.BLOCK_FRAMED_STONE_BUTTON.value(), "Framed Stone Button");
-        add(FBContent.BLOCK_FRAMED_LARGE_BUTTON.value(), "Large Framed Button");
-        add(FBContent.BLOCK_FRAMED_LARGE_STONE_BUTTON.value(), "Large Framed Stone Button");
         add(FBContent.BLOCK_FRAMED_PILLAR.value(), "Framed Pillar");
         add(FBContent.BLOCK_FRAMED_HALF_PILLAR.value(), "Framed Half Pillar");
-        add(FBContent.BLOCK_FRAMED_GATE.value(), "Framed Gate");
-        add(FBContent.BLOCK_FRAMED_IRON_GATE.value(), "Framed Iron Gate");
         add(FBContent.BLOCK_FRAMED_BOOKSHELF.value(), "Framed Bookshelf");
         add(FBContent.BLOCK_FRAMED_CHISELED_BOOKSHELF.value(), "Framed Chiseled Bookshelf");
     }

@@ -192,7 +192,7 @@ public class FramedButtonBlock extends ButtonBlock implements IFramedBlock
         {
             return Utils.concat(
                     ignoringMerger.getHandledProperties(block),
-                    Set.of(FramedLargeButtonBlock.FACING)
+                    Set.of()
             );
         }
     }

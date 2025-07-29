@@ -79,7 +79,6 @@ import xfacthd.framedblocks.common.block.cube.FramedOneWayWindowBlock;
 import xfacthd.framedblocks.common.block.door.FramedDoorBlock;
 import xfacthd.framedblocks.common.block.door.FramedFenceGateBlock;
 import xfacthd.framedblocks.common.block.interactive.button.FramedButtonBlock;
-import xfacthd.framedblocks.common.block.interactive.button.FramedLargeButtonBlock;
 import xfacthd.framedblocks.common.block.stairs.standard.FramedStairsBlock;
 import xfacthd.framedblocks.common.compat.amendments.AmendmentsCompat;
 import xfacthd.framedblocks.common.data.BlockType;
@@ -258,12 +257,8 @@ public final class FBClient
         WrapHelper.wrap(FBContent.BLOCK_FRAMED_STONE_PRESSURE_PLATE, FramedMarkedPressurePlateGeometry::stone, WrapHelper.IGNORE_ALWAYS);
         WrapHelper.wrap(FBContent.BLOCK_FRAMED_BUTTON, FramedButtonGeometry::new, FramedButtonBlock.STATE_MERGER);
         WrapHelper.wrap(FBContent.BLOCK_FRAMED_STONE_BUTTON, FramedStoneButtonGeometry::create, FramedButtonBlock.STATE_MERGER);
-        WrapHelper.wrap(FBContent.BLOCK_FRAMED_LARGE_BUTTON, FramedLargeButtonGeometry::new, FramedLargeButtonBlock.LARGE_STATE_MERGER);
-        WrapHelper.wrap(FBContent.BLOCK_FRAMED_LARGE_STONE_BUTTON, FramedLargeStoneButtonGeometry::create, FramedLargeButtonBlock.LARGE_STATE_MERGER);
         WrapHelper.wrap(FBContent.BLOCK_FRAMED_PILLAR, FramedPillarGeometry::new, WrapHelper.IGNORE_WATERLOGGED);
         WrapHelper.wrap(FBContent.BLOCK_FRAMED_HALF_PILLAR, FramedHalfPillarGeometry::new, WrapHelper.IGNORE_WATERLOGGED);
-        WrapHelper.wrap(FBContent.BLOCK_FRAMED_GATE, FramedDoorGeometry::wood, FramedDoorBlock.DoorStateMerger.INSTANCE);
-        WrapHelper.wrap(FBContent.BLOCK_FRAMED_IRON_GATE, FramedDoorGeometry::iron, FramedDoorBlock.DoorStateMerger.INSTANCE);
         WrapHelper.wrap(FBContent.BLOCK_FRAMED_BOOKSHELF, FramedBookshelfGeometry::normal, WrapHelper.IGNORE_SOLID);
         WrapHelper.wrap(FBContent.BLOCK_FRAMED_CHISELED_BOOKSHELF, FramedBookshelfGeometry::chiseled, WrapHelper.IGNORE_SOLID);
     }
