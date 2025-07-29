@@ -4,7 +4,6 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.HandlerThread;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import xfacthd.framedblocks.common.net.payload.clientbound.ClientboundCullingUpdatePayload;
-import xfacthd.framedblocks.common.net.payload.clientbound.ClientboundOpenSignScreenPayload;
 import xfacthd.framedblocks.common.net.payload.serverbound.ServerboundSelectFramingSawRecipePayload;
 
 public final class NetworkHandler
@@ -19,11 +18,6 @@ public final class NetworkHandler
                         ServerboundSignUpdatePayload.TYPE,
                         ServerboundSignUpdatePayload.CODEC,
                         ServerboundSignUpdatePayload::handle
-                )
-                .playToClient(
-                        ClientboundOpenSignScreenPayload.TYPE,
-                        ClientboundOpenSignScreenPayload.CODEC,
-                        ClientboundOpenSignScreenPayload::handle
                 )
                 .playToClient(
                         ClientboundCullingUpdatePayload.TYPE,
