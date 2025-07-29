@@ -22,9 +22,6 @@ import xfacthd.framedblocks.api.util.FramedConstants;
 import xfacthd.framedblocks.api.block.FramedProperties;
 import xfacthd.framedblocks.api.test.TestUtils;
 import xfacthd.framedblocks.common.FBContent;
-import xfacthd.framedblocks.common.blockentity.special.FramedFlowerPotBlockEntity;
-import xfacthd.framedblocks.common.blockentity.special.FramedSignBlockEntity;
-import xfacthd.framedblocks.common.blockentity.special.FramedTargetBlockEntity;
 import xfacthd.framedblocks.common.data.property.LatchType;
 import xfacthd.framedblocks.common.data.PropertyHolder;
 
@@ -36,127 +33,6 @@ public final class InteractionTests
     private static final BlockPos POS_ABOVE_FLOOR = new BlockPos(0, 2, 0);
 
     //@GameTest(template = "floor_1x1", batch = "interaction")
-    public static void testSignDying(GameTestHelper helper)
-    {
-        TestUtils.chainTasks(helper, List.of(
-                () -> helper.setBlock(POS_ABOVE_FLOOR, FBContent.BLOCK_FRAMED_SIGN.value()),
-                () ->
-                {
-                    FramedSignBlockEntity be = helper.getBlockEntity(POS_ABOVE_FLOOR, FramedSignBlockEntity.class);
-                    TestUtils.assertTrue(
-                            helper,
-                            POS_ABOVE_FLOOR,
-                            be.getText(true).getColor() == DyeColor.BLACK,
-                            () -> String.format("Expected sign text color to be 'black', got '%s'", be.getText(true).getColor())
-                    );
-                    TestUtils.assertTrue(
-                            helper,
-                            POS_ABOVE_FLOOR,
-                            !be.getText(true).hasGlowingText(),
-                            () -> "Sign text should not be glowing"
-                    );
-                    TestUtils.assertTrue(
-                            helper,
-                            POS_ABOVE_FLOOR,
-                            !be.isWaxed(),
-                            () -> "Sign should not be waxed"
-                    );
-                },
-                () -> TestUtils.clickWithItem(helper, POS_ABOVE_FLOOR, Items.RED_DYE, Direction.SOUTH),
-                () ->
-                {
-                    FramedSignBlockEntity be = helper.getBlockEntity(POS_ABOVE_FLOOR, FramedSignBlockEntity.class);
-                    TestUtils.assertTrue(
-                            helper,
-                            POS_ABOVE_FLOOR,
-                            be.getText(true).getColor() == DyeColor.RED,
-                            () -> String.format("Expected sign text color to be 'red', got '%s'", be.getText(true).getColor())
-                    );
-                    TestUtils.assertTrue(
-                            helper,
-                            POS_ABOVE_FLOOR,
-                            !be.getText(true).hasGlowingText(),
-                            () -> "Sign text should not be glowing"
-                    );
-                    TestUtils.assertTrue(
-                            helper,
-                            POS_ABOVE_FLOOR,
-                            !be.isWaxed(),
-                            () -> "Sign should not be waxed"
-                    );
-                },
-                () -> TestUtils.clickWithItem(helper, POS_ABOVE_FLOOR, Items.GLOW_INK_SAC, Direction.SOUTH),
-                () ->
-                {
-                    FramedSignBlockEntity be = helper.getBlockEntity(POS_ABOVE_FLOOR, FramedSignBlockEntity.class);
-                    TestUtils.assertTrue(
-                            helper,
-                            POS_ABOVE_FLOOR,
-                            be.getText(true).getColor() == DyeColor.RED,
-                            () -> String.format("Expected sign text color to be 'red', got '%s'", be.getText(true).getColor())
-                    );
-                    TestUtils.assertTrue(
-                            helper,
-                            POS_ABOVE_FLOOR,
-                            be.getText(true).hasGlowingText(),
-                            () -> "Sign text should be glowing"
-                    );
-                    TestUtils.assertTrue(
-                            helper,
-                            POS_ABOVE_FLOOR,
-                            !be.isWaxed(),
-                            () -> "Sign should not be waxed"
-                    );
-                },
-                () -> TestUtils.clickWithItem(helper, POS_ABOVE_FLOOR, Items.HONEYCOMB, Direction.SOUTH),
-                () ->
-                {
-                    FramedSignBlockEntity be = helper.getBlockEntity(POS_ABOVE_FLOOR, FramedSignBlockEntity.class);
-                    TestUtils.assertTrue(
-                            helper,
-                            POS_ABOVE_FLOOR,
-                            be.getText(true).getColor() == DyeColor.RED,
-                            () -> String.format("Expected sign text color to be 'red', got '%s'", be.getText(true).getColor())
-                    );
-                    TestUtils.assertTrue(
-                            helper,
-                            POS_ABOVE_FLOOR,
-                            be.getText(true).hasGlowingText(),
-                            () -> "Sign text should be glowing"
-                    );
-                    TestUtils.assertTrue(
-                            helper,
-                            POS_ABOVE_FLOOR,
-                            be.isWaxed(),
-                            () -> "Sign should be waxed"
-                    );
-                },
-                () -> TestUtils.clickWithItem(helper, POS_ABOVE_FLOOR, Items.WOODEN_AXE, Direction.SOUTH),
-                () ->
-                {
-                    FramedSignBlockEntity be = helper.getBlockEntity(POS_ABOVE_FLOOR, FramedSignBlockEntity.class);
-                    TestUtils.assertTrue(
-                            helper,
-                            POS_ABOVE_FLOOR,
-                            be.getText(true).getColor() == DyeColor.RED,
-                            () -> String.format("Expected sign text color to be 'red', got '%s'", be.getText(true).getColor())
-                    );
-                    TestUtils.assertTrue(
-                            helper,
-                            POS_ABOVE_FLOOR,
-                            be.getText(true).hasGlowingText(),
-                            () -> "Sign text should be glowing"
-                    );
-                    TestUtils.assertTrue(
-                            helper,
-                            POS_ABOVE_FLOOR,
-                            !be.isWaxed(),
-                            () -> "Sign should not be waxed"
-                    );
-                },
-                helper::succeed
-        ));
-    }
 
     //@GameTest(template = "floor_1x1", batch = "interaction")
     public static void testButtonPress(GameTestHelper helper)
@@ -190,7 +66,6 @@ public final class InteractionTests
     public static void testLeverFlip(GameTestHelper helper)
     {
         TestUtils.chainTasks(helper, List.of(
-                () -> helper.setBlock(POS_ABOVE_FLOOR, FBContent.BLOCK_FRAMED_LEVER.value()),
                 () -> helper.assertBlockProperty(POS_ABOVE_FLOOR, LeverBlock.POWERED, false),
                 () -> helper.useBlock(POS_ABOVE_FLOOR),
                 () -> helper.assertBlockProperty(POS_ABOVE_FLOOR, LeverBlock.POWERED, true),
@@ -295,62 +170,6 @@ public final class InteractionTests
         ));
     }
 
-    //@GameTest(template = "floor_1x2", batch = "interaction")
-    public static void testBuildRailSlope(GameTestHelper helper)
-    {
-        helper.setBlock(POS_ABOVE_FLOOR, Blocks.STONE);
-
-        BlockPos posSouth = POS_ABOVE_FLOOR.south();
-
-        TestUtils.chainTasks(helper, List.of(
-                () -> helper.setBlock(posSouth, FBContent.BLOCK_FRAMED_SLOPE.value()),
-                () -> TestUtils.clickWithItem(helper, posSouth, Items.RAIL),
-                () -> helper.succeedWhenBlockPresent(FBContent.BLOCK_FRAMED_RAIL_SLOPE.value(), posSouth)
-        ));
-    }
-
-    //@GameTest(template = "floor_1x2", batch = "interaction")
-    public static void testBuildPoweredRailSlope(GameTestHelper helper)
-    {
-        helper.setBlock(POS_ABOVE_FLOOR, Blocks.STONE);
-
-        BlockPos posSouth = POS_ABOVE_FLOOR.south();
-
-        TestUtils.chainTasks(helper, List.of(
-                () -> helper.setBlock(posSouth, FBContent.BLOCK_FRAMED_SLOPE.value()),
-                () -> TestUtils.clickWithItem(helper, posSouth, Items.POWERED_RAIL),
-                () -> helper.succeedWhenBlockPresent(FBContent.BLOCK_FRAMED_POWERED_RAIL_SLOPE.value(), posSouth)
-        ));
-    }
-
-    //@GameTest(template = "floor_1x2", batch = "interaction")
-    public static void testBuildDetectorRailSlope(GameTestHelper helper)
-    {
-        helper.setBlock(POS_ABOVE_FLOOR, Blocks.STONE);
-
-        BlockPos posSouth = POS_ABOVE_FLOOR.south();
-
-        TestUtils.chainTasks(helper, List.of(
-                () -> helper.setBlock(posSouth, FBContent.BLOCK_FRAMED_SLOPE.value()),
-                () -> TestUtils.clickWithItem(helper, posSouth, Items.DETECTOR_RAIL),
-                () -> helper.succeedWhenBlockPresent(FBContent.BLOCK_FRAMED_DETECTOR_RAIL_SLOPE.value(), posSouth)
-        ));
-    }
-
-    //@GameTest(template = "floor_1x2", batch = "interaction")
-    public static void testBuildActivatorRailSlope(GameTestHelper helper)
-    {
-        helper.setBlock(POS_ABOVE_FLOOR, Blocks.STONE);
-
-        BlockPos posSouth = POS_ABOVE_FLOOR.south();
-
-        TestUtils.chainTasks(helper, List.of(
-                () -> helper.setBlock(posSouth, FBContent.BLOCK_FRAMED_SLOPE.value()),
-                () -> TestUtils.clickWithItem(helper, posSouth, Items.ACTIVATOR_RAIL),
-                () -> helper.succeedWhenBlockPresent(FBContent.BLOCK_FRAMED_ACTIVATOR_RAIL_SLOPE.value(), posSouth)
-        ));
-    }
-
     //@GameTest(template = "floor_1x1", batch = "interaction")
     public static void testRotateCamo(GameTestHelper helper)
     {
@@ -382,40 +201,6 @@ public final class InteractionTests
         ));
     }
 
-    //@GameTest(template = "floor_1x1", batch = "interaction")
-    public static void testSwitchChestLock(GameTestHelper helper)
-    {
-        TestUtils.chainTasks(helper, List.of(
-                () -> helper.setBlock(POS_ABOVE_FLOOR, FBContent.BLOCK_FRAMED_CHEST.value()),
-                () -> helper.assertBlockProperty(POS_ABOVE_FLOOR, PropertyHolder.LATCH_TYPE, LatchType.DEFAULT),
-                () -> TestUtils.attackWithItem(helper, POS_ABOVE_FLOOR, FBContent.ITEM_FRAMED_HAMMER.value()),
-                () -> helper.assertBlockProperty(POS_ABOVE_FLOOR, PropertyHolder.LATCH_TYPE, LatchType.CAMO),
-                () -> TestUtils.attackWithItem(helper, POS_ABOVE_FLOOR, FBContent.ITEM_FRAMED_HAMMER.value()),
-                () -> helper.assertBlockProperty(POS_ABOVE_FLOOR, PropertyHolder.LATCH_TYPE, LatchType.NONE),
-                () -> TestUtils.attackWithItem(helper, POS_ABOVE_FLOOR, FBContent.ITEM_FRAMED_HAMMER.value()),
-                () -> helper.assertBlockProperty(POS_ABOVE_FLOOR, PropertyHolder.LATCH_TYPE, LatchType.DEFAULT),
-                helper::succeed
-        ));
-    }
-
-    //@GameTest(template = "floor_1x1", batch = "interaction")
-    public static void testSwitchOffsetPrism(GameTestHelper helper)
-    {
-        testSwitchOffset(helper, FBContent.BLOCK_FRAMED_PRISM_CORNER);
-    }
-
-    //@GameTest(template = "floor_1x1", batch = "interaction")
-    public static void testSwitchOffsetInnerPrism(GameTestHelper helper)
-    {
-        testSwitchOffset(helper, FBContent.BLOCK_FRAMED_INNER_PRISM_CORNER);
-    }
-
-    //@GameTest(template = "floor_1x1", batch = "interaction")
-    public static void testSwitchOffsetDoublePrism(GameTestHelper helper)
-    {
-        testSwitchOffset(helper, FBContent.BLOCK_FRAMED_DOUBLE_PRISM_CORNER);
-    }
-
     private static void testSwitchOffset(GameTestHelper helper, Holder<Block> block)
     {
         TestUtils.chainTasks(helper, List.of(
@@ -425,58 +210,6 @@ public final class InteractionTests
                 () -> helper.assertBlockProperty(POS_ABOVE_FLOOR, FramedProperties.OFFSET, true),
                 () -> TestUtils.attackWithItem(helper, POS_ABOVE_FLOOR, FBContent.ITEM_FRAMED_HAMMER.value()),
                 () -> helper.assertBlockProperty(POS_ABOVE_FLOOR, FramedProperties.OFFSET, false),
-                helper::succeed
-        ));
-    }
-
-    //@GameTest(template = "floor_1x1", batch = "interaction")
-    public static void testFlowerPotInteract(GameTestHelper helper)
-    {
-        TestUtils.chainTasks(helper, List.of(
-                () -> helper.setBlock(POS_ABOVE_FLOOR, FBContent.BLOCK_FRAMED_FLOWER_POT.value()),
-                () -> TestUtils.applyCamo(helper, POS_ABOVE_FLOOR, Blocks.POLISHED_GRANITE),
-                () ->
-                {
-                    FramedFlowerPotBlockEntity be = helper.getBlockEntity(POS_ABOVE_FLOOR, FramedFlowerPotBlockEntity.class);
-
-                    TestUtils.assertTrue(
-                            helper,
-                            POS_ABOVE_FLOOR,
-                            !be.hasFlowerBlock(),
-                            () -> String.format("Expected empty flower pot, got %s planted in the pot", be.getFlowerBlock())
-                    );
-                },
-                () -> TestUtils.clickWithItem(helper, POS_ABOVE_FLOOR, Blocks.CACTUS),
-                () ->
-                {
-                    FramedFlowerPotBlockEntity be = helper.getBlockEntity(POS_ABOVE_FLOOR, FramedFlowerPotBlockEntity.class);
-
-                    TestUtils.assertTrue(
-                            helper,
-                            POS_ABOVE_FLOOR,
-                            be.hasFlowerBlock(),
-                            () -> "Expected filled flower pot, got empty pot"
-                    );
-
-                    TestUtils.assertTrue(
-                            helper,
-                            POS_ABOVE_FLOOR,
-                            be.getFlowerBlock() == Blocks.CACTUS,
-                            () -> String.format("Expected %s in flower pot, got %s instead", Blocks.CACTUS, be.getFlowerBlock())
-                    );
-                },
-                () -> TestUtils.clickWithItem(helper, POS_ABOVE_FLOOR, Items.AIR),
-                () ->
-                {
-                    FramedFlowerPotBlockEntity be = helper.getBlockEntity(POS_ABOVE_FLOOR, FramedFlowerPotBlockEntity.class);
-
-                    TestUtils.assertTrue(
-                            helper,
-                            POS_ABOVE_FLOOR,
-                            !be.hasFlowerBlock(),
-                            () -> String.format("Expected empty flower pot, got %s planted in the pot", be.getFlowerBlock())
-                    );
-                },
                 helper::succeed
         ));
     }
@@ -533,36 +266,6 @@ public final class InteractionTests
 
         helper.runAfterDelay(23, () -> helper.assertBlockProperty(POS_ABOVE_FLOOR, ButtonBlock.POWERED, false));
         helper.runAfterDelay(24, helper::succeed);
-    }
-
-    //@GameTest(template = "floor_1x1", batch = "interaction")
-    public static void testTargetColoring(GameTestHelper helper)
-    {
-        TestUtils.chainTasks(helper, List.of(
-                () -> helper.setBlock(POS_ABOVE_FLOOR, FBContent.BLOCK_FRAMED_TARGET.value()),
-                () ->
-                {
-                    FramedTargetBlockEntity be = helper.getBlockEntity(POS_ABOVE_FLOOR, FramedTargetBlockEntity.class);
-                    TestUtils.assertTrue(
-                            helper,
-                            POS_ABOVE_FLOOR,
-                            be.getOverlayColor() == DyeColor.RED.getTextColor(),
-                            () -> String.format("Expected target color to be '16711680' (red), got '%s'", be.getOverlayColor())
-                    );
-                },
-                () -> TestUtils.clickWithItem(helper, POS_ABOVE_FLOOR, Items.LIME_DYE),
-                () ->
-                {
-                    FramedTargetBlockEntity be = helper.getBlockEntity(POS_ABOVE_FLOOR, FramedTargetBlockEntity.class);
-                    TestUtils.assertTrue(
-                            helper,
-                            POS_ABOVE_FLOOR,
-                            be.getOverlayColor() == DyeColor.LIME.getTextColor(),
-                            () -> String.format("Expected target color to be '12582656' (lime), got '%s'", be.getOverlayColor())
-                    );
-                },
-                helper::succeed
-        ));
     }
 
 

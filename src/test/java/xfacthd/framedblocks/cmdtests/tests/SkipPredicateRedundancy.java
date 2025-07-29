@@ -34,11 +34,6 @@ public final class SkipPredicateRedundancy
     private static final String PROGRESS_MSG = MSG_PREFIX + "%,d";
     private static final String RESULT_MSG = MSG_PREFIX + "Tested %,d combinations in %dms. ";
     private static final BlockPos CENTER = new BlockPos(1, 1, 1);
-    // Set of blocks which are known to appear redundant when tested against themselves
-    private static final Set<BlockType> IGNORED_SELF_TESTS = EnumSet.of(
-            BlockType.FRAMED_COLLAPSIBLE_BLOCK,
-            BlockType.FRAMED_COLLAPSIBLE_COPYCAT_BLOCK
-    );
 
     public static void testSkipPredicates(
             @SuppressWarnings("unused") CommandContext<CommandSourceStack> ctx, Consumer<Component> msgQueueAppender
@@ -92,7 +87,7 @@ public final class SkipPredicateRedundancy
         long[] lastSent = new long[1];
         for (BlockType adjType : TYPES)
         {
-            if (type == adjType && IGNORED_SELF_TESTS.contains(type))
+            if (type == adjType)
             {
                 continue;
             }

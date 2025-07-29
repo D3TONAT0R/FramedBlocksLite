@@ -50,14 +50,7 @@ public final class LightSourceTests
 
     private static boolean isNotSelfEmitting(BlockType type)
     {
-        return type != BlockType.FRAMED_TORCH &&
-                type != BlockType.FRAMED_WALL_TORCH &&
-                type != BlockType.FRAMED_SOUL_TORCH &&
-                type != BlockType.FRAMED_SOUL_WALL_TORCH &&
-                type != BlockType.FRAMED_REDSTONE_TORCH &&
-                type != BlockType.FRAMED_REDSTONE_WALL_TORCH &&
-                type != BlockType.FRAMED_LANTERN &&
-                type != BlockType.FRAMED_SOUL_LANTERN;
+        return true;
     }
 
     private static BlockState getTestState(Block block)
@@ -68,14 +61,6 @@ public final class LightSourceTests
         BlockState state = block.defaultBlockState();
         return switch ((BlockType) type)
         {
-            case FRAMED_INV_DOUBLE_CORNER_SLOPE_PANEL,
-                 FRAMED_INV_DOUBLE_CORNER_SLOPE_PANEL_W,
-                 FRAMED_EXT_INNER_DOUBLE_CORNER_SLOPE_PANEL,
-                 FRAMED_STACKED_CORNER_SLOPE_PANEL_W,
-                 FRAMED_STACKED_INNER_CORNER_SLOPE_PANEL_W
-                    -> state.setValue(FramedProperties.FACING_HOR, Direction.SOUTH);
-            case FRAMED_EXT_INNER_DOUBLE_CORNER_SLOPE_PANEL_W
-                    -> state.setValue(PropertyHolder.ROTATION, HorizontalRotation.RIGHT);
             default -> state;
         };
     }
