@@ -25,7 +25,7 @@ public class FramedPillarGeometry extends Geometry
     {
         this.axis = ctx.state().getValue(BlockStateProperties.AXIS);
 
-        boolean post = ((IFramedBlock) ctx.state().getBlock()).getBlockType() == BlockType.FRAMED_POST;
+        boolean post = false;
         this.capStart = post ? (6F / 16F) : (4F / 16F);
         this.capEnd = this.sideCut = post ? (10F / 16F) : (12F / 16F);
         this.useSolidBase = post;
