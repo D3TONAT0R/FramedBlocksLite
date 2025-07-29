@@ -5,7 +5,6 @@ import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlers
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import xfacthd.framedblocks.common.data.cullupdate.ClientCullingUpdateTracker;
 import xfacthd.framedblocks.common.net.payload.clientbound.ClientboundCullingUpdatePayload;
-import xfacthd.framedblocks.common.net.payload.clientbound.ClientboundOpenSignScreenPayload;
 
 public final class ClientNetworkHandler
 {

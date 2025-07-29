@@ -117,14 +117,6 @@ public class FramedBlockEntity extends BlockEntity
         {
             return rotateCamo(camo, secondary);
         }
-        else if (!intangible && canMakeIntangible(stack))
-        {
-            return applyIntangibility(player, stack);
-        }
-        else if (intangible && player.isShiftKeyDown() && Utils.isConfigurationTool(stack))
-        {
-            return removeIntangibility(player);
-        }
         else if (!reinforced && stack.is(Utils.FRAMED_REINFORCEMENT.value()))
         {
             return applyReinforcement(player, stack);
@@ -147,25 +139,7 @@ public class FramedBlockEntity extends BlockEntity
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
-    private boolean canMakeIntangible(ItemStack stack)
-    {
-        if (!ConfigView.Server.INSTANCE.enableIntangibility())
-        {
-            return false;
-        }
-        return stack.is(Utils.PHANTOM_PASTE) && getBlockType().allowMakingIntangible();
-    }
-
-    private static boolean canRemoveReinforcement(ItemStack stack)
-    {
-        if (stack.getItem().canPerformAction(stack, ItemAbilities.PICKAXE_DIG))
-        {
-            return stack.isCorrectToolForDrops(Blocks.OBSIDIAN.defaultBlockState());
-        }
-        return false;
-    }
-
-    private ItemInteractionResult setCamo(Player player, ItemStack stack, CamoContainerFactory<?> factory, boolean secondary)
+    private InteractionResult setCamo(Player player, ItemStack stack, CamoContainerFactory<?> factory, boolean secondary)
     {
         CamoContainer<?, ?> camo = factory.applyCamo(level(), worldPosition, player, stack);
         if (camo != null)
@@ -225,32 +199,7 @@ public class FramedBlockEntity extends BlockEntity
         return ItemInteractionResult.FAIL;
     }
 
-    private ItemInteractionResult applyIntangibility(Player player, ItemStack stack)
-    {
-        if (!level().isClientSide())
-        {
-            if (!player.isCreative())
-            {
-                stack.shrink(1);
-            }
-
-            setIntangible(true);
-        }
-        return ItemInteractionResult.sidedSuccess(level().isClientSide());
-    }
-
-    private ItemInteractionResult removeIntangibility(Player player)
-    {
-        if (!level().isClientSide())
-        {
-            setIntangible(false);
-
-            Utils.giveToPlayer(player, new ItemStack(Utils.PHANTOM_PASTE), true);
-        }
-        return ItemInteractionResult.sidedSuccess(level().isClientSide());
-    }
-
-    private ItemInteractionResult applyReinforcement(Player player, ItemStack stack)
+    private InteractionResult applyReinforcement(Player player, ItemStack stack)
     {
         if (!level().isClientSide())
         {
@@ -591,19 +540,6 @@ public class FramedBlockEntity extends BlockEntity
                 level().sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
             }
         }
-    }
-
-    /**
-     * Returns whether this block is marked as intangible.
-     * <p>
-     * If this method returns {@code true}, an entity interacting with this block may still behave as if it
-     * returned {@code false} depending on the context.
-     *
-     * @return whether this block is marked as intangible
-     */
-    public boolean isMarkedIntangible()
-    {
-        return intangible;
     }
 
     public boolean isIntangible(@Nullable CollisionContext ctx)

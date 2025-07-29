@@ -25,6 +25,9 @@ import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.crafting.IngredientType;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import xfacthd.framedblocks.FramedBlocks;
+import xfacthd.framedblocks.api.block.IFramedBlock;
 import xfacthd.framedblocks.api.block.blockentity.FramedBlockEntity;
 import xfacthd.framedblocks.api.block.IFramedBlock;
 import xfacthd.framedblocks.api.blueprint.AuxBlueprintData;
@@ -317,7 +320,12 @@ public final class FBContent
 
     public static Block byType(BlockType type)
     {
-        return BLOCKS_BY_TYPE.get(type).value();
+        Holder<Block> v = BLOCKS_BY_TYPE.get(type);
+        if(v == null) {
+            FramedBlocks.LOGGER.error("Unknown block type: " + type);
+            return null;
+        }
+        return v.value();
     }
 
     public static Collection<DeferredHolder<Item, ? extends Item>> getRegisteredItems()

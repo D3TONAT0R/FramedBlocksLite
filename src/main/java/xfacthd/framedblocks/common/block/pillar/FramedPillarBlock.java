@@ -23,7 +23,6 @@ public class FramedPillarBlock extends FramedBlock implements IPillarLikeBlock
         super(blockType);
         this.pillarConnection = switch (blockType)
         {
-            case FRAMED_POST -> PillarConnection.POST;
             case FRAMED_PILLAR -> PillarConnection.PILLAR;
             default -> throw new IllegalArgumentException("Unexpected BlockType in FramedPillarBlock: " + blockType);
         };

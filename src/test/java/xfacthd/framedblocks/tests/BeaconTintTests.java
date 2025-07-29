@@ -42,9 +42,7 @@ public final class BeaconTintTests
             BlockType.FRAMED_IRON_DOOR,
             BlockType.FRAMED_BUTTON,
             BlockType.FRAMED_STONE_BUTTON,
-            BlockType.FRAMED_LATTICE_BLOCK,
             BlockType.FRAMED_VERTICAL_STAIRS,
-            BlockType.FRAMED_POST,
             BlockType.FRAMED_HALF_STAIRS,
             BlockType.FRAMED_GATE,
             BlockType.FRAMED_IRON_GATE

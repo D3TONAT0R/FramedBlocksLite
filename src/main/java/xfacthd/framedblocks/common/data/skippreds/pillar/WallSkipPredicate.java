@@ -31,9 +31,6 @@ public final class WallSkipPredicate implements SideSkipPredicate
                 case FRAMED_WALL -> testAgainstWall(
                         state, up, adjState, side
                 );
-                case FRAMED_THICK_LATTICE -> testAgainstThickLattice(
-                        up, adjState, side
-                );
                 case FRAMED_PILLAR -> testAgainstPillar(
                         up, adjState, side
                 );
@@ -54,18 +51,6 @@ public final class WallSkipPredicate implements SideSkipPredicate
         boolean adjUp = adjState.getValue(BlockStateProperties.UP);
         return PillarDirs.Wall.testWallArmDir(state, adjState, side) ||
                (PillarDirs.Wall.isPillarDir(up, side) && PillarDirs.Wall.isPillarDir(adjUp, side.getOpposite()));
-    }
-
-    @CullTest.TestTarget(BlockType.FRAMED_THICK_LATTICE)
-    private static boolean testAgainstThickLattice(
-            boolean up, BlockState adjState, Direction side
-    )
-    {
-        boolean adjXAxis = adjState.getValue(FramedProperties.X_AXIS);
-        boolean adjYAxis = adjState.getValue(FramedProperties.Y_AXIS);
-        boolean adjZAxis = adjState.getValue(FramedProperties.Z_AXIS);
-
-        return (PillarDirs.Wall.isPillarDir(up, side) && PillarDirs.ThickLattice.isPillarDir(adjXAxis, adjYAxis, adjZAxis, side.getOpposite()));
     }
 
     @CullTest.TestTarget(BlockType.FRAMED_PILLAR)

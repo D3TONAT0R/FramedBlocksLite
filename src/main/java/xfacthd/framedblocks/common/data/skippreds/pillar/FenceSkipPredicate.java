@@ -32,12 +32,6 @@ public final class FenceSkipPredicate implements SideSkipPredicate
                 case FRAMED_FENCE_GATE -> testAgainstFenceGate(
                         state, adjState, side
                 );
-                case FRAMED_LATTICE_BLOCK -> testAgainstLattice(
-                        adjState, side
-                );
-                case FRAMED_POST -> testAgainstPost(
-                        adjState, side
-                );
                 default -> false;
             };
         }
@@ -59,26 +53,5 @@ public final class FenceSkipPredicate implements SideSkipPredicate
     )
     {
         return PillarDirs.Fence.testFenceArmToGateDir(state, adjState, side);
-    }
-
-    @CullTest.TestTarget(BlockType.FRAMED_LATTICE_BLOCK)
-    private static boolean testAgainstLattice(
-            BlockState adjState, Direction side
-    )
-    {
-        boolean adjXAxis = adjState.getValue(FramedProperties.X_AXIS);
-        boolean adjYAxis = adjState.getValue(FramedProperties.Y_AXIS);
-        boolean adjZAxis = adjState.getValue(FramedProperties.Z_AXIS);
-
-        return (PillarDirs.Fence.isPostDir(side) && PillarDirs.Lattice.isPostDir(adjXAxis, adjYAxis, adjZAxis, side.getOpposite()));
-    }
-
-    @CullTest.TestTarget(BlockType.FRAMED_POST)
-    private static boolean testAgainstPost(
-            BlockState adjState, Direction side
-    )
-    {
-        Direction.Axis adjAxis = adjState.getValue(BlockStateProperties.AXIS);
-        return (PillarDirs.Fence.isPostDir(side) && PillarDirs.Post.isPostDir(adjAxis, side.getOpposite()));
     }
 }

@@ -300,11 +300,6 @@ public class FramedBlueprintItem extends FramedToolItem
         {
             materials.add(new ItemStack(Items.GLOWSTONE_DUST, glowstone));
         }
-        int intangible = behaviour.getIntangibleCount(data);
-        if (intangible > 0)
-        {
-            materials.add(new ItemStack(Utils.PHANTOM_PASTE, intangible));
-        }
         int reinforcement = behaviour.getReinforcementCount(data);
         if (reinforcement > 0)
         {

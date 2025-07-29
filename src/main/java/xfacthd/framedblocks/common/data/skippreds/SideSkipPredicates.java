@@ -45,11 +45,8 @@ public final class SideSkipPredicates extends BlockTypeMap<SideSkipPredicate>
         put(BlockType.FRAMED_STONE_BUTTON, SideSkipPredicate.FALSE);
         put(BlockType.FRAMED_LARGE_BUTTON, SideSkipPredicate.FALSE);
         put(BlockType.FRAMED_LARGE_STONE_BUTTON, SideSkipPredicate.FALSE);
-        put(BlockType.FRAMED_LATTICE_BLOCK, new LatticeSkipPredicate());
-        put(BlockType.FRAMED_THICK_LATTICE, new ThickLatticeSkipPredicate());
         put(BlockType.FRAMED_PILLAR, new PillarSkipPredicate());
         put(BlockType.FRAMED_HALF_PILLAR, new HalfPillarSkipPredicate());
-        put(BlockType.FRAMED_POST, new PostSkipPredicate());
         put(BlockType.FRAMED_GATE, GateSkipPredicate.INSTANCE);
         put(BlockType.FRAMED_IRON_GATE, GateSkipPredicate.INSTANCE);
         put(BlockType.FRAMED_BOOKSHELF, SideSkipPredicate.FALSE);
