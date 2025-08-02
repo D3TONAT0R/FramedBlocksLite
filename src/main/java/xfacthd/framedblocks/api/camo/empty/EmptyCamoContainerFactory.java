@@ -3,13 +3,12 @@ package xfacthd.framedblocks.api.camo.empty;
 import com.mojang.serialization.MapCodec;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import xfacthd.framedblocks.api.camo.CamoContainerFactory;
 import xfacthd.framedblocks.api.camo.TriggerRegistrar;
 
@@ -19,10 +18,10 @@ public final class EmptyCamoContainerFactory extends CamoContainerFactory<EmptyC
     private static final StreamCodec<ByteBuf, EmptyCamoContainer> STREAM_CODEC = StreamCodec.unit(EmptyCamoContainer.EMPTY);
 
     @Override
-    protected void writeToNetwork(ValueOutput valueOutput, EmptyCamoContainer container) { }
+    protected void writeToNetwork(CompoundTag tag, EmptyCamoContainer container) { }
 
     @Override
-    protected EmptyCamoContainer readFromNetwork(ValueInput valueInput)
+    protected EmptyCamoContainer readFromNetwork(CompoundTag tag)
     {
         return EmptyCamoContainer.EMPTY;
     }

@@ -23,7 +23,7 @@ public final class RecipeTransferErrorTransferNotImplemented implements IRecipeT
         Screen screen = Minecraft.getInstance().screen;
         if (screen != null)
         {
-            graphics.setTooltipForNextFrame(
+            graphics.renderTooltip(
                     Minecraft.getInstance().font,
                     List.of(JeiConstants.MSG_TRANSFER_NOT_IMPLEMENTED),
                     Optional.empty(),

@@ -9,33 +9,24 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotRichTooltipCallback;
 import mezz.jei.api.gui.ingredient.IRecipeSlotView;
 import mezz.jei.api.runtime.IIngredientManager;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
-import net.minecraft.world.item.crafting.CraftingInput;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.display.SlotDisplay;
-import net.minecraft.world.item.crafting.display.SlotDisplayContext;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.item.crafting.*;
+import org.jetbrains.annotations.Nullable;
+import xfacthd.framedblocks.FramedBlocks;
 import xfacthd.framedblocks.api.camo.CamoContainerFactory;
 import xfacthd.framedblocks.common.compat.jei.JeiConstants;
-import xfacthd.framedblocks.common.crafting.camo.CamoApplicationRecipe;
+import xfacthd.framedblocks.common.crafting.CamoApplicationRecipe;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 public final class CamoCraftingHelper
 {
     private static final int MAX_CAMO_EXAMPLE_INGREDIENTS_COUNT = 100;
-    private static final CamoApplicationRecipe DUMMY_RECIPE = new CamoApplicationRecipe(CraftingBookCategory.MISC, Ingredient.of(Items.BRUSH));
 
-    private CamoApplicationRecipe helperRecipe;
-    private final Ingredient fakeEmptyIngredient;
+    private final CamoApplicationRecipe helperRecipe;
     private final Ingredient camoExamplesIngredient;
     private final Ingredient emptyFramesIngredient;
     private final Ingredient emptyDoubleFramesIngredient;
@@ -45,16 +36,30 @@ public final class CamoCraftingHelper
 
     public CamoCraftingHelper()
     {
-        this.helperRecipe = DUMMY_RECIPE;
-        this.fakeEmptyIngredient = makeDummyIngredient(DummyIngredientType.EMPTY);
-        this.camoExamplesIngredient = makeDummyIngredient(DummyIngredientType.CAMO_EXAMPLES);
-        this.emptyFramesIngredient = makeDummyIngredient(DummyIngredientType.EMPTY_FRAMES);
-        this.emptyDoubleFramesIngredient = makeDummyIngredient(DummyIngredientType.EMPTY_DOUBLE_FRAMES);
+        this.helperRecipe = Objects.requireNonNullElseGet(findCanonicalRecipe(), () ->
+        {
+            FramedBlocks.LOGGER.warn("Failed to retrieve canonical CamoApplicationRecipe, using dummy");
+            return new CamoApplicationRecipe(CraftingBookCategory.MISC, Ingredient.of(Items.BRUSH));
+        });
+        this.camoExamplesIngredient = Ingredient.of(JeiConstants.CAMO_BLOCK_EXAMPLES_TAG);
+        this.emptyFramesIngredient = Ingredient.of(JeiConstants.ALL_FRAMES_TAG);
+        this.emptyDoubleFramesIngredient = Ingredient.of(JeiConstants.DOUBLE_FRAMES_TAG);
     }
 
-    public void captureRecipe(Optional<CamoApplicationRecipe> recipe)
+    @Nullable
+    private static CamoApplicationRecipe findCanonicalRecipe()
     {
-        helperRecipe = recipe.orElse(DUMMY_RECIPE);
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level == null) { return null; }
+
+        return level.getRecipeManager()
+                .getAllRecipesFor(RecipeType.CRAFTING)
+                .stream()
+                .map(RecipeHolder::value)
+                .filter(CamoApplicationRecipe.class::isInstance)
+                .map(CamoApplicationRecipe.class::cast)
+                .findFirst()
+                .orElse(null);
     }
 
     public Ingredient getCopyToolIngredient()
@@ -102,37 +107,35 @@ public final class CamoCraftingHelper
 
     public ItemStack calculateOutput(ItemStack frame, ItemStack inputOne, ItemStack inputTwo)
     {
-        RegistryAccess registryAccess = Objects.requireNonNull(Minecraft.getInstance().level).registryAccess();
+        Minecraft minecraft = Minecraft.getInstance();
+        ClientLevel level = minecraft.level;
+        assert level != null;
+        RegistryAccess registryAccess = level.registryAccess();
 
-        ItemStack copyToolItem = helperRecipe.getCopyTool().display().resolveForFirstStack(makeSlotDisplayContext());
-        CraftingInput craftingInput = CraftingInput.of(2, 2, List.of(frame, copyToolItem, inputOne, inputTwo));
+        Ingredient copyTool = helperRecipe.getCopyTool();
+        ItemStack copyToolItem = copyTool.getItems()[0];
+        List<ItemStack> inputs = List.of(frame, copyToolItem, inputOne, inputTwo);
+        CraftingInput craftingInput = CraftingInput.of(2, 2, inputs);
         return helperRecipe.assemble(craftingInput, registryAccess);
     }
 
     private List<ItemStack> getCamoExampleStacks(Ingredient ingredient, int count)
     {
-        if (ingredient.equals(fakeEmptyIngredient))
-        {
-            return List.of();
-        }
         if (ingredient.equals(camoExamplesIngredient))
         {
-            Collections.shuffle(camoExamples);
+            Collections.shuffle(this.camoExamples);
             if (count < this.camoExamples.size())
             {
                 return new ArrayList<>(this.camoExamples.subList(0, count));
             }
             return new ArrayList<>(this.camoExamples);
         }
-        return asStackList(ingredient);
+
+        return Arrays.asList(ingredient.getItems());
     }
 
     private List<ItemStack> getDoubleCamoExampleStacks(Ingredient ingredient, int count)
     {
-        if (ingredient.equals(fakeEmptyIngredient))
-        {
-            return List.of();
-        }
         if (ingredient.equals(camoExamplesIngredient))
         {
             Collections.shuffle(this.camoExamples);
@@ -151,15 +154,12 @@ public final class CamoCraftingHelper
             }
             return results;
         }
-        return asStackList(ingredient);
+
+        return Arrays.asList(ingredient.getItems());
     }
 
     private List<ItemStack> getEmptyFrameStacks(Ingredient ingredient)
     {
-        if (ingredient.equals(fakeEmptyIngredient))
-        {
-            return List.of();
-        }
         if (ingredient.equals(emptyFramesIngredient))
         {
             return emptyFramedBlocks;
@@ -168,28 +168,19 @@ public final class CamoCraftingHelper
         {
             return emptyDoubleFramedBlocks;
         }
-        return asStackList(ingredient);
-    }
 
-    public List<SlotDisplay> getIngredients(JeiCamoApplicationRecipe recipe)
-    {
-        return List.of(
-                asSlotDisplay(getEmptyFrameStacks(recipe.frame())),
-                recipe.copyTool().display(),
-                asSlotDisplay(getCamoExampleStacks(recipe.camoOne(), 97)),
-                asSlotDisplay(getDoubleCamoExampleStacks(recipe.camoTwo(), 11))
-        );
+        return Arrays.asList(ingredient.getItems());
     }
 
     public void setRecipe(JeiCamoApplicationRecipe recipe, IRecipeLayoutBuilder builder, ICraftingGridHelper craftingGridHelper)
     {
         List<Pair<String, List<ItemStack>>> namedInputs = List.of(
-                Pair.of("frames", getEmptyFrameStacks(recipe.frame())),
-                Pair.of("copyTool", asStackList(recipe.copyTool())),
+                Pair.of("frames", getEmptyFrameStacks(recipe.getFrame())),
+                Pair.of("copyTool", Arrays.asList(recipe.getCopyTool().getItems())),
                 // pick a prime number count so that more combinations are shown over time
-                Pair.of("camoOne", getCamoExampleStacks(recipe.camoOne(), 97)),
+                Pair.of("camoOne", getCamoExampleStacks(recipe.getCamoOne(), 97)),
                 // pick a lower number so that the blank ingredient is shown more often
-                Pair.of("camoTwo", getDoubleCamoExampleStacks(recipe.camoTwo(), 11))
+                Pair.of("camoTwo", getDoubleCamoExampleStacks(recipe.getCamoTwo(), 11))
         );
         List<IRecipeSlotBuilder> inputSlots = craftingGridHelper.createAndSetNamedInputs(builder, namedInputs, 2, 2);
 
@@ -199,8 +190,8 @@ public final class CamoCraftingHelper
             slotBuilder.addRichTooltipCallback(tooltipCallback);
         }
 
-        Optional<ItemStack> result = recipe.result();
-        if (result.isEmpty())
+        List<ItemStack> results = recipe.getResults();
+        if (results.isEmpty())
         {
             // For bookmarking, the recipe must have at least one known output.
             // Outputs are mostly calculated and displayed using onDisplayedIngredientsUpdate,
@@ -213,37 +204,9 @@ public final class CamoCraftingHelper
                     camoStackOne.isEmpty() ? ItemStack.EMPTY : camoStackOne.getFirst(),
                     camoStackTwo.isEmpty() ? ItemStack.EMPTY : camoStackTwo.getFirst()
             );
-            result = Optional.of(firstOutput);
+            results = List.of(firstOutput);
         }
-        craftingGridHelper.createAndSetOutputs(builder, List.of(result.get()));
-    }
-
-    private static List<ItemStack> asStackList(Ingredient ingredient)
-    {
-        ContextMap context = makeSlotDisplayContext();
-        return ingredient.display().resolveForStacks(context);
-    }
-
-    private static SlotDisplay asSlotDisplay(List<ItemStack> stacks)
-    {
-        if (stacks.isEmpty()) return SlotDisplay.Empty.INSTANCE;
-
-        List<SlotDisplay> displays = stacks.stream()
-                .map(SlotDisplay.ItemStackSlotDisplay::new)
-                .map(SlotDisplay.class::cast)
-                .toList();
-        return new SlotDisplay.Composite(displays);
-    }
-
-    public static Ingredient makeDummyIngredient(DummyIngredientType dummyType)
-    {
-        return new JeiCamoApplicationDummyIngredient(dummyType).toVanilla();
-    }
-
-    public static ContextMap makeSlotDisplayContext()
-    {
-        Level level = Objects.requireNonNull(Minecraft.getInstance().level);
-        return SlotDisplayContext.fromLevel(level);
+        craftingGridHelper.createAndSetOutputs(builder, results);
     }
 
     private static class InputSlotTooltipCallback implements IRecipeSlotRichTooltipCallback

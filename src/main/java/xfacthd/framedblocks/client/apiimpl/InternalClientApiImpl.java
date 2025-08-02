@@ -1,78 +1,62 @@
 package xfacthd.framedblocks.client.apiimpl;
 
-import com.google.common.base.Preconditions;
-import com.mojang.datafixers.util.Either;
-import net.minecraft.client.renderer.block.model.BlockModelDefinition;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
-import net.minecraft.client.renderer.block.model.SingleVariant;
-import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
-import net.minecraft.client.renderer.item.ItemModel;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.TriState;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
-import xfacthd.framedblocks.api.block.IFramedBlock;
-import xfacthd.framedblocks.api.block.IFramedDoubleBlock;
-import xfacthd.framedblocks.api.block.render.NullCullPredicate;
+import net.minecraft.world.level.block.state.properties.Property;
+import xfacthd.framedblocks.FramedBlocks;
+import xfacthd.framedblocks.api.block.blockentity.FramedBlockEntity;
 import xfacthd.framedblocks.api.internal.InternalClientAPI;
-import xfacthd.framedblocks.api.model.AbstractFramedBlockModel;
-import xfacthd.framedblocks.api.model.ExtendedBlockModelPart;
-import xfacthd.framedblocks.api.model.item.ItemModelInfo;
-import xfacthd.framedblocks.api.model.item.block.BlockItemModelProvider;
-import xfacthd.framedblocks.api.model.util.ModelUtils;
-import xfacthd.framedblocks.api.model.wrapping.AuxModelProvider;
-import xfacthd.framedblocks.api.model.wrapping.GeometryFactory;
-import xfacthd.framedblocks.api.model.wrapping.ModelFactory;
-import xfacthd.framedblocks.api.model.wrapping.TextureLookup;
-import xfacthd.framedblocks.client.model.FramedBlockModelPart;
-import xfacthd.framedblocks.api.model.data.QuadMap;
-import xfacthd.framedblocks.api.model.item.tint.DynamicItemTintProvider;
+import xfacthd.framedblocks.api.model.wrapping.*;
 import xfacthd.framedblocks.api.model.wrapping.statemerger.StateMerger;
-import xfacthd.framedblocks.client.model.item.FramedBlockItemModel;
-import xfacthd.framedblocks.client.model.baked.FramedBlockModel;
-import xfacthd.framedblocks.client.model.unbaked.FramedBlockModelDefinition;
-import xfacthd.framedblocks.client.model.unbaked.UnbakedFramedBlockModel;
-import xfacthd.framedblocks.client.model.unbaked.UnbakedCopyingFramedBlockModel;
-import xfacthd.framedblocks.client.model.unbaked.UnbakedFramedDoubleBlockModel;
-import xfacthd.framedblocks.client.model.wrapping.ModelWrappingHandler;
-import xfacthd.framedblocks.client.model.wrapping.ModelWrappingManager;
+import xfacthd.framedblocks.api.render.debug.BlockDebugRenderer;
+import xfacthd.framedblocks.api.util.Utils;
+import xfacthd.framedblocks.client.model.FramedBlockModel;
+import xfacthd.framedblocks.client.modelwrapping.*;
+import xfacthd.framedblocks.client.render.debug.impl.ConnectionPredicateDebugRenderer;
+import xfacthd.framedblocks.client.render.debug.impl.QuadWindingDebugRenderer;
 import xfacthd.framedblocks.client.util.ClientTaskQueue;
+import xfacthd.framedblocks.common.config.DevToolsConfig;
 
-import java.util.Map;
-import java.util.function.Supplier;
+import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public final class InternalClientApiImpl implements InternalClientAPI
 {
-    private static final BlockState AIR = Blocks.AIR.defaultBlockState();
-
     @Override
     public void registerModelWrapper(Holder<Block> block, GeometryFactory geometryFactory, StateMerger stateMerger)
     {
-        Preconditions.checkArgument(block.value() instanceof IFramedBlock, "Cannot register model wrapper for non-IFramedBlock");
-        registerSpecialModelWrapper(block, ctx -> new UnbakedFramedBlockModel(ctx, geometryFactory), stateMerger);
-    }
-
-    @Override
-    public void registerDoubleModelWrapper(Holder<Block> block, NullCullPredicate nullCullPredicate, ItemModelInfo itemModelInfo, StateMerger stateMerger)
-    {
-        Preconditions.checkArgument(block.value() instanceof IFramedDoubleBlock, "Cannot register double model wrapper for non-IFramedDoubleBlock");
-        registerSpecialModelWrapper(block, ctx -> new UnbakedFramedDoubleBlockModel(ctx, nullCullPredicate, itemModelInfo), stateMerger);
+        registerSpecialModelWrapper(
+                block,
+                ctx -> new FramedBlockModel(ctx, geometryFactory.create(ctx)),
+                stateMerger
+        );
     }
 
     @Override
     public void registerSpecialModelWrapper(Holder<Block> block, ModelFactory modelFactory, StateMerger stateMerger)
     {
+        debugStateMerger(block, stateMerger);
+
         ModelWrappingManager.register(block, new ModelWrappingHandler(block, modelFactory, stateMerger));
     }
 
     @Override
     public void registerCopyingModelWrapper(Holder<Block> block, Holder<Block> srcBlock, StateMerger stateMerger)
     {
-        registerSpecialModelWrapper(block, ctx -> new UnbakedCopyingFramedBlockModel(ctx, srcBlock.value()), stateMerger);
+        registerSpecialModelWrapper(block, new CopyingModelFactory(srcBlock), stateMerger);
+    }
+
+    @Override
+    public BlockDebugRenderer<FramedBlockEntity> getConnectionDebugRenderer()
+    {
+        return ConnectionPredicateDebugRenderer.INSTANCE;
+    }
+
+    @Override
+    public BlockDebugRenderer<FramedBlockEntity> getQuadWindingDebugRenderer()
+    {
+        return QuadWindingDebugRenderer.INSTANCE;
     }
 
     @Override
@@ -81,40 +65,33 @@ public final class InternalClientApiImpl implements InternalClientAPI
         ClientTaskQueue.enqueueClientTask(delay, task);
     }
 
-    @Override
-    public ItemModel.Unbaked createFramedBlockItemModel(Block block, BlockItemModelProvider modelProvider, DynamicItemTintProvider tintProvider, ResourceLocation baseModel)
-    {
-        return new FramedBlockItemModel.Unbaked(block, modelProvider, tintProvider, baseModel);
-    }
 
-    @Override
-    public ExtendedBlockModelPart makeBlockModelPart(QuadMap quadMap, TriState partAO, TextureAtlasSprite particleSprite, ChunkSectionLayer chunkLayer, @Nullable BlockState shaderState)
+
+    private static void debugStateMerger(Holder<Block> block, StateMerger stateMerger)
     {
-        if (shaderState == AIR)
+        if (!DevToolsConfig.VIEW.isStateMergerDebugLoggingEnabled()) return;
+
+        Pattern debugFilterPattern = DevToolsConfig.VIEW.getStateMergerDebugFilter();
+        if (debugFilterPattern != null)
         {
-            shaderState = null;
+            String key = Utils.getKeyOrThrow(block).location().toString();
+            if (!debugFilterPattern.matcher(key).matches()) return;
         }
-        return new FramedBlockModelPart(quadMap.build(), partAO, particleSprite, chunkLayer, shaderState);
+
+        Set<Property<?>> props = new HashSet<>(block.value().getStateDefinition().getProperties());
+        Set<Property<?>> ignoredProps = stateMerger.getHandledProperties(block);
+
+        props.removeAll(ignoredProps);
+
+        FramedBlocks.LOGGER.info("%-70s | %-150s | %-150s".formatted(
+                block.value(), propsToString(props), propsToString(ignoredProps)
+        ));
     }
 
-    @Override
-    public BlockModelDefinition createFramedBlockDefinition(Either<BlockModelDefinition, SingleVariant.Unbaked> wrapped, Map<String, SingleVariant.Unbaked> auxModels)
+    private static String propsToString(Collection<Property<?>> properties)
     {
-        return new BlockModelDefinition(new FramedBlockModelDefinition(wrapped, auxModels));
-    }
-
-    @Override
-    public Supplier<BlockStateModel> createBlockItemModelProviderForGeometry(BlockState state, BlockState srcState, GeometryFactory geometry)
-    {
-        return () ->
-        {
-            BlockStateModel baseModel = ModelUtils.getModel(srcState);
-            if (baseModel instanceof AbstractFramedBlockModel framedModel)
-            {
-                baseModel = framedModel.getBaseModel();
-            }
-            GeometryFactory.Context ctx = new GeometryFactory.Context(state, baseModel, AuxModelProvider.invalid(), TextureLookup.runtime());
-            return new FramedBlockModel(ctx, geometry.create(ctx));
-        };
+        return properties.stream()
+                .map(Property::getName)
+                .collect(Collectors.joining(", ", "[ ", " ]"));
     }
 }

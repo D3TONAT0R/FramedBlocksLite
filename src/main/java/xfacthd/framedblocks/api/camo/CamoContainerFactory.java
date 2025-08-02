@@ -10,15 +10,9 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
-import xfacthd.framedblocks.api.util.CamoMessageVerbosity;
-import xfacthd.framedblocks.api.util.ConfigView;
-import xfacthd.framedblocks.api.util.Utils;
-
-import java.util.Optional;
+import xfacthd.framedblocks.api.util.*;
 
 public abstract class CamoContainerFactory<T extends CamoContainer<?, T>>
 {
@@ -27,18 +21,18 @@ public abstract class CamoContainerFactory<T extends CamoContainer<?, T>>
     /**
      * Save the given the {@link CamoContainer} to the given {@link CompoundTag} for sync over the network
      *
-     * @apiNote Must be called via {@link CamoContainerHelper#writeToNetwork(ValueOutput, CamoContainer)}
+     * @apiNote Must be called via {@link CamoContainerHelper#writeToNetwork(CamoContainer)}
      */
     @ApiStatus.OverrideOnly
-    protected abstract void writeToNetwork(ValueOutput valueOutput, T container);
+    protected abstract void writeToNetwork(CompoundTag tag, T container);
 
     /**
      * Reconstruct the {@link CamoContainer} from the given {@link CompoundTag} from a network packet
      *
-     * @apiNote Must be called via {@link CamoContainerHelper#readFromNetwork(Optional)}
+     * @apiNote Must be called via {@link CamoContainerHelper#readFromNetwork(CompoundTag)}
      */
     @ApiStatus.OverrideOnly
-    protected abstract T readFromNetwork(ValueInput valueInput);
+    protected abstract T readFromNetwork(CompoundTag tag);
 
     /**
      * Construct a {@link CamoContainer} from the given {@link ItemStack} and consume the resources. Must take
@@ -106,6 +100,26 @@ public abstract class CamoContainerFactory<T extends CamoContainer<?, T>>
      * @return a new camo container if the camo data changes from this interaction, otherwise the given one
      */
     public T handleInteraction(Level level, BlockPos pos, Player player, T camo, ItemStack stack, InteractionHand hand)
+    {
+        return handleInteraction(level, pos, player, camo, stack);
+    }
+
+    /**
+     * Handle interactions with the given camo in the provided context. If the interaction changes the camo data,
+     * then a new camo container with the new data must be returned, otherwise the given camo should be returned.
+     *
+     * @param level The level the framed block holding the camo is in
+     * @param pos The position of the framed block holding the camo
+     * @param player The player interacting with the framed block
+     * @param camo The camo container the player is interacting with
+     * @param stack The {@link ItemStack} used to interact with the framed block
+     *
+     * @return a new camo container if the camo data changes from this interaction, otherwise the given one
+     *
+     * @deprecated Use {@link #handleInteraction(Level, BlockPos, Player, CamoContainer, ItemStack, InteractionHand)} instead
+     */
+    @Deprecated(forRemoval = true, since = "10.2.1")
+    public T handleInteraction(Level level, BlockPos pos, Player player, T camo, ItemStack stack)
     {
         return camo;
     }

@@ -44,6 +44,10 @@ public final class TrapdoorSkipPredicate implements SideSkipPredicate
                      FRAMED_IRON_DOOR -> testAgainstDoor(
                         dir, half, open, adjState, side
                 );
+                case FRAMED_GATE,
+                     FRAMED_IRON_GATE -> testAgainstGate(
+                        dir, half, open, adjState, side
+                );
                 default -> false;
             };
         }
@@ -78,5 +82,20 @@ public final class TrapdoorSkipPredicate implements SideSkipPredicate
         boolean adjOpen = adjState.getValue(BlockStateProperties.OPEN);
 
         return DoorDirs.Trapdoor.getDoorEdgeDir(dir, half, open, side).isEqualTo(DoorDirs.Door.getDoorEdgeDir(adjDir, adjHinge, adjOpen, side.getOpposite()));
+    }
+
+    @CullTest.TestTarget({
+            BlockType.FRAMED_GATE,
+            BlockType.FRAMED_IRON_GATE
+    })
+    private static boolean testAgainstGate(
+            Direction dir, Half half, boolean open, BlockState adjState, Direction side
+    )
+    {
+        Direction adjDir = adjState.getValue(BlockStateProperties.HORIZONTAL_FACING);
+        DoorHingeSide adjHinge = adjState.getValue(BlockStateProperties.DOOR_HINGE);
+        boolean adjOpen = adjState.getValue(BlockStateProperties.OPEN);
+
+        return DoorDirs.Trapdoor.getDoorEdgeDir(dir, half, open, side).isEqualTo(DoorDirs.Gate.getDoorEdgeDir(adjDir, adjHinge, adjOpen, side.getOpposite()));
     }
 }

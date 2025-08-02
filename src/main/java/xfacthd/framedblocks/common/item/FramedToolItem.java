@@ -24,7 +24,13 @@ public class FramedToolItem extends Item
     }
 
     @Override
-    public ItemStack getCraftingRemainder(ItemStack stack)
+    public boolean hasCraftingRemainingItem(ItemStack stack)
+    {
+        return true;
+    }
+
+    @Override
+    public ItemStack getCraftingRemainingItem(ItemStack stack)
     {
         return stack.copy();
     }

@@ -2,9 +2,7 @@ package xfacthd.framedblocks.common.data.conpreds.stairs;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.Half;
-import net.minecraft.world.level.block.state.properties.StairsShape;
+import net.minecraft.world.level.block.state.properties.*;
 import org.jetbrains.annotations.Nullable;
 import xfacthd.framedblocks.api.predicate.contex.ConnectionPredicate;
 

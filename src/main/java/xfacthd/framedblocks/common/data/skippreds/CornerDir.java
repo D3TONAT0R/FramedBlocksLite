@@ -7,7 +7,7 @@ import net.minecraft.core.Direction;
  */
 public enum CornerDir
 {
-    NULL(Direction.UP, Direction.UP, Direction.UP),
+    NULL(null, null, null),
 
     UP_NORTH_EAST(Direction.UP, Direction.NORTH, Direction.EAST),
     UP_NORTH_WEST(Direction.UP, Direction.NORTH, Direction.WEST),

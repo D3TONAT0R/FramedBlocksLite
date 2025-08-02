@@ -3,21 +3,17 @@ package xfacthd.framedblocks.mixin;
 import com.google.common.base.Preconditions;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.*;
 import xfacthd.framedblocks.api.block.IFramedBlock;
-import xfacthd.framedblocks.api.internal.duck.StateCacheAccessor;
+import xfacthd.framedblocks.api.block.cache.IStateCacheAccessor;
 import xfacthd.framedblocks.api.block.cache.StateCache;
 
-import java.util.Objects;
+import java.util.*;
 
 @Mixin(BlockBehaviour.BlockStateBase.class)
-public abstract class MixinBlockStateBase implements StateCacheAccessor
+public abstract class MixinBlockStateBase implements IStateCacheAccessor
 {
     @Unique
-    @Nullable
     private StateCache framedblocks$cache = null;
 
     @Shadow

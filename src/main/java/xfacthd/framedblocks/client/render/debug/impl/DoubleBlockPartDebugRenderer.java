@@ -3,30 +3,21 @@ package xfacthd.framedblocks.client.render.debug.impl;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.OutlineBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.ModelBlockRenderer;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.core.BlockPos;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.neoforged.neoforge.model.data.ModelData;
+import net.neoforged.neoforge.client.model.data.ModelData;
 import xfacthd.framedblocks.api.block.IFramedBlock;
-import xfacthd.framedblocks.api.block.blockentity.FramedDoubleBlockEntity;
-import xfacthd.framedblocks.api.block.doubleblock.DoubleBlockParts;
-import xfacthd.framedblocks.api.camo.block.SimpleBlockCamoContainer;
-import xfacthd.framedblocks.api.model.data.AbstractFramedBlockData;
+import xfacthd.framedblocks.api.camo.block.BlockCamoContent;
 import xfacthd.framedblocks.api.model.data.FramedBlockData;
 import xfacthd.framedblocks.api.render.debug.BlockDebugRenderer;
-import xfacthd.framedblocks.api.util.ClientUtils;
-import xfacthd.framedblocks.api.util.SingleBlockFakeLevel;
-import xfacthd.framedblocks.common.FBContent;
+import xfacthd.framedblocks.common.blockentity.doubled.FramedDoubleBlockEntity;
 import xfacthd.framedblocks.common.config.DevToolsConfig;
 
 import java.util.Objects;
@@ -34,9 +25,7 @@ import java.util.Objects;
 public class DoubleBlockPartDebugRenderer implements BlockDebugRenderer<FramedDoubleBlockEntity>
 {
     public static final DoubleBlockPartDebugRenderer INSTANCE = new DoubleBlockPartDebugRenderer();
-    private static final FramedBlockData MODEL_DATA = new FramedBlockData(new SimpleBlockCamoContainer(
-            Blocks.STONE.defaultBlockState(), FBContent.FACTORY_BLOCK.get()
-    ), false);
+    private static final FramedBlockData MODEL_DATA = new FramedBlockData(new BlockCamoContent(Blocks.STONE.defaultBlockState()), false);
 
     private DoubleBlockPartDebugRenderer() { }
 
@@ -54,11 +43,11 @@ public class DoubleBlockPartDebugRenderer implements BlockDebugRenderer<FramedDo
         BlockState state = be.getBlockState();
         if (!(state.getBlock() instanceof IFramedBlock)) return;
 
-        DoubleBlockParts parts = be.getParts();
+        Tuple<BlockState, BlockState> blockPair = be.getBlockPair();
         Player player = Objects.requireNonNull(Minecraft.getInstance().player);
         boolean secondary = be.debugHitSecondary(blockHit, player);
-        BlockState partState = secondary ? parts.stateTwo() : parts.stateOne();
-        BlockStateModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(partState);
+        BlockState partState = secondary ? blockPair.getB() : blockPair.getA();
+        BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(partState);
 
         OutlineBufferSource outlineBuffer = Minecraft.getInstance().renderBuffers().outlineBufferSource();
         outlineBuffer.setColor(
@@ -68,23 +57,22 @@ public class DoubleBlockPartDebugRenderer implements BlockDebugRenderer<FramedDo
                 0xFF
         );
 
-        ModelData modelData = be.getModelData().derive().with(AbstractFramedBlockData.PROPERTY, MODEL_DATA).build();
-        BlockAndTintGetter level = new SingleBlockFakeLevel(Objects.requireNonNull(be.getLevel()), be.getBlockPos(), partState, be, modelData);
+        ModelData modelData = ((IFramedBlock) state.getBlock()).unpackNestedModelData(be.getModelData(), state, partState);
+        modelData = modelData.derive().with(FramedBlockData.PROPERTY, MODEL_DATA).build();
 
-        VertexConsumer consumer = outlineBuffer.getBuffer(RenderType.outline(ClientUtils.BLOCK_ATLAS));
-        ModelBlockRenderer.renderModel(
+        //noinspection deprecation
+        VertexConsumer consumer = outlineBuffer.getBuffer(RenderType.outline(TextureAtlas.LOCATION_BLOCKS));
+        Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(
                 poseStack.last(),
-                type -> consumer,
+                consumer,
+                partState,
                 model,
                 1F, 1F, 1F,
                 LightTexture.FULL_BRIGHT,
                 OverlayTexture.NO_OVERLAY,
-                level,
-                BlockPos.ZERO,
-                partState
+                modelData,
+                RenderType.solid()
         );
-
-        outlineBuffer.endOutlineBatch();
     }
 
     @Override

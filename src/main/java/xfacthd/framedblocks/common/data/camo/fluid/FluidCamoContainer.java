@@ -41,7 +41,8 @@ public final class FluidCamoContainer extends CamoContainer<FluidCamoContent, Fl
     public boolean equals(Object obj)
     {
         if (obj == this) return true;
-        return obj instanceof FluidCamoContainer fluidContainer && content.equals(fluidContainer.content);
+        if (obj == null || obj.getClass() != FluidCamoContainer.class) return false;
+        return content.equals(((FluidCamoContainer) obj).content);
     }
 
     @Override

@@ -13,35 +13,8 @@ base {
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
-sourceSets {
-    main.resources {
-        srcDir 'src/generated/resources'
-    }
-
-    datagen {
-        java {
-            srcDir "src/datagen/java"
-            compileClasspath += main.output
-            runtimeClasspath += main.output
-        }
-    }
-
-    test {
-        java {
-            srcDir "src/test/java"
-        }
-        resources {
-            srcDir "src/test/resources"
-        }
-    }
-}
-
 neoForge {
     version = project.neoforge_version
-
-    validateAccessTransformers = true
-
-    interfaceInjectionData = files('src/main/resources/injected_interfaces.json')
 
     parchment {
         minecraftVersion = project.parchment_minecraft_version
@@ -72,17 +45,16 @@ neoForge {
         }
 
         data {
-            clientData()
+            data()
             gameDirectory = project.file('run')
 
             programArguments.addAll(
                     '--mod', 'framedblocks',
                     '--all',
                     '--output', file('src/generated/resources/').getAbsolutePath(),
-                    '--existing', file('src/main/resources/').getAbsolutePath()
+                    '--existing', file('src/main/resources/').getAbsolutePath(),
+                    '--existing-mod', 'ae2'
             )
-
-            sourceSet = project.sourceSets.datagen
         }
 
         gameTestServer {
@@ -94,13 +66,26 @@ neoForge {
     mods {
         framedblocks {
             sourceSet(project.sourceSets.main)
-            sourceSet(project.sourceSets.datagen)
             sourceSet(project.sourceSets.test)
         }
     }
 
-    addModdingDependenciesTo(project.sourceSets.datagen)
     addModdingDependenciesTo(project.sourceSets.test)
+}
+
+sourceSets {
+    main.resources {
+        srcDir 'src/generated/resources'
+    }
+
+    test {
+        java {
+            srcDir "src/test/java"
+        }
+        resources {
+            srcDir "src/test/resources"
+        }
+    }
 }
 
 repositories {
@@ -151,6 +136,15 @@ repositories {
         }
     }
     maven {
+        name = "Shedaniel's maven"
+        url = 'https://maven.shedaniel.me/'
+        content {
+            includeGroup('dev.architectury')
+            includeGroup('me.shedaniel')
+            includeGroup('me.shedaniel.cloth')
+        }
+    }
+    maven {
         name = 'ResourcefulBees maven'
         url = 'https://maven.resourcefulbees.com/repository/maven-public/'
         content {
@@ -196,6 +190,15 @@ dependencies {
     compileOnly("mezz.jei:jei-${jei_mc_version}-neoforge-api:${jei_version}")
     runtimeOnly("mezz.jei:jei-${jei_mc_version}-neoforge:${jei_version}")
 
+    // Switch Arch, Cloth and REI-neoforge to impl for runtime testing
+    compileOnly("dev.architectury:architectury-neoforge:${arch_version}")
+    compileOnly("me.shedaniel.cloth:cloth-config-neoforge:${cloth_version}")
+    compileOnly("me.shedaniel:RoughlyEnoughItems-neoforge:${rei_version}")
+    //runtimeOnly("curse.maven:reipc-521393:${reipc_coord}")
+    compileOnly("me.shedaniel:RoughlyEnoughItems-api-neoforge:${rei_version}")
+    compileOnly("me.shedaniel:RoughlyEnoughItems-default-plugin-neoforge:${rei_version}")
+    compileOnly("me.shedaniel:REIPluginCompatibilities-forge-annotations:${reipcanno_version}")
+
     compileOnly("dev.emi:emi-neoforge:${emi_version}+${emi_mc_version}:api")
     //runtimeOnly("dev.emi:emi-neoforge:${emi_version}+${emi_mc_version}")
 
@@ -211,8 +214,7 @@ dependencies {
     compileOnly("appeng:appliedenergistics2:${ae2_version}:api")
     //runtimeOnly("appeng:appliedenergistics2:${ae2_version}")
 
-    //compileOnly("snownee.jade:Jade-NeoForge:${jade_mc_version}-${jade_version}")
-    compileOnly("curse.maven:jade-324717:6713216")
+    compileOnly("snownee.jade:Jade-NeoForge:${jade_mc_version}-${jade_version}")
 
     implementation("curse.maven:atlasviewer-633577:${atlasviewer_coord}")
 
@@ -229,6 +231,7 @@ tasks.withType(ProcessResources).configureEach {
             neoforge_version_range: neoforge_version_range,
             mod_version: mod_version,
             jei_version: jei_version,
+            rei_version: rei_version,
             emi_version: emi_version,
             diag_blocks_version: diag_blocks_version,
             buildinggadgets_version: buildinggadgets_version,
@@ -251,10 +254,6 @@ processTestResources {
     duplicatesStrategy(DuplicatesStrategy.INCLUDE)
 }
 
-jar {
-    exclude("/.cache")
-}
-
 publishing {
     publications {
         register ('mavenJava', MavenPublication) {
@@ -270,5 +269,4 @@ publishing {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
-    options.compilerArgs << "-Xmaxerrs" << "10000"
 }

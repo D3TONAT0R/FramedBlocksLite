@@ -7,16 +7,14 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.block.state.properties.*;
 import xfacthd.framedblocks.api.block.FramedProperties;
-import xfacthd.framedblocks.client.model.wrapping.ModelWrappingHandler;
-import xfacthd.framedblocks.client.model.wrapping.ModelWrappingManager;
+import xfacthd.framedblocks.client.modelwrapping.ModelWrappingHandler;
+import xfacthd.framedblocks.client.modelwrapping.ModelWrappingManager;
 import xfacthd.framedblocks.cmdtests.SpecialTestCommand;
 import xfacthd.framedblocks.common.FBContent;
 import xfacthd.framedblocks.common.data.BlockType;
-import xfacthd.framedblocks.common.util.MarkdownTable;
+import xfacthd.framedblocks.util.MarkdownTable;
 
 import java.util.stream.Collectors;
 

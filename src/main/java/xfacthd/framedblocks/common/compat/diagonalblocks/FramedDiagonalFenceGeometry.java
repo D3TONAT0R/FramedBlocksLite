@@ -3,14 +3,13 @@ package xfacthd.framedblocks.common.compat.diagonalblocks;
 import fuzs.diagonalblocks.api.v2.DiagonalBlock;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.core.Direction;
-import net.neoforged.neoforge.model.data.ModelData;
 import org.joml.Vector3f;
 import xfacthd.framedblocks.api.model.data.QuadMap;
 import xfacthd.framedblocks.api.model.wrapping.GeometryFactory;
 import xfacthd.framedblocks.api.model.quad.Modifiers;
 import xfacthd.framedblocks.api.model.quad.QuadModifier;
 import xfacthd.framedblocks.api.util.Utils;
-import xfacthd.framedblocks.client.model.geometry.pillar.FramedFenceGeometry;
+import xfacthd.framedblocks.client.model.pillar.FramedFenceGeometry;
 
 class FramedDiagonalFenceGeometry extends FramedFenceGeometry
 {
@@ -29,9 +28,9 @@ class FramedDiagonalFenceGeometry extends FramedFenceGeometry
     }
 
     @Override
-    public void transformQuad(QuadMap quadMap, BakedQuad quad, ModelData modelData)
+    public void transformQuad(QuadMap quadMap, BakedQuad quad)
     {
-        super.transformQuad(quadMap, quad, modelData);
+        super.transformQuad(quadMap, quad);
 
         createDiagonalFenceBars(quadMap, quad, Direction.NORTH, northEast);
         createDiagonalFenceBars(quadMap, quad, Direction.EAST, southEast);
@@ -46,14 +45,14 @@ class FramedDiagonalFenceGeometry extends FramedFenceGeometry
             return;
         }
 
-        Direction quadDir = quad.direction();
+        Direction quadDir = quad.getDirection();
 
         if (Utils.isY(quadDir))
         {
             QuadModifier mod = QuadModifier.of(quad)
-                    .apply(Modifiers.cut(dir.getOpposite(), 7F/16F))
-                    .apply(Modifiers.cut(dir.getClockWise(), 9F/16F))
-                    .apply(Modifiers.cut(dir.getCounterClockWise(), 9F/16F))
+                    .apply(Modifiers.cutTopBottom(dir.getOpposite(), 7F/16F))
+                    .apply(Modifiers.cutTopBottom(dir.getClockWise(), 9F/16F))
+                    .apply(Modifiers.cutTopBottom(dir.getCounterClockWise(), 9F/16F))
                     .apply(rotate(dir));
 
             mod.derive().apply(Modifiers.setPosition(quadDir == Direction.UP ? 15F/16F : 4F/16F))

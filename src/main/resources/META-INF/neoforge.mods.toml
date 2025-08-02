@@ -35,6 +35,13 @@ license="LGPL v3"
     side="BOTH"
 
 [[dependencies.framedblocks]]
+    modId="athena"
+    type="optional"
+    versionRange="[${athena_version},)"
+    ordering="NONE"
+    side="CLIENT"
+
+[[dependencies.framedblocks]]
     modId="atlasviewer"
     type="optional"
     versionRange="[${atlasviewer_version},)"
@@ -77,7 +84,7 @@ license="LGPL v3"
     side="BOTH"
 
 [[dependencies.framedblocks]]
-    modId="amendments"
+    modId="rei"
     type="optional"
     versionRange="[${rei_version},)"
     ordering="NONE"

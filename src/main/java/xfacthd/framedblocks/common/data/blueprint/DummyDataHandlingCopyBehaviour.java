@@ -2,9 +2,7 @@ package xfacthd.framedblocks.common.data.blueprint;
 
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.world.item.ItemStack;
-import xfacthd.framedblocks.api.blueprint.AuxBlueprintData;
-import xfacthd.framedblocks.api.blueprint.BlueprintCopyBehaviour;
-import xfacthd.framedblocks.api.blueprint.BlueprintData;
+import xfacthd.framedblocks.api.blueprint.*;
 
 public class DummyDataHandlingCopyBehaviour<T extends AuxBlueprintData<T>> implements BlueprintCopyBehaviour
 {

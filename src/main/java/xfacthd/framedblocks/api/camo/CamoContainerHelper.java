@@ -1,26 +1,24 @@
 package xfacthd.framedblocks.api.camo;
 
 import com.google.common.base.Preconditions;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.*;
+import net.minecraft.nbt.*;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.util.TriState;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.client.ChunkRenderTypeSet;
+import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.common.util.TriState;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import xfacthd.framedblocks.api.FramedBlocksAPI;
@@ -68,28 +66,29 @@ public final class CamoContainerHelper
      * Save the given the {@link CamoContainer} to a {@link CompoundTag} for sync over the network
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static void writeToNetwork(ValueOutput valueOutput, CamoContainer<?, ?> camo)
+    public static CompoundTag writeToNetwork(CamoContainer<?, ?> camo)
     {
         CamoContainerFactory factory = camo.getFactory();
         int id = REGISTRY.getId(factory);
         Preconditions.checkState(id != -1, "Attempted to get sync ID for unregistered CamoContainerFactory");
 
-        valueOutput.putInt("type", REGISTRY.getId(factory));
-        factory.writeToNetwork(valueOutput, camo);
+        CompoundTag tag = new CompoundTag();
+        tag.putInt("type", REGISTRY.getId(factory));
+        factory.writeToNetwork(tag, camo);
+        return tag;
     }
 
     /**
      * Reconstruct the {@link CamoContainer} from the given {@link CompoundTag} from a network packet
      */
-    public static CamoContainer<?, ?> readFromNetwork(Optional<ValueInput> optValueInput)
+    public static CamoContainer<?, ?> readFromNetwork(CompoundTag tag)
     {
-        if (optValueInput.isEmpty())
+        if (tag.isEmpty())
         {
             return EmptyCamoContainer.EMPTY;
         }
 
-        ValueInput valueInput = optValueInput.get();
-        int id = valueInput.getIntOr("type", -1);
+        int id = tag.getInt("type");
         CamoContainerFactory<?> factory = REGISTRY.byId(id);
         if (factory == null)
         {
@@ -202,18 +201,48 @@ public final class CamoContainerHelper
         return camo;
     }
 
+    /**
+     * Handle interactions with the given camo in the provided context. If the interaction changes the camo data,
+     * then a new camo container with the new data will be returned, otherwise the given camo is returned.
+     *
+     * @param level The level the framed block holding the camo is in
+     * @param pos The position of the framed block holding the camo
+     * @param player The player interacting with the framed block
+     * @param camo The camo container the player is interacting with
+     * @param stack The {@link ItemStack} used to interact with the framed block
+     *
+     * @return a new camo container if the camo data changes from this interaction, otherwise the given one
+     *
+     * @deprecated Use {@link #handleCamoInteraction(Level, BlockPos, Player, CamoContainer, ItemStack, InteractionHand)} instead
+     */
+    @Deprecated(forRemoval = true, since = "10.2.1")
+    public static CamoContainer<?, ?> handleCamoInteraction(Level level, BlockPos pos, Player player, CamoContainer<?, ?> camo, ItemStack stack)
+    {
+        return handleCamoInteraction(level, pos, player, camo, stack, InteractionHand.MAIN_HAND);
+    }
+
 
 
     public static final class Client
     {
         /**
-         * {@return a {@link BlockStateModel } to be rendered for the given {@link CamoContent}}
+         * {@return a {@link BakedModel} to be rendered for the given {@link CamoContent}}
          */
         @SuppressWarnings({ "rawtypes", "unchecked" })
-        public static BlockStateModel getOrCreateModel(CamoContent<?> content)
+        public static BakedModel getOrCreateModel(CamoContent<?> content)
         {
             CamoClientHandler clientHandler = content.getClientHandler();
             return clientHandler.getOrCreateModel(content);
+        }
+
+        /**
+         * {@return the set of render types which the given {@link CamoContent} renders in}
+         */
+        @SuppressWarnings({ "rawtypes", "unchecked" })
+        public static ChunkRenderTypeSet getRenderTypes(CamoContent<?> content, RandomSource random, ModelData modelData)
+        {
+            CamoClientHandler clientHandler = content.getClientHandler();
+            return clientHandler.getRenderTypes(content, random, modelData);
         }
 
 

@@ -2,24 +2,21 @@ package xfacthd.framedblocks.common.block.pillar;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import org.jetbrains.annotations.Nullable;
-import xfacthd.framedblocks.api.block.BlockUtils;
 import xfacthd.framedblocks.api.block.FramedProperties;
 import xfacthd.framedblocks.api.block.PlacementStateBuilder;
 import xfacthd.framedblocks.common.block.FramedBlock;
 import xfacthd.framedblocks.common.data.BlockType;
+import xfacthd.framedblocks.api.util.Utils;
 
 public class FramedCornerPillarBlock extends FramedBlock
 {
-    public FramedCornerPillarBlock(Properties props)
+    public FramedCornerPillarBlock()
     {
-        super(BlockType.FRAMED_CORNER_PILLAR, props);
+        super(BlockType.FRAMED_CORNER_PILLAR);
     }
 
     @Override
@@ -30,7 +27,6 @@ public class FramedCornerPillarBlock extends FramedBlock
     }
 
     @Override
-    @Nullable
     public BlockState getStateForPlacement(BlockPlaceContext ctx)
     {
         return PlacementStateBuilder.of(this, ctx)
@@ -49,7 +45,7 @@ public class FramedCornerPillarBlock extends FramedBlock
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror)
     {
-        return BlockUtils.mirrorCornerBlock(state, mirror);
+        return Utils.mirrorCornerBlock(state, mirror);
     }
 
     @Override

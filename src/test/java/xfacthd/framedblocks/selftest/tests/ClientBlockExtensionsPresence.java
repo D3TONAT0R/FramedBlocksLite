@@ -2,7 +2,7 @@ package xfacthd.framedblocks.selftest.tests;
 
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.client.extensions.common.IClientBlockExtensions;
-import xfacthd.framedblocks.api.block.render.FramedClientBlockExtensions;
+import xfacthd.framedblocks.api.block.render.FramedBlockRenderProperties;
 import xfacthd.framedblocks.selftest.SelfTestReporter;
 
 import java.util.List;
@@ -15,9 +15,9 @@ public final class ClientBlockExtensionsPresence
 
         blocks.forEach(block ->
         {
-            if (!(IClientBlockExtensions.of(block) instanceof FramedClientBlockExtensions))
+            if (!(IClientBlockExtensions.of(block) instanceof FramedBlockRenderProperties))
             {
-                reporter.warn("Block '{}' does not provide FramedBlockClientExtensions", block);
+                reporter.warn("Block '{}' does not provide FramedBlockRenderProperties", block);
             }
         });
 

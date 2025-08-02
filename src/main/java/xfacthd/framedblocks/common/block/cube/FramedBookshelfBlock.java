@@ -9,9 +9,9 @@ import xfacthd.framedblocks.common.data.BlockType;
 
 public class FramedBookshelfBlock extends FramedBlock
 {
-    public FramedBookshelfBlock(Properties props)
+    public FramedBookshelfBlock()
     {
-        super(BlockType.FRAMED_BOOKSHELF, props);
+        super(BlockType.FRAMED_BOOKSHELF);
     }
 
     @Override

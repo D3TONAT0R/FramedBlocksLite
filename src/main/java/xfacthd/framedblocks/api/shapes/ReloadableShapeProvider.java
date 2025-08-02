@@ -1,5 +1,6 @@
 package xfacthd.framedblocks.api.shapes;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -15,17 +16,9 @@ public final class ReloadableShapeProvider implements ShapeProvider
     private final ImmutableList<BlockState> states;
     private ShapeProvider wrapped;
 
-    public static ShapeProvider of(ShapeGenerator generator, ImmutableList<BlockState> states)
+    public ReloadableShapeProvider(ShapeGenerator generator, ImmutableList<BlockState> states)
     {
-        if (!FMLEnvironment.production && generator != ShapeGenerator.EMPTY)
-        {
-            return new ReloadableShapeProvider(generator, states);
-        }
-        return generator.generate(states);
-    }
-
-    private ReloadableShapeProvider(ShapeGenerator generator, ImmutableList<BlockState> states)
-    {
+        Preconditions.checkState(!FMLEnvironment.production, "Reloading shapes is not supported in production");
         this.generator = generator;
         this.states = states;
         this.wrapped = generator.generate(states);
@@ -54,11 +47,5 @@ public final class ReloadableShapeProvider implements ShapeProvider
     public void reload()
     {
         wrapped = generator.generate(states);
-    }
-
-    @ApiStatus.Internal
-    public ImmutableList<BlockState> getStates()
-    {
-        return states;
     }
 }

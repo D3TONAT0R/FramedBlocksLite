@@ -1,11 +1,17 @@
 package xfacthd.framedblocks.client.util;
 
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
-import xfacthd.framedblocks.common.crafting.saw.FramingSawRecipeCache;
+import net.neoforged.neoforge.client.event.RecipesUpdatedEvent;
+import xfacthd.framedblocks.common.crafting.FramingSawRecipeCache;
 
 public final class ClientEventHandler
 {
-    public static void onClientDisconnect(@SuppressWarnings("unused") ClientPlayerNetworkEvent.LoggingOut event)
+    public static void onRecipesUpdated(final RecipesUpdatedEvent event)
+    {
+        FramingSawRecipeCache.get(true).update(event.getRecipeManager());
+    }
+
+    public static void onClientDisconnect(@SuppressWarnings("unused") final ClientPlayerNetworkEvent.LoggingOut event)
     {
         FramingSawRecipeCache.get(true).clear();
     }

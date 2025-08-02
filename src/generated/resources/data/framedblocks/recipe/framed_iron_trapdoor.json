@@ -2,8 +2,12 @@
   "type": "minecraft:crafting_shapeless",
   "category": "building",
   "ingredients": [
-    "framedblocks:framed_trapdoor",
-    "minecraft:iron_ingot"
+    {
+      "item": "framedblocks:framed_trapdoor"
+    },
+    {
+      "item": "minecraft:iron_ingot"
+    }
   ],
   "result": {
     "count": 1,

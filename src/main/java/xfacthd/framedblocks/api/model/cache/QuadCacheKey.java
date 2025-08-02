@@ -10,8 +10,4 @@ public interface QuadCacheKey
 
     @Nullable
     Object ctCtx();
-
-    boolean secondPart();
-
-    boolean emissive();
 }

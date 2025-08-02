@@ -1,50 +1,39 @@
 package xfacthd.framedblocks.common.block.door;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
-import net.minecraft.util.RandomSource;
+import net.minecraft.core.*;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.ScheduledTickAccess;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.item.*;
+import net.minecraft.world.level.*;
+import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockSetType;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DoorHingeSide;
-import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.redstone.Orientation;
+import net.minecraft.world.level.block.state.properties.*;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
-import xfacthd.framedblocks.api.block.BlockUtils;
-import xfacthd.framedblocks.api.block.FramedProperties;
-import xfacthd.framedblocks.api.block.IFramedBlock;
-import xfacthd.framedblocks.api.block.blockentity.FramedBlockEntity;
+import xfacthd.framedblocks.api.block.*;
 import xfacthd.framedblocks.api.blueprint.BlueprintData;
+import xfacthd.framedblocks.api.camo.CamoContainer;
 import xfacthd.framedblocks.api.model.wrapping.WrapHelper;
 import xfacthd.framedblocks.api.model.wrapping.statemerger.StateMerger;
-import xfacthd.framedblocks.api.camo.CamoList;
+import xfacthd.framedblocks.api.util.CamoList;
 import xfacthd.framedblocks.api.util.Utils;
-import xfacthd.framedblocks.common.block.IFramedBlockInternal;
+import xfacthd.framedblocks.common.block.IFramedDoubleBlock;
 import xfacthd.framedblocks.common.blockentity.special.FramedDoorBlockEntity;
 import xfacthd.framedblocks.common.data.BlockType;
 import xfacthd.framedblocks.common.data.blueprint.DoorCopyBehaviour;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-public class FramedDoorBlock extends DoorBlock implements IFramedBlockInternal
+public class FramedDoorBlock extends DoorBlock implements IFramedBlock
 {
     private final BlockType type;
 
@@ -52,19 +41,22 @@ public class FramedDoorBlock extends DoorBlock implements IFramedBlockInternal
     {
         super(blockSet, props);
         this.type = type;
-        BlockUtils.configureStandardProperties(this);
+        registerDefaultState(defaultBlockState()
+                .setValue(FramedProperties.SOLID, false)
+                .setValue(FramedProperties.GLOWING, false)
+                .setValue(FramedProperties.PROPAGATES_SKYLIGHT, false)
+        );
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder)
     {
         super.createBlockStateDefinition(builder);
-        BlockUtils.addRequiredProperties(builder);
-        builder.add(FramedProperties.SOLID);
+        builder.add(FramedProperties.SOLID, FramedProperties.GLOWING, FramedProperties.PROPAGATES_SKYLIGHT);
     }
 
     @Override
-    protected InteractionResult useItemOn(
+    protected ItemInteractionResult useItemOn(
             ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit
     )
     {
@@ -86,22 +78,13 @@ public class FramedDoorBlock extends DoorBlock implements IFramedBlockInternal
     }
 
     @Override
-    protected BlockState updateShape(
-            BlockState state,
-            LevelReader level,
-            ScheduledTickAccess tickAccess,
-            BlockPos pos,
-            Direction side,
-            BlockPos adjPos,
-            BlockState adjState,
-            RandomSource random
-    )
+    protected BlockState updateShape(BlockState state, Direction side, BlockState adjState, LevelAccessor level, BlockPos pos, BlockPos adjPos)
     {
-        BlockState newState = super.updateShape(state, level, tickAccess, pos, side, adjPos, adjState, random);
+        BlockState newState = super.updateShape(state, side, adjState, level, pos, adjPos);
         if (newState.getBlock() == this)
         {
             newState = newState.setValue(FramedProperties.SOLID, state.getValue(FramedProperties.SOLID));
-            newState = BlockUtils.copyStandardProperties(this, state, newState, false);
+            newState = Utils.copyRequiredProperties(state, newState);
         }
         if (newState == state)
         {
@@ -111,9 +94,9 @@ public class FramedDoorBlock extends DoorBlock implements IFramedBlockInternal
     }
 
     @Override
-    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, @Nullable Orientation orientation, boolean isMoving)
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving)
     {
-        super.neighborChanged(state, level, pos, block, orientation, isMoving);
+        super.neighborChanged(state, level, pos, block, fromPos, isMoving);
         updateCulling(level, pos);
     }
 
@@ -124,9 +107,9 @@ public class FramedDoorBlock extends DoorBlock implements IFramedBlockInternal
     }
 
     @Override
-    protected VoxelShape getOcclusionShape(BlockState state)
+    protected VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos)
     {
-        return getCamoOcclusionShape(state, null);
+        return getCamoOcclusionShape(state, level, pos, null);
     }
 
     @Override
@@ -142,7 +125,7 @@ public class FramedDoorBlock extends DoorBlock implements IFramedBlockInternal
     }
 
     @Override
-    protected boolean propagatesSkylightDown(BlockState state)
+    protected boolean propagatesSkylightDown(BlockState state, BlockGetter level, BlockPos pos)
     {
         return state.getValue(FramedProperties.PROPAGATES_SKYLIGHT);
     }
@@ -154,21 +137,35 @@ public class FramedDoorBlock extends DoorBlock implements IFramedBlockInternal
     }
 
     @Override
+    public void appendHoverText(ItemStack stack, Item.TooltipContext ctx, List<Component> lines, TooltipFlag flag)
+    {
+        appendCamoHoverText(stack, lines);
+    }
+
+    @Override
     public BlockType getBlockType()
     {
         return type;
     }
 
     @Override
-    public FramedBlockEntity newBlockEntity(BlockPos pos, BlockState state)
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state)
     {
         return new FramedDoorBlockEntity(pos, state);
     }
 
     @Override
-    public CamoList getCamosFromBlueprint(BlueprintData blueprintData)
+    public Optional<MutableComponent> printCamoBlock(BlueprintData blueprintData)
     {
-        return blueprintData.camos().concat(DoorCopyBehaviour.getSecondData(blueprintData).camos());
+        CamoContainer<?, ?> camoContainer = blueprintData.camos().getCamo(0);
+        CamoContainer<?, ?> camoContainerTwo = DoorCopyBehaviour.getSecondData(blueprintData).camos().getCamo(0);
+        return IFramedDoubleBlock.printCamoData(camoContainer, camoContainerTwo, true);
+    }
+
+    @Override
+    public Optional<MutableComponent> printCamoData(CamoList camos, boolean blueprint)
+    {
+        return IFramedDoubleBlock.printCamoData(camos.getCamo(0), camos.getCamo(1), blueprint);
     }
 
     @Override
@@ -192,21 +189,21 @@ public class FramedDoorBlock extends DoorBlock implements IFramedBlockInternal
 
 
 
-    public static FramedDoorBlock wood(Properties props)
+    public static FramedDoorBlock wood()
     {
         return new FramedDoorBlock(
                 BlockType.FRAMED_DOOR,
                 BlockSetType.OAK,
-                IFramedBlock.applyDefaultProperties(props, BlockType.FRAMED_DOOR)
+                IFramedBlock.createProperties(BlockType.FRAMED_DOOR)
         );
     }
 
-    public static FramedDoorBlock iron(Properties props)
+    public static FramedDoorBlock iron()
     {
         return new FramedDoorBlock(
                 BlockType.FRAMED_IRON_DOOR,
                 BlockSetType.IRON,
-                IFramedBlock.applyDefaultProperties(props, BlockType.FRAMED_IRON_DOOR)
+                IFramedBlock.createProperties(BlockType.FRAMED_IRON_DOOR)
                         .requiresCorrectToolForDrops()
         );
     }

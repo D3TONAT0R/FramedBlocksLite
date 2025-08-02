@@ -3,15 +3,11 @@ package xfacthd.framedblocks.common.block.slab;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.pathfinder.PathComputationType;
-import org.jetbrains.annotations.Nullable;
-import xfacthd.framedblocks.api.block.BlockUtils;
 import xfacthd.framedblocks.api.block.FramedProperties;
 import xfacthd.framedblocks.api.block.PlacementStateBuilder;
 import xfacthd.framedblocks.common.block.FramedBlock;
@@ -20,9 +16,9 @@ import xfacthd.framedblocks.api.util.Utils;
 
 public class FramedSlabCornerBlock extends FramedBlock
 {
-    public FramedSlabCornerBlock(Properties props)
+    public FramedSlabCornerBlock()
     {
-        super(BlockType.FRAMED_SLAB_CORNER, props);
+        super(BlockType.FRAMED_SLAB_CORNER);
         registerDefaultState(defaultBlockState().setValue(FramedProperties.TOP, false));
     }
 
@@ -34,7 +30,6 @@ public class FramedSlabCornerBlock extends FramedBlock
     }
 
     @Override
-    @Nullable
     public BlockState getStateForPlacement(BlockPlaceContext ctx)
     {
         return PlacementStateBuilder.of(this, ctx)
@@ -74,13 +69,13 @@ public class FramedSlabCornerBlock extends FramedBlock
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror)
     {
-        return BlockUtils.mirrorCornerBlock(state, mirror);
+        return Utils.mirrorCornerBlock(state, mirror);
     }
 
     @Override
     public BlockState getItemModelSource()
     {
-        return defaultBlockState().setValue(FramedProperties.FACING_HOR, Direction.SOUTH);
+        return defaultBlockState();
     }
 
     @Override

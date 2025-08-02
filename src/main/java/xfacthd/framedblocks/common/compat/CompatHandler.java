@@ -21,6 +21,7 @@ public final class CompatHandler
         AthenaCompat.init();
         AtlasViewerCompat.init(modBus);
         BuildingGadgetsCompat.init(modBus);
+        CreateCompat.init();
         DiagonalBlocksCompat.init(modBus);
         SearchablesCompat.init();
     }

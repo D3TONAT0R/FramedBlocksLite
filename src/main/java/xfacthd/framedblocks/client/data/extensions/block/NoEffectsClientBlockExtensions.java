@@ -1,15 +1,13 @@
 package xfacthd.framedblocks.client.data.extensions.block;
 
 import net.minecraft.client.particle.ParticleEngine;
-import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
-import xfacthd.framedblocks.api.block.render.FramedClientBlockExtensions;
+import xfacthd.framedblocks.api.block.render.FramedBlockRenderProperties;
 
-public final class NoEffectsClientBlockExtensions extends FramedClientBlockExtensions
+public final class NoEffectsClientBlockExtensions extends FramedBlockRenderProperties
 {
     public static final NoEffectsClientBlockExtensions INSTANCE = new NoEffectsClientBlockExtensions();
 
@@ -25,17 +23,5 @@ public final class NoEffectsClientBlockExtensions extends FramedClientBlockExten
     public boolean addDestroyEffects(BlockState state, Level Level, BlockPos pos, ParticleEngine manager)
     {
         return true;
-    }
-
-    @Override
-    public boolean playHitSound(BlockState state, Level level, BlockPos pos, Direction hitFace, SoundManager soundManager)
-    {
-        return true;
-    }
-
-    @Override
-    public boolean playBreakSound(BlockState state, Level level, BlockPos pos)
-    {
-        return false;
     }
 }

@@ -2,28 +2,20 @@ package xfacthd.framedblocks.api.camo.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.particles.BlockParticleOption;
-import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.particles.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.util.TriState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.EmptyBlockGetter;
-import net.minecraft.world.level.Explosion;
-import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.MapColor;
 import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.common.util.TriState;
 import org.jetbrains.annotations.Nullable;
-import xfacthd.framedblocks.api.camo.CamoClientHandler;
-import xfacthd.framedblocks.api.camo.CamoContainerHelper;
-import xfacthd.framedblocks.api.camo.CamoContent;
+import xfacthd.framedblocks.api.camo.*;
 import xfacthd.framedblocks.api.util.ClientUtils;
 import xfacthd.framedblocks.api.util.Utils;
 
@@ -42,9 +34,9 @@ public final class BlockCamoContent extends CamoContent<BlockCamoContent>
     }
 
     @Override
-    public boolean propagatesSkylightDown()
+    public boolean propagatesSkylightDown(BlockGetter level, BlockPos pos)
     {
-        return state.propagatesSkylightDown();
+        return state.propagatesSkylightDown(level, pos);
     }
 
     @Override
@@ -122,6 +114,7 @@ public final class BlockCamoContent extends CamoContent<BlockCamoContent>
     }
 
     @Override
+    @Nullable
     public MapColor getMapColor(BlockGetter level, BlockPos pos)
     {
         return state.getMapColor(level, pos);
@@ -155,9 +148,9 @@ public final class BlockCamoContent extends CamoContent<BlockCamoContent>
     }
 
     @Override
-    public boolean isSolid()
+    public boolean isSolid(BlockGetter level, BlockPos pos)
     {
-        return state.isSolidRender();
+        return state.isSolidRender(level, pos);
     }
 
     @Override
@@ -179,9 +172,9 @@ public final class BlockCamoContent extends CamoContent<BlockCamoContent>
     }
 
     @Override
-    public boolean isOccludedBy(BlockState adjState, BlockGetter level, BlockPos pos, BlockPos adjPos, Direction side)
+    public boolean isOccludedBy(BlockState adjState, BlockGetter level, BlockPos pos, BlockPos adjPos)
     {
-        if (adjState.isSolidRender())
+        if (adjState.isSolidRender(level, adjPos))
         {
             return true;
         }
@@ -189,23 +182,23 @@ public final class BlockCamoContent extends CamoContent<BlockCamoContent>
         {
             return !adjState.is(Utils.NON_OCCLUDEABLE);
         }
-        return state.skipRendering(adjState, side);
+        return state.skipRendering(adjState, Utils.dirByNormal(pos, adjPos));
     }
 
     @Override
-    public boolean isOccludedBy(CamoContent<?> adjCamo, BlockGetter level, BlockPos pos, BlockPos adjPos, Direction side)
+    public boolean isOccludedBy(CamoContent<?> adjCamo, BlockGetter level, BlockPos pos, BlockPos adjPos)
     {
         if (adjCamo instanceof BlockCamoContent blockCamo)
         {
-            return isOccludedBy(blockCamo.state, level, pos, adjPos, side);
+            return isOccludedBy(blockCamo.state, level, pos, adjPos);
         }
-        return adjCamo.isSolid();
+        return adjCamo.isSolid(level, adjPos);
     }
 
     @Override
-    public boolean occludes(BlockState adjState, BlockGetter level, BlockPos pos, BlockPos adjPos, Direction side)
+    public boolean occludes(BlockState adjState, BlockGetter level, BlockPos pos, BlockPos adjPos)
     {
-        if (state.isSolidRender())
+        if (state.isSolidRender(level, pos))
         {
             return true;
         }
@@ -213,7 +206,7 @@ public final class BlockCamoContent extends CamoContent<BlockCamoContent>
         {
             return !adjState.is(Utils.NON_OCCLUDEABLE);
         }
-        return adjState.skipRendering(state, side.getOpposite());
+        return adjState.skipRendering(state, Utils.dirByNormal(adjPos, pos));
     }
 
     @Override
@@ -247,9 +240,11 @@ public final class BlockCamoContent extends CamoContent<BlockCamoContent>
     }
 
     @Override
-    public boolean equals(@Nullable Object obj)
+    public boolean equals(Object obj)
     {
-        return obj == this || (obj instanceof BlockCamoContent camo && state == camo.state);
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != BlockCamoContent.class) return false;
+        return state == ((BlockCamoContent) obj).state;
     }
 
     @Override

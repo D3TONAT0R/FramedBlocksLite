@@ -1,10 +1,18 @@
 package xfacthd.framedblocks.api;
 
-import org.jetbrains.annotations.ApiStatus;
+import net.minecraft.client.color.block.BlockColor;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.Direction;
+import net.neoforged.neoforge.client.model.data.ModelProperty;
+import org.jetbrains.annotations.Nullable;
+import xfacthd.framedblocks.api.block.render.FramedBlockColor;
+import xfacthd.framedblocks.api.model.data.QuadMap;
 import xfacthd.framedblocks.api.util.Utils;
 
-@ApiStatus.NonExtendable
-@SuppressWarnings({ "unused" })
+import java.util.function.Function;
+import java.util.function.Predicate;
+
+@SuppressWarnings({ "unused", "SameReturnValue" })
 public interface FramedBlocksClientAPI
 {
     FramedBlocksClientAPI INSTANCE = Utils.loadService(FramedBlocksClientAPI.class);

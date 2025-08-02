@@ -2,13 +2,13 @@ package xfacthd.framedblocks.cmdtests.tests;
 
 import com.google.common.base.Preconditions;
 import com.mojang.brigadier.context.CommandContext;
+import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.blocks.BlockStateArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -17,13 +17,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.util.FakePlayer;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import org.jetbrains.annotations.Nullable;
 import xfacthd.framedblocks.api.block.blockentity.FramedBlockEntity;
-import xfacthd.framedblocks.api.block.blockentity.FramedDoubleBlockEntity;
 import xfacthd.framedblocks.api.camo.block.SimpleBlockCamoContainer;
 import xfacthd.framedblocks.common.FBContent;
+import xfacthd.framedblocks.common.blockentity.doubled.FramedDoubleBlockEntity;
 
-import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -81,15 +79,10 @@ public final class ChunkBanTest
         return container;
     };
 
-    @Nullable
     private static Consumer<Component> resultMsgConsumer = null;
-    @Nullable
     private static ResourceKey<Level> dimension = null;
-    @Nullable
     private static BlockState state = null;
-    @Nullable
     private static BlockPos startPos = null;
-    @Nullable
     private static BlockPos placePos = null;
     private static int blocksPlaced = 0;
 
@@ -102,7 +95,8 @@ public final class ChunkBanTest
             return 0;
         }
 
-        if (!(ctx.getSource().getPlayer() instanceof ServerPlayer player) || player instanceof FakePlayer)
+        CommandSource source = ctx.getSource().source;
+        if (!(source instanceof ServerPlayer player) || source instanceof FakePlayer)
         {
             ctx.getSource().sendFailure(MSG_NOT_A_PLAYER);
             return 0;
@@ -123,11 +117,10 @@ public final class ChunkBanTest
             state = FBContent.BLOCK_FRAMED_DOUBLE_SLAB.value().defaultBlockState();
         }
 
-        ServerLevel level = ctx.getSource().getLevel();
         ChunkPos chunk = new ChunkPos(new BlockPos((int) player.getX(), (int) player.getY(), (int) player.getZ()));
-        int minY = level.getMinY();
+        int minY = player.level().getMinBuildHeight();
         startPos = placePos = SectionPos.of(chunk, SectionPos.blockToSectionCoord(minY)).origin().above();
-        dimension = level.dimension();
+        dimension = player.level().dimension();
         resultMsgConsumer = msg -> ctx.getSource().sendSuccess(() -> msg, true);
 
         ctx.getSource().sendSuccess(() -> Component.literal("Starting chunkban test preparation in chunk " + chunk), true);
@@ -135,16 +128,11 @@ public final class ChunkBanTest
         return 1;
     }
 
-    public static void onLevelTick(LevelTickEvent.Pre event)
+    public static void onLevelTick(final LevelTickEvent.Pre event)
     {
         Level level = event.getLevel();
         if (dimension != null && level.dimension() == dimension)
         {
-            Objects.requireNonNull(state);
-            Objects.requireNonNull(startPos);
-            Objects.requireNonNull(placePos);
-
-
             for (int i = 0; i < 16; i++)
             {
                 BlockPos pos = placePos.east(i);
@@ -167,9 +155,9 @@ public final class ChunkBanTest
             if (placePos.getZ() > startPos.getZ() + 15)
             {
                 placePos = placePos.north(16).above();
-                if (placePos.getY() >= level.getMaxY())
+                if (placePos.getY() >= level.getMaxBuildHeight())
                 {
-                    Objects.requireNonNull(resultMsgConsumer).accept(Component.literal(
+                    resultMsgConsumer.accept(Component.literal(
                             "Chunkban test preparation completed, placed " + blocksPlaced + " blocks"
                     ));
 

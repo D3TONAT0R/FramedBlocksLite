@@ -2,16 +2,13 @@ package xfacthd.framedblocks.common.block.slab;
 
 import net.minecraft.core.Direction;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.pathfinder.PathComputationType;
-import org.jetbrains.annotations.Nullable;
 import xfacthd.framedblocks.api.block.FramedProperties;
 import xfacthd.framedblocks.api.block.PlacementStateBuilder;
 import xfacthd.framedblocks.api.util.Utils;
@@ -22,9 +19,9 @@ import xfacthd.framedblocks.common.item.FramedSpecialBlockItem;
 
 public class FramedSlabBlock extends FramedBlock
 {
-    public FramedSlabBlock(Properties props)
+    public FramedSlabBlock()
     {
-        super(BlockType.FRAMED_SLAB, props);
+        super(BlockType.FRAMED_SLAB);
         registerDefaultState(defaultBlockState().setValue(FramedProperties.TOP, false));
     }
 
@@ -36,7 +33,6 @@ public class FramedSlabBlock extends FramedBlock
     }
 
     @Override
-    @Nullable
     public BlockState getStateForPlacement(BlockPlaceContext ctx)
     {
         return PlacementStateBuilder.of(this, ctx)
@@ -67,7 +63,7 @@ public class FramedSlabBlock extends FramedBlock
     }
 
     @Override
-    public BlockItem createBlockItem(Item.Properties props)
+    public BlockItem createBlockItem()
     {
         return new FramedSpecialBlockItem(this, true, new Item.Properties())
         {

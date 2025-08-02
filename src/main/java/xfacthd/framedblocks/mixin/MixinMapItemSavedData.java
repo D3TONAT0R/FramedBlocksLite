@@ -1,35 +1,23 @@
 package xfacthd.framedblocks.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
+import net.minecraft.core.*;
+import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.saveddata.maps.MapDecorationType;
-import net.minecraft.world.level.saveddata.maps.MapDecorationTypes;
-import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
-import net.neoforged.fml.loading.FMLEnvironment;
+import net.minecraft.world.level.saveddata.maps.*;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.*;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import xfacthd.framedblocks.FramedBlocks;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xfacthd.framedblocks.common.FBContent;
 import xfacthd.framedblocks.common.data.component.FramedMap;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 @Mixin(MapItemSavedData.class)
 @SuppressWarnings("MethodMayBeStatic")
@@ -70,50 +58,34 @@ public abstract class MixinMapItemSavedData implements FramedMap.MarkerRemover
         }
     }
 
-    @ModifyExpressionValue(
-            method = "<clinit>",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lcom/mojang/serialization/codecs/RecordCodecBuilder;create(Ljava/util/function/Function;)Lcom/mojang/serialization/Codec;"
-            )
-    )
-    private static Codec<MapItemSavedData> framedblocks$wrapCodec(Codec<MapItemSavedData> originalCodec)
+    @Inject(method = "load", at = @At("TAIL"))
+    private static void framedblocks$loadCustomMapMarkers(CompoundTag tag, HolderLookup.Provider lookupProvider, CallbackInfoReturnable<MapItemSavedData> cir)
     {
-        if (originalCodec instanceof MapCodec.MapCodecCodec<MapItemSavedData>(MapCodec<MapItemSavedData> codec))
+        ListTag frames = tag.getList("framedblocks:frames", Tag.TAG_COMPOUND);
+        for (int i = 0; i < frames.size(); i++)
         {
-            return RecordCodecBuilder.create(inst -> inst.group(
-                    codec.forGetter(Function.identity()),
-                    FramedMap.CODEC.listOf().optionalFieldOf("framedblocks:frames", List.of()).forGetter(MixinMapItemSavedData::framedblocks$getFramedMaps)
-            ).apply(inst, MixinMapItemSavedData::framedblocks$applyFramedMaps));
-        }
-        else
-        {
-            FramedBlocks.LOGGER.error("Failed to wrap MapItemSavedData.CODEC, map markers for Framed Item Frames will NOT persist!");
-            if (!FMLEnvironment.production)
+            CompoundTag frameTag = frames.getCompound(i);
+            FramedMap.CODEC.decode(NbtOps.INSTANCE, frameTag).ifSuccess(pair ->
             {
-                throw new RuntimeException("Failed to wrap MapItemSavedData.CODEC");
-            }
-            return originalCodec;
+                FramedMap map = pair.getFirst();
+                String frameId = FramedMap.makeFrameId(map.pos());
+                ((MixinMapItemSavedData)(Object) cir.getReturnValue()).framedblocks$addMapMarker(null, frameId, map);
+            });
         }
     }
 
-    @Unique
-    private static List<FramedMap> framedblocks$getFramedMaps(MapItemSavedData mapData)
+    @Inject(method = "save", at = @At("TAIL"))
+    private void framedblocks$saveCustomMapMarkers(CompoundTag tag, HolderLookup.Provider lookupProvider, CallbackInfoReturnable<CompoundTag> cir)
     {
-        //noinspection DataFlowIssue
-        return List.copyOf(((MixinMapItemSavedData)(Object) mapData).framedblocks$frameMarkers.values());
-    }
-
-    @Unique
-    private static MapItemSavedData framedblocks$applyFramedMaps(MapItemSavedData mapData, List<FramedMap> framedMaps)
-    {
-        for (FramedMap map : framedMaps)
+        if (!framedblocks$frameMarkers.isEmpty())
         {
-            String frameId = FramedMap.makeFrameId(map.pos());
-            //noinspection DataFlowIssue
-            ((MixinMapItemSavedData)(Object) mapData).framedblocks$addMapMarker(null, frameId, map);
+            ListTag frames = new ListTag();
+            for (FramedMap map : framedblocks$frameMarkers.values())
+            {
+                FramedMap.CODEC.encodeStart(NbtOps.INSTANCE, map).ifSuccess(frames::add);
+            }
+            tag.put("framedblocks:frames", frames);
         }
-        return mapData;
     }
 
     @Override

@@ -7,7 +7,7 @@ import net.minecraft.core.Direction;
  */
 public enum QuarterTriangleDir
 {
-    NULL(Direction.UP, Direction.UP, false),
+    NULL(null, null, false),
 
     NORTH_EAST_FALSE(Direction.NORTH, Direction.EAST, false),
     NORTH_WEST_FALSE(Direction.NORTH, Direction.WEST, false),

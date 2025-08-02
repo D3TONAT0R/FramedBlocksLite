@@ -15,9 +15,7 @@ import xfacthd.framedblocks.FramedBlocks;
 import xfacthd.framedblocks.cmdtests.tests.*;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
@@ -27,7 +25,7 @@ public final class SpecialTestCommand
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("uuuu_MM_dd-kk_mm_ss");
     private static final Path EXPORT_DIR = Path.of("./logs/test");
 
-    public static void registerCommands(RegisterCommandsEvent event)
+    public static void registerCommands(final RegisterCommandsEvent event)
     {
         event.getDispatcher().register(Commands.literal("fbtest")
                 .then(Commands.literal("skippredicates")
@@ -47,6 +45,9 @@ public final class SpecialTestCommand
                                 ))
                         )
                 )
+                .then(Commands.literal("recipecollision")
+                        .executes(async(RecipeCollisions.NAME, RecipeCollisions::checkForRecipeCollisions))
+                )
                 .then(Commands.literal("chunkban")
                         .then(Commands.argument("confirm", StringArgumentType.string())
                                 .then(Commands.argument("state", BlockStateArgument.block(event.getBuildContext()))
@@ -60,11 +61,6 @@ public final class SpecialTestCommand
                 )
                 .then(Commands.literal("modelperf")
                         .executes(async(ModelPerformanceTest.NAME, ModelPerformanceTest::testModelPerformance))
-                )
-                .then(Commands.literal("benchmark_cube")
-                        .then(Commands.argument("confirm", StringArgumentType.string())
-                                .executes(ModelBenchmarkCube::buildBenchmarkCube)
-                        )
                 )
         );
     }
@@ -86,7 +82,7 @@ public final class SpecialTestCommand
 
     public static void runGuardedOffThread(String testName, Consumer<Component> msgQueueAppender, Runnable test)
     {
-        Util.backgroundExecutor().execute(() ->
+        Util.backgroundExecutor().submit(() ->
         {
             try
             {
@@ -127,7 +123,7 @@ public final class SpecialTestCommand
 
             String pathText = path.toAbsolutePath().toString();
             Component pathComponent = Component.literal(pathText).withStyle(style ->
-                    style.withClickEvent(new ClickEvent.OpenFile(pathText))
+                    style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, pathText))
                             .applyFormat(ChatFormatting.UNDERLINE)
             );
             return Component.literal("Tests results exported to ").append(pathComponent);

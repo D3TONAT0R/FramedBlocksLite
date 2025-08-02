@@ -8,47 +8,37 @@ import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.BlockModelPart;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.model.data.ModelData;
+import net.neoforged.neoforge.client.model.data.ModelData;
 import org.joml.Vector3f;
 import xfacthd.framedblocks.api.block.blockentity.FramedBlockEntity;
 import xfacthd.framedblocks.api.model.quad.QuadData;
 import xfacthd.framedblocks.api.render.debug.BlockDebugRenderer;
-import xfacthd.framedblocks.api.util.SingleBlockFakeLevel;
-import xfacthd.framedblocks.api.util.Triangle;
+import xfacthd.framedblocks.api.util.Utils;
 import xfacthd.framedblocks.common.config.DevToolsConfig;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 public class QuadWindingDebugRenderer implements BlockDebugRenderer<FramedBlockEntity>
 {
     public static final QuadWindingDebugRenderer INSTANCE = new QuadWindingDebugRenderer();
-    private static final Direction[] DIRECTIONS = Arrays.copyOf(Direction.values(), 7);
-    private static final int[] VERT_INDEX_COLORS = { 0xFFFFFFFF, 0xFFFF0000, 0xFF00FF00, 0xFF0000FF };
     private static final RandomSource RANDOM = RandomSource.create();
 
     @Override
     public void render(FramedBlockEntity be, BlockHitResult blockHit, float partialTick, PoseStack poseStack, MultiBufferSource buffer, int light, int overlay)
     {
-        BlockPos pos = be.getBlockPos();
-        BlockState state = be.getBlockState();
-        LocalPlayer player = Objects.requireNonNull(Minecraft.getInstance().player);
+        BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(be.getBlockState());
+        Vector3f pos = new Vector3f();
+        Vector3f norm = new Vector3f();
+        Vec3 viewVector = Objects.requireNonNull(Minecraft.getInstance().player).getViewVector(partialTick).normalize();
 
         ModelData beModelData = Objects.requireNonNull(be.getLevel()).getModelData(be.getBlockPos());
         ModelData modelData = model.getModelData(be.getLevel(), be.getBlockPos(), be.getBlockState(), beModelData);
 
-        ModelData modelData = Objects.requireNonNull(be.getLevel()).getModelData(pos);
-        BlockAndTintGetter level = new SingleBlockFakeLevel(Objects.requireNonNull(be.getLevel()), pos, pos, state, be, modelData);
-        Vector3f vertPos = new Vector3f();
-        Vector3f vertNorm = new Vector3f();
-        for (BlockModelPart part : model.collectParts(level, pos, state, RANDOM))
+        Utils.forAllDirections(side ->
         {
             for (RenderType renderType : model.getRenderTypes(be.getBlockState(), RANDOM, modelData))
             {
@@ -88,26 +78,7 @@ public class QuadWindingDebugRenderer implements BlockDebugRenderer<FramedBlockE
                     }
                 }
             }
-        }
-    }
-
-    private static boolean checkViewIntersectsQuad(QuadData quadData, Vec3 eyePos, Vec3 viewVector)
-    {
-        Vector3f posVec = new Vector3f();
-
-        Triangle triOne = new Triangle(
-                new Vec3(quadData.pos(0, posVec)),
-                new Vec3(quadData.pos(1, posVec)),
-                new Vec3(quadData.pos(2, posVec))
-        );
-        if (triOne.intersects(eyePos, viewVector)) return true;
-
-        Triangle triTwo = new Triangle(
-                new Vec3(quadData.pos(2, posVec)),
-                new Vec3(quadData.pos(3, posVec)),
-                new Vec3(quadData.pos(0, posVec))
-        );
-        return triTwo.intersects(eyePos, viewVector);
+        });
     }
 
     @Override

@@ -1,13 +1,12 @@
 package xfacthd.framedblocks.client.render.particle;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.particle.ParticleRenderType;
-import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.client.particle.*;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.Fluid;
@@ -26,6 +25,7 @@ public final class FluidSpriteParticle extends TextureSheetParticle
     private final float vo;
     private final int brightness;
 
+    @SuppressWarnings("deprecation")
     public FluidSpriteParticle(ClientLevel level, double x, double y, double z, double sx, double sy, double sz, Fluid fluid)
     {
         super(level, x, y, z, sx, sy, sz);
@@ -45,7 +45,7 @@ public final class FluidSpriteParticle extends TextureSheetParticle
                 IClientFluidTypeExtensions.of(fluid).getStillTexture(),
                 MissingTextureAtlasSprite.getLocation()
         );
-        setSprite(ClientUtils.getBlockSprite(stillTex));
+        setSprite(Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(stillTex));
     }
 
     @Override

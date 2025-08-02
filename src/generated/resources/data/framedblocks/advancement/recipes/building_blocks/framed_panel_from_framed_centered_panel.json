@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "hasFramedCube": {
+    "hasFramedCenteredPanel": {
       "conditions": {
         "items": [
           {
-            "items": "framedblocks:framed_cube"
+            "items": "framedblocks:framed_centered_panel"
           }
         ]
       },
@@ -21,7 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "hasFramedCube"
+      "hasFramedCenteredPanel"
     ]
   ],
   "rewards": {

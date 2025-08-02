@@ -1,49 +1,42 @@
 package xfacthd.framedblocks.common.block.interactive.button;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
+import net.minecraft.core.*;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.ButtonBlock;
-import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.AttachFace;
-import net.minecraft.world.level.block.state.properties.BlockSetType;
-import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.block.state.properties.*;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
-import xfacthd.framedblocks.api.block.BlockUtils;
 import xfacthd.framedblocks.api.block.FramedProperties;
+import xfacthd.framedblocks.api.block.IFramedBlock;
 import xfacthd.framedblocks.api.model.wrapping.WrapHelper;
 import xfacthd.framedblocks.api.model.wrapping.statemerger.StateMerger;
 import xfacthd.framedblocks.api.util.Utils;
-import xfacthd.framedblocks.common.block.IFramedBlockInternal;
 import xfacthd.framedblocks.common.data.BlockType;
 
 import java.util.List;
 import java.util.Set;
 
-public class FramedButtonBlock extends ButtonBlock implements IFramedBlockInternal
+public class FramedButtonBlock extends ButtonBlock implements IFramedBlock
 {
     public static final ButtonStateMerger STATE_MERGER = new ButtonStateMerger();
 
     private final BlockType type;
     private final float jadeScale;
 
-    protected FramedButtonBlock(BlockType type, Properties props, BlockSetType blockSet, int pressTime)
+    protected FramedButtonBlock(BlockType type, BlockSetType blockSet, int pressTime)
     {
-        super(blockSet, pressTime, props
+        super(blockSet, pressTime, Properties.of()
                 .pushReaction(PushReaction.DESTROY)
                 .noCollission()
                 .strength(0.5F)
@@ -52,26 +45,29 @@ public class FramedButtonBlock extends ButtonBlock implements IFramedBlockIntern
         );
         this.type = type;
         this.jadeScale = (type == BlockType.FRAMED_BUTTON || type == BlockType.FRAMED_STONE_BUTTON) ? 2F : 1F;
-        BlockUtils.configureStandardProperties(this);
+        registerDefaultState(defaultBlockState()
+                .setValue(FramedProperties.GLOWING, false)
+                .setValue(FramedProperties.PROPAGATES_SKYLIGHT, false)
+        );
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder)
     {
         super.createBlockStateDefinition(builder);
-        BlockUtils.addRequiredProperties(builder);
+        builder.add(FramedProperties.GLOWING, FramedProperties.PROPAGATES_SKYLIGHT);
     }
 
     @Override
-    protected InteractionResult useItemOn(
+    protected ItemInteractionResult useItemOn(
             ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit
     )
     {
-        InteractionResult result = handleUse(state, level, pos, player, hand, hit);
-        if (result == InteractionResult.FAIL)
+        ItemInteractionResult result = handleUse(state, level, pos, player, hand, hit);
+        if (result == ItemInteractionResult.FAIL)
         {
             // Allow interacting with the block while holding a framed block
-            return InteractionResult.TRY_WITH_EMPTY_HAND;
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
         return result;
     }
@@ -89,7 +85,7 @@ public class FramedButtonBlock extends ButtonBlock implements IFramedBlockIntern
     }
 
     @Override
-    protected boolean propagatesSkylightDown(BlockState state)
+    protected boolean propagatesSkylightDown(BlockState state, BlockGetter level, BlockPos pos)
     {
         return state.getValue(FramedProperties.PROPAGATES_SKYLIGHT);
     }
@@ -108,6 +104,12 @@ public class FramedButtonBlock extends ButtonBlock implements IFramedBlockIntern
             return rotate(state, rot);
         }
         return state;
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, Item.TooltipContext ctx, List<Component> lines, TooltipFlag flag)
+    {
+        appendCamoHoverText(stack, lines);
     }
 
     @Override
@@ -142,21 +144,19 @@ public class FramedButtonBlock extends ButtonBlock implements IFramedBlockIntern
 
 
 
-    public static FramedButtonBlock wood(Properties props)
+    public static FramedButtonBlock wood()
     {
         return new FramedButtonBlock(
                 BlockType.FRAMED_BUTTON,
-                props,
                 BlockSetType.OAK,
                 30
         );
     }
 
-    public static FramedButtonBlock stone(Properties props)
+    public static FramedButtonBlock stone()
     {
         return new FramedButtonBlock(
                 BlockType.FRAMED_STONE_BUTTON,
-                props,
                 BlockSetType.STONE,
                 20
         );
@@ -192,7 +192,7 @@ public class FramedButtonBlock extends ButtonBlock implements IFramedBlockIntern
         {
             return Utils.concat(
                     ignoringMerger.getHandledProperties(block),
-                    Set.of()
+                    Set.of(FramedLargeButtonBlock.FACING)
             );
         }
     }

@@ -2,13 +2,10 @@ package xfacthd.framedblocks.common.block.stairs.standard;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import org.jetbrains.annotations.Nullable;
 import xfacthd.framedblocks.api.block.FramedProperties;
 import xfacthd.framedblocks.api.util.Utils;
 import xfacthd.framedblocks.common.block.ExtPlacementStateBuilder;
@@ -18,9 +15,9 @@ import xfacthd.framedblocks.common.data.PropertyHolder;
 
 public class FramedHalfStairsBlock extends FramedBlock
 {
-    public FramedHalfStairsBlock(Properties props)
+    public FramedHalfStairsBlock()
     {
-        super(BlockType.FRAMED_HALF_STAIRS, props);
+        super(BlockType.FRAMED_HALF_STAIRS);
         registerDefaultState(defaultBlockState()
                 .setValue(FramedProperties.TOP, false)
                 .setValue(PropertyHolder.RIGHT, false)
@@ -35,7 +32,6 @@ public class FramedHalfStairsBlock extends FramedBlock
     }
 
     @Override
-    @Nullable
     public BlockState getStateForPlacement(BlockPlaceContext ctx)
     {
         return ExtPlacementStateBuilder.of(this, ctx)

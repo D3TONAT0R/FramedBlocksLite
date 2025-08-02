@@ -1,13 +1,12 @@
 package xfacthd.framedblocks.common.apiimpl;
 
 import net.minecraft.core.Registry;
-import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.state.BlockState;
 import xfacthd.framedblocks.api.FramedBlocksAPI;
 import xfacthd.framedblocks.api.blueprint.AuxBlueprintData;
 import xfacthd.framedblocks.api.camo.CamoContainerFactory;
 import xfacthd.framedblocks.common.FBContent;
-import xfacthd.framedblocks.common.data.FramedRegistries;
 
 @SuppressWarnings("unused")
 public final class ApiImpl implements FramedBlocksAPI
@@ -27,12 +26,12 @@ public final class ApiImpl implements FramedBlocksAPI
     @Override
     public Registry<CamoContainerFactory<?>> getCamoContainerFactoryRegistry()
     {
-        return FramedRegistries.CAMO_CONTAINER_FACTORIES;
+        return FBContent.CAMO_CONTAINER_FACTORY_REGISTRY;
     }
 
     @Override
     public Registry<AuxBlueprintData.Type<?>> getAuxBlueprintDataTypeRegistry()
     {
-        return FramedRegistries.AUX_BLUEPRINT_DATA_TYPES;
+        return FBContent.AUX_BLUEPRINT_DATA_TYPE_REGISTRY;
     }
 }

@@ -2,8 +2,12 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "F": "framedblocks:framed_cube",
-    "I": "#c:ingots/iron"
+    "F": {
+      "item": "framedblocks:framed_cube"
+    },
+    "I": {
+      "tag": "c:ingots/iron"
+    }
   },
   "pattern": [
     " I ",

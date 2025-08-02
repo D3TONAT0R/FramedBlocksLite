@@ -2,8 +2,12 @@
   "type": "minecraft:crafting_shapeless",
   "category": "building",
   "ingredients": [
-    "framedblocks:framed_cube",
-    "#c:stones"
+    {
+      "item": "framedblocks:framed_cube"
+    },
+    {
+      "tag": "c:stones"
+    }
   ],
   "result": {
     "count": 1,

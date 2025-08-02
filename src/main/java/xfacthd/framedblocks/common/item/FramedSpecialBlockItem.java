@@ -1,26 +1,23 @@
-package xfacthd.framedblocks.common.item.block;
+package xfacthd.framedblocks.common.item;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
-import xfacthd.framedblocks.api.block.BlockUtils;
-import xfacthd.framedblocks.api.block.blockentity.FramedDoubleBlockEntity;
-import xfacthd.framedblocks.api.block.item.FramedBlockItem;
 import xfacthd.framedblocks.api.camo.CamoContainer;
-import xfacthd.framedblocks.api.camo.CamoList;
 import xfacthd.framedblocks.api.camo.empty.EmptyCamoContainer;
-import xfacthd.framedblocks.api.util.SoundUtils;
+import xfacthd.framedblocks.api.util.CamoList;
+import xfacthd.framedblocks.api.util.Utils;
 import xfacthd.framedblocks.common.FBContent;
+import xfacthd.framedblocks.common.blockentity.doubled.FramedDoubleBlockEntity;
 
-<<<<<<<< HEAD:src/main/java/xfacthd/framedblocks/common/item/FramedSpecialBlockItem.java
 public abstract class FramedSpecialBlockItem extends BlockItem
-========
-public abstract class FramedSpecialBlockItem extends FramedBlockItem
->>>>>>>> 1.21.6:src/main/java/xfacthd/framedblocks/common/item/block/FramedSpecialBlockItem.java
 {
     private final boolean doubleBlock;
 
@@ -36,7 +33,7 @@ public abstract class FramedSpecialBlockItem extends FramedBlockItem
         Level level = ctx.getLevel();
         BlockPos pos = ctx.getClickedPos();
         BlockState originalState = level.getBlockState(pos);
-        if (ctx.canPlace() && originalState.is(getBlock()) && ctx.getPlayer() != null)
+        if (ctx.canPlace() && originalState.is(getBlock()))
         {
             BlockState newState = getReplacementState(ctx, originalState);
             if (newState != null)
@@ -45,11 +42,7 @@ public abstract class FramedSpecialBlockItem extends FramedBlockItem
                 {
                     boolean writeToCamoTwo = shouldWriteToCamoTwo(ctx, originalState);
                     CamoList camos = ctx.getItemInHand().getOrDefault(FBContent.DC_TYPE_CAMO_LIST, CamoList.EMPTY);
-<<<<<<<< HEAD:src/main/java/xfacthd/framedblocks/common/item/FramedSpecialBlockItem.java
                     Utils.wrapInStateCopy(
-========
-                    BlockUtils.wrapInStateCopy(
->>>>>>>> 1.21.6:src/main/java/xfacthd/framedblocks/common/item/block/FramedSpecialBlockItem.java
                             level,
                             pos,
                             ctx.getPlayer(),
@@ -65,9 +58,11 @@ public abstract class FramedSpecialBlockItem extends FramedBlockItem
                         camo = camos.getCamo(0);
                         be.setCamo(camo, !writeToCamoTwo);
                     }
-                    SoundUtils.playPlaceSound(ctx, camo.getContent().getSoundType(), true);
+
+                    SoundType sound = camo.getContent().getSoundType();
+                    level.playSound(null, pos, sound.getPlaceSound(), SoundSource.BLOCKS, (sound.getVolume() + 1.0F) / 2.0F, sound.getPitch() * 0.8F);
                 }
-                return InteractionResult.SUCCESS;
+                return InteractionResult.sidedSuccess(level.isClientSide());
             }
         }
         return super.place(ctx);

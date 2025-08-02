@@ -4,70 +4,63 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.RandomSource;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.item.*;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.WallSide;
-import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.*;
+import net.neoforged.fml.loading.FMLEnvironment;
 import org.jetbrains.annotations.Nullable;
-import xfacthd.framedblocks.api.block.BlockUtils;
 import xfacthd.framedblocks.api.block.FramedProperties;
 import xfacthd.framedblocks.api.block.IFramedBlock;
-import xfacthd.framedblocks.api.shapes.ReloadableShapeProvider;
-import xfacthd.framedblocks.api.shapes.ShapeGenerator;
-import xfacthd.framedblocks.api.shapes.ShapeProvider;
-import xfacthd.framedblocks.api.shapes.ShapeUtils;
+import xfacthd.framedblocks.api.shapes.*;
 import xfacthd.framedblocks.api.util.Utils;
-import xfacthd.framedblocks.common.block.IFramedBlockInternal;
 import xfacthd.framedblocks.common.data.BlockType;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
-public class FramedWallBlock extends WallBlock implements IFramedBlockInternal
+public class FramedWallBlock extends WallBlock implements IFramedBlock
 {
     private static final Map<Direction, EnumProperty<WallSide>> PROPERTY_BY_DIRECTION = Map.of(
-            Direction.NORTH, NORTH,
-            Direction.EAST, EAST,
-            Direction.SOUTH, SOUTH,
-            Direction.WEST, WEST
+            Direction.NORTH, NORTH_WALL,
+            Direction.EAST, EAST_WALL,
+            Direction.SOUTH, SOUTH_WALL,
+            Direction.WEST, WEST_WALL
     );
     private final ShapeProvider shapes = makeShapeProvider(states -> generateShapes(states, 14F, 16F));
     private final ShapeProvider collisionShapes = makeShapeProvider(states -> generateShapes(states, 24F, 24F));
 
-    public FramedWallBlock(Properties props)
+    public FramedWallBlock()
     {
-        super(IFramedBlock.applyDefaultProperties(props, BlockType.FRAMED_WALL));
-        BlockUtils.configureStandardProperties(this);
+        super(IFramedBlock.createProperties(BlockType.FRAMED_WALL));
+        registerDefaultState(defaultBlockState()
+                .setValue(FramedProperties.STATE_LOCKED, false)
+                .setValue(FramedProperties.GLOWING, false)
+                .setValue(FramedProperties.PROPAGATES_SKYLIGHT, false)
+        );
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder)
     {
         super.createBlockStateDefinition(builder);
-        BlockUtils.addStandardProperties(this, builder);
+        builder.add(FramedProperties.STATE_LOCKED, FramedProperties.GLOWING, FramedProperties.PROPAGATES_SKYLIGHT);
     }
 
     @Override
-    protected InteractionResult useItemOn(
+    protected ItemInteractionResult useItemOn(
             ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit
     )
     {
@@ -83,23 +76,21 @@ public class FramedWallBlock extends WallBlock implements IFramedBlockInternal
     @Override
     protected BlockState updateShape(
             BlockState state,
-            LevelReader level,
-            ScheduledTickAccess tickAccess,
-            BlockPos pos,
-            Direction side,
-            BlockPos adjPos,
-            BlockState adjState,
-            RandomSource random
+            Direction facing,
+            BlockState facingState,
+            LevelAccessor level,
+            BlockPos currentPos,
+            BlockPos facingPos
     )
     {
         BlockState newState = updateShapeLockable(
-                state, level, tickAccess, pos,
-                () -> super.updateShape(state, level, tickAccess, pos, side, adjPos, adjState, random)
+                state, level, currentPos,
+                () -> super.updateShape(state, facing, facingState, level, currentPos, facingPos)
         );
 
         if (newState == state)
         {
-            updateCulling(level, pos);
+            updateCulling(level, currentPos);
         }
         return newState;
     }
@@ -119,7 +110,7 @@ public class FramedWallBlock extends WallBlock implements IFramedBlockInternal
     }
 
     @Override
-    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, @Nullable Orientation orientation, boolean isMoving)
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving)
     {
         updateCulling(level, pos);
     }
@@ -143,7 +134,7 @@ public class FramedWallBlock extends WallBlock implements IFramedBlockInternal
     }
 
     @Override
-    protected boolean propagatesSkylightDown(BlockState state)
+    protected boolean propagatesSkylightDown(BlockState state, BlockGetter level, BlockPos pos)
     {
         return state.getValue(FramedProperties.PROPAGATES_SKYLIGHT);
     }
@@ -152,6 +143,12 @@ public class FramedWallBlock extends WallBlock implements IFramedBlockInternal
     protected List<ItemStack> getDrops(BlockState state, LootParams.Builder builder)
     {
         return getCamoDrops(super.getDrops(state, builder), builder);
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, Item.TooltipContext ctx, List<Component> lines, TooltipFlag flag)
+    {
+        appendCamoHoverText(stack, lines);
     }
 
     @Override
@@ -169,26 +166,30 @@ public class FramedWallBlock extends WallBlock implements IFramedBlockInternal
     @Override
     public BlockState getItemModelSource()
     {
-        return defaultBlockState().setValue(EAST, WallSide.LOW).setValue(WEST, WallSide.LOW);
+        return defaultBlockState().setValue(EAST_WALL, WallSide.LOW).setValue(WEST_WALL, WallSide.LOW);
     }
 
     @Override
     public BlockState getJadeRenderState(BlockState state)
     {
-        return defaultBlockState().setValue(EAST, WallSide.LOW).setValue(WEST, WallSide.LOW);
+        return defaultBlockState().setValue(EAST_WALL, WallSide.LOW).setValue(WEST_WALL, WallSide.LOW);
     }
 
     @Override
-    protected Function<BlockState, VoxelShape> makeShapes(float a, float b)
+    protected Map<BlockState, VoxelShape> makeShapes(float pWidth, float pDepth, float pWallPostHeight, float pWallMinY, float pWallLowHeight, float pWallTallHeight)
     {
         // Effectively NO-OP to conserve memory, the shape building is taken over below
-        return state -> Shapes.empty();
+        return Map.of();
     }
 
     private ShapeProvider makeShapeProvider(ShapeGenerator generator)
     {
         ImmutableList<BlockState> states = stateDefinition.getPossibleStates();
-        return ReloadableShapeProvider.of(generator, states);
+        if (!FMLEnvironment.production)
+        {
+            return new ReloadableShapeProvider(generator, states);
+        }
+        return generator.generate(states);
     }
 
 
@@ -211,13 +212,13 @@ public class FramedWallBlock extends WallBlock implements IFramedBlockInternal
         VoxelShape[] wallTallShapes = sameHeight ? wallLowShapes : ShapeUtils.makeHorizontalRotations(wallTallShape, Direction.NORTH);
 
         VoxelShape[] shapes = new VoxelShape[512];
-        for (WallSide north : NORTH.getPossibleValues())
+        for (WallSide north : NORTH_WALL.getPossibleValues())
         {
-            for (WallSide east : EAST.getPossibleValues())
+            for (WallSide east : EAST_WALL.getPossibleValues())
             {
-                for (WallSide south : SOUTH.getPossibleValues())
+                for (WallSide south : SOUTH_WALL.getPossibleValues())
                 {
-                    for (WallSide west : WEST.getPossibleValues())
+                    for (WallSide west : WEST_WALL.getPossibleValues())
                     {
                         int noUpKey = makeShapeKey(false, north, east, south, west);
                         int upKey = makeShapeKey(true, north, east, south, west);
@@ -249,10 +250,10 @@ public class FramedWallBlock extends WallBlock implements IFramedBlockInternal
         {
             int key = makeShapeKey(
                     state.getValue(UP),
-                    state.getValue(NORTH),
-                    state.getValue(EAST),
-                    state.getValue(SOUTH),
-                    state.getValue(WEST)
+                    state.getValue(NORTH_WALL),
+                    state.getValue(EAST_WALL),
+                    state.getValue(SOUTH_WALL),
+                    state.getValue(WEST_WALL)
             );
             builder.put(state, shapes[key]);
         }

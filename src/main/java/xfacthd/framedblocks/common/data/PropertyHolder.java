@@ -1,9 +1,6 @@
 package xfacthd.framedblocks.common.data;
 
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.level.block.state.properties.RailShape;
+import net.minecraft.world.level.block.state.properties.*;
 import xfacthd.framedblocks.common.data.property.*;
 
 public final class PropertyHolder
@@ -12,7 +9,7 @@ public final class PropertyHolder
     public static final EnumProperty<CornerType> CORNER_TYPE = EnumProperty.create("type", CornerType.class);
     public static final EnumProperty<StairsType> STAIRS_TYPE = EnumProperty.create("type", StairsType.class);
     public static final EnumProperty<ChestState> CHEST_STATE = EnumProperty.create("state", ChestState.class);
-    public static final EnumProperty<RailShape> ASCENDING_RAIL_SHAPE = EnumProperty.create("shape", RailShape.class, RailShape::isSlope);
+    public static final EnumProperty<RailShape> ASCENDING_RAIL_SHAPE = EnumProperty.create("shape", RailShape.class, RailShape::isAscending);
     public static final EnumProperty<NullableDirection> NULLABLE_FACE = EnumProperty.create("face", NullableDirection.class);
     public static final EnumProperty<LatchType> LATCH_TYPE = EnumProperty.create("latch", LatchType.class);
     public static final EnumProperty<HorizontalRotation> ROTATION = EnumProperty.create("rotation", HorizontalRotation.class);
@@ -40,7 +37,6 @@ public final class PropertyHolder
     public static final BooleanProperty ROTATE_TEXTURE = BooleanProperty.create("rotate_texture");
 
     public static final IntegerProperty SOLID_FACES = IntegerProperty.create("solid_faces", 0b00000000, 0b00111111);
-    public static final IntegerProperty FACES = IntegerProperty.create("faces", 1, (1 << 6) - 1);
 
 
 

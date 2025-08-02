@@ -1,65 +1,56 @@
 package xfacthd.framedblocks.client.model;
 
-import net.minecraft.client.renderer.block.model.BlockModelPart;
-import net.minecraft.client.renderer.block.model.SimpleModelWrapper;
-import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
-import net.minecraft.client.resources.model.QuadCollection;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.TriState;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
-import net.neoforged.neoforge.client.model.standalone.StandaloneModelLoader;
-import org.jetbrains.annotations.Nullable;
-import xfacthd.framedblocks.api.model.data.QuadMap;
-import xfacthd.framedblocks.api.model.util.ModelUtils;
+import net.minecraft.util.RandomSource;
+import net.neoforged.neoforge.client.model.data.ModelData;
 import xfacthd.framedblocks.api.util.Utils;
 
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Predicate;
 
 public final class ReinforcementModel
 {
-    public static final BlockState SHADER_STATE = Blocks.OBSIDIAN.defaultBlockState();
-    public static final ResourceLocation MODEL_ID = Utils.rl("block/framed_reinforcement");
-    public static final StandaloneModelKey<QuadCollection> MODEL_KEY = new StandaloneModelKey<>(MODEL_ID::toString);
-    private static final Direction[] DIRECTIONS = Direction.values();
-    @Nullable
-    private static SimpleModelWrapper baseModel = null;
-    private static final BlockModelPart[] CACHED_FILTERED_PARTS = new BlockModelPart[256];
+    public static final ModelResourceLocation LOCATION = ModelResourceLocation.standalone(
+            Utils.rl("block/framed_reinforcement")
+    );
+    private static final RandomSource RAND = RandomSource.create();
+    private static final BakedQuad[] QUADS_PER_FACE = new BakedQuad[6];
 
-    public static BlockModelPart getFiltered(int faceMask, TriState ambientOcclusion)
+    public static BakedQuad getQuad(Direction side)
     {
-        faceMask |= ambientOcclusion.ordinal() << 6;
-
-        BlockModelPart part = CACHED_FILTERED_PARTS[faceMask];
-        if (part == null)
-        {
-            Objects.requireNonNull(baseModel);
-
-            QuadMap quadMap = new QuadMap();
-            for (Direction side : DIRECTIONS)
-            {
-                if ((faceMask & (1 << side.ordinal())) != 0)
-                {
-                    quadMap.get(side).add(baseModel.getQuads(side).getFirst());
-                }
-            }
-            CACHED_FILTERED_PARTS[faceMask] = part = ModelUtils.makeModelPart(
-                    quadMap,
-                    ambientOcclusion,
-                    baseModel.particleIcon(),
-                    ChunkSectionLayer.CUTOUT,
-                    SHADER_STATE
-            );
-        }
-        return part;
+        return QUADS_PER_FACE[side.get3DDataValue()];
     }
 
-    public static void reload(StandaloneModelLoader.BakedModels models)
+    public static void getFiltered(List<BakedQuad> out, Predicate<Direction> filter)
     {
-        QuadCollection quads = Objects.requireNonNull(models.get(MODEL_KEY));
-        baseModel = new SimpleModelWrapper(quads, true, quads.getAll().getFirst().sprite(), ChunkSectionLayer.CUTOUT);
+        for (int i = 0; i < QUADS_PER_FACE.length; i++)
+        {
+            if (filter.test(Direction.from3DDataValue(i)))
+            {
+                out.add(QUADS_PER_FACE[i]);
+            }
+        }
+    }
+
+    public static void reload(Map<ModelResourceLocation, BakedModel> models)
+    {
+        BakedModel model = Objects.requireNonNull(models.get(LOCATION));
+        Utils.forAllDirections(false, dir ->
+        {
+            RAND.setSeed(42);
+            List<BakedQuad> quads = model.getQuads(null, dir, RAND, ModelData.EMPTY, RenderType.cutout());
+            if (quads.isEmpty())
+            {
+                throw new IllegalStateException("Expected at least one quad on side %s, got none".formatted(dir));
+            }
+
+            BakedQuad quad = quads.getFirst();
+            QUADS_PER_FACE[dir.get3DDataValue()] = quad;
+        });
     }
 
 

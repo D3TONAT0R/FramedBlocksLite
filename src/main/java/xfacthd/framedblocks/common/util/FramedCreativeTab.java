@@ -1,9 +1,7 @@
 package xfacthd.framedblocks.common.util;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.*;
 import xfacthd.framedblocks.common.FBContent;
 import xfacthd.framedblocks.common.data.BlockType;
 import xfacthd.framedblocks.common.data.FramedToolType;
@@ -27,6 +25,7 @@ public final class FramedCreativeTab
                     }
 
                     output.accept(FBContent.BLOCK_FRAMING_SAW.value());
+                    output.accept(FBContent.BLOCK_POWERED_FRAMING_SAW.value());
 
                     for (FramedToolType tool : FramedToolType.values())
                     {
@@ -34,6 +33,7 @@ public final class FramedCreativeTab
                     }
 
                     output.accept(FBContent.ITEM_FRAMED_REINFORCEMENT.value());
+                    output.accept(FBContent.ITEM_PHANTOM_PASTE.value());
                 })
                 .build();
     }

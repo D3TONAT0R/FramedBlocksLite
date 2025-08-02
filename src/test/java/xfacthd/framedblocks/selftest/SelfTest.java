@@ -17,7 +17,7 @@ public final class SelfTest
     public static final Logger LOGGER = LogUtils.getLogger();
     private static boolean firstJoin = true;
 
-    public static void runStartupSelfTest(@SuppressWarnings("unused") FMLLoadCompleteEvent event)
+    public static void runStartupSelfTest(@SuppressWarnings("unused") final FMLLoadCompleteEvent event)
     {
         SelfTestReporter reporter = new SelfTestReporter();
 
@@ -39,7 +39,6 @@ public final class SelfTest
         RotateMirrorErrors.checkRotateMirrorErrors(reporter, blocks);
         JadeRenderStateErrors.checkJadeRenderStateErrors(reporter, blocks);
         BlockEntityPresence.checkBlockEntityTypePresent(reporter, blocks);
-        DoubleBlockPartModelStateConsistency.checkBlockPartConsistency(reporter, blocks);
 
         reporter.finish();
     }

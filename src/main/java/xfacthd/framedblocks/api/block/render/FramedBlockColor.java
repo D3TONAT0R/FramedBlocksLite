@@ -1,15 +1,20 @@
 package xfacthd.framedblocks.api.block.render;
 
 import net.minecraft.client.color.block.BlockColor;
+import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.FastColor;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.model.data.ModelData;
 import org.jetbrains.annotations.Nullable;
-import xfacthd.framedblocks.api.block.IFramedDoubleBlock;
-import xfacthd.framedblocks.api.model.data.AbstractFramedBlockData;
-import xfacthd.framedblocks.api.model.data.FramedBlockData;
+import xfacthd.framedblocks.api.block.IFramedBlock;
+import xfacthd.framedblocks.api.block.blockentity.FramedBlockEntity;
+import xfacthd.framedblocks.api.block.blockentity.IFramedDoubleBlockEntity;
 import xfacthd.framedblocks.api.model.util.ModelUtils;
+import xfacthd.framedblocks.api.util.*;
 
 public class FramedBlockColor implements BlockColor, ItemColor
 {
@@ -20,32 +25,42 @@ public class FramedBlockColor implements BlockColor, ItemColor
     {
         if (level != null && pos != null)
         {
-            ModelData modelData = level.getModelData(pos);
-            if (tintIndex < -1 && state.getBlock() instanceof IFramedDoubleBlock)
+            BlockEntity be = level.getBlockEntity(pos);
+            if (tintIndex < -1 && be instanceof IFramedDoubleBlockEntity dbe)
             {
-                FramedBlockData fbData = unpackData(modelData, true);
-                if (fbData != null)
-                {
-                    tintIndex = ModelUtils.decodeSecondaryTintIndex(tintIndex);
-                    return fbData.getCamoContainer().getTintColor(level, pos, tintIndex);
-                }
+                tintIndex = ModelUtils.decodeSecondaryTintIndex(tintIndex);
+                return dbe.getCamoTwo().getTintColor(level, pos, tintIndex);
             }
-            else if (tintIndex >= 0)
+            else if (tintIndex >= 0 && be instanceof FramedBlockEntity fbe)
             {
-                FramedBlockData fbData = unpackData(modelData, false);
-                if (fbData != null)
-                {
-                    return fbData.getCamoContainer().getTintColor(level, pos, tintIndex);
-                }
+                return fbe.getCamo().getTintColor(level, pos, tintIndex);
             }
         }
         return -1;
     }
 
-    @Nullable
-    private static FramedBlockData unpackData(ModelData data, boolean secondary)
+    @Override
+    public int getColor(ItemStack stack, int tintIndex)
     {
-        AbstractFramedBlockData blockData = data.get(AbstractFramedBlockData.PROPERTY);
-        return blockData != null ? blockData.unwrap(secondary) : null;
+        if (!(stack.getItem() instanceof BlockItem item) || !(item.getBlock() instanceof IFramedBlock block))
+        {
+            return -1;
+        }
+        if (!ConfigView.Client.INSTANCE.shouldRenderItemModelsWithCamo() || block.getItemModelSource() == null)
+        {
+            return -1;
+        }
+
+        CamoList camos = stack.getOrDefault(Utils.DC_TYPE_CAMO_LIST, CamoList.EMPTY);
+        if (tintIndex < -1 && block.getBlockType().isDoubleBlock())
+        {
+            tintIndex = ModelUtils.decodeSecondaryTintIndex(tintIndex);
+            return FastColor.ARGB32.opaque(camos.getCamo(1).getTintColor(stack, tintIndex));
+        }
+        else if (tintIndex >= 0)
+        {
+            return FastColor.ARGB32.opaque(camos.getCamo(0).getTintColor(stack, tintIndex));
+        }
+        return -1;
     }
 }

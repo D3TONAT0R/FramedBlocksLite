@@ -4,19 +4,15 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.*;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
-import xfacthd.framedblocks.api.camo.CamoClientHandler;
-import xfacthd.framedblocks.api.camo.CamoContainer;
-import xfacthd.framedblocks.api.camo.CamoContent;
+import net.minecraft.world.phys.*;
+import xfacthd.framedblocks.api.camo.*;
 
 import java.util.List;
 
@@ -118,7 +114,7 @@ public final class ParticleHelper
 
             List<AABB> boxes = state.getShape(level, pos).toAabbs();
             double countMult = 1D / boxes.size();
-            for (AABB aabb : boxes)
+            boxes.forEach(aabb ->
             {
                 double sizeX = Math.min(1D, aabb.maxX - aabb.minX);
                 double sizeY = Math.min(1D, aabb.maxY - aabb.minY);
@@ -145,7 +141,7 @@ public final class ParticleHelper
                         }
                     }
                 }
-            }
+            });
         }
 
 

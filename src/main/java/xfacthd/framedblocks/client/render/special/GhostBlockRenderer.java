@@ -1,33 +1,22 @@
 package xfacthd.framedblocks.client.render.special;
 
 import com.google.common.base.Preconditions;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.CrashReport;
-import net.minecraft.CrashReportCategory;
-import net.minecraft.ReportedException;
+import net.minecraft.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.Sheets;
-import net.minecraft.client.renderer.block.model.BlockModelPart;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.*;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.*;
 import net.neoforged.fml.ModLoader;
 import net.neoforged.neoforge.client.NeoForgeRenderTypes;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
@@ -36,15 +25,11 @@ import org.joml.Vector3fc;
 import xfacthd.framedblocks.api.ghost.GhostRenderBehaviour;
 import xfacthd.framedblocks.api.model.util.ModelUtils;
 import xfacthd.framedblocks.api.ghost.RegisterGhostRenderBehavioursEvent;
-import xfacthd.framedblocks.api.camo.CamoList;
-import xfacthd.framedblocks.api.util.FramedConstants;
-import xfacthd.framedblocks.api.util.SingleBlockFakeLevel;
-import xfacthd.framedblocks.api.util.Utils;
+import xfacthd.framedblocks.api.util.*;
 import xfacthd.framedblocks.client.render.util.GhostVertexConsumer;
 import xfacthd.framedblocks.common.config.ClientConfig;
 
 import java.util.IdentityHashMap;
-import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("ConstantConditions")
@@ -56,14 +41,14 @@ public final class GhostBlockRenderer
     private static final String PROFILER_KEY = FramedConstants.MOD_ID + "_ghost_block";
     private static final float SCALE = 1.0001F;
 
-    public static void onRenderLevelStage(RenderLevelStageEvent.AfterParticles event)
+    public static void onRenderLevelStage(final RenderLevelStageEvent event)
     {
-        if (!ClientConfig.VIEW.showGhostBlocks())
+        if (!ClientConfig.VIEW.showGhostBlocks() || event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES)
         {
             return;
         }
 
-        ProfilerFiller profiler = Profiler.get();
+        ProfilerFiller profiler = mc().getProfiler();
         profiler.push(PROFILER_KEY);
         try
         {
@@ -196,21 +181,18 @@ public final class GhostBlockRenderer
             ModelData modelData
     )
     {
-        profiler.push("prepare");
-
         RenderType bufferType = ClientConfig.VIEW.useAltGhostRenderer() ?
-                Sheets.translucentItemSheet() :
+                Sheets.translucentCullBlockSheet() :
                 NeoForgeRenderTypes.TRANSLUCENT_ON_PARTICLES_TARGET.get();
         int opacity = ClientConfig.VIEW.getGhostRenderOpacity();
 
+        profiler.push("buffer");
         Vec3 offset = Vec3.atLowerCornerOf(renderPos).subtract(mc().gameRenderer.getMainCamera().getPosition());
         VertexConsumer builder = new GhostVertexConsumer(buffers.getBuffer(bufferType), opacity);
-        BlockAndTintGetter level = new SingleBlockFakeLevel(mc().level, renderPos, renderPos, renderState, null, modelData);
-
-        profiler.pop(); //prepare
+        profiler.pop(); //buffer
 
         profiler.push("draw");
-        BlockStateModel model = ModelUtils.getModel(renderState);
+        BakedModel model = ModelUtils.getModel(renderState);
         poseStack.pushPose();
         poseStack.translate(renderOffset.x(), renderOffset.y(), renderOffset.z());
         poseStack.translate(offset.x + .5, offset.y + .5, offset.z + .5);
@@ -224,8 +206,31 @@ public final class GhostBlockRenderer
         profiler.pop(); //draw
 
         profiler.push("upload");
+        RenderSystem.enableCull();
         buffers.endBatch(bufferType);
         profiler.pop(); //upload
+    }
+
+    private static void doRenderGhostBlockInLayer(
+            PoseStack poseStack,
+            VertexConsumer builder,
+            BlockPos renderPos,
+            BlockState renderState,
+            RenderType layer,
+            ModelData modelData
+    )
+    {
+        mc().getBlockRenderer().renderBatched(
+                renderState,
+                renderPos,
+                mc().level,
+                poseStack,
+                builder,
+                false,
+                RANDOM,
+                modelData,
+                layer
+        );
     }
 
 

@@ -8,6 +8,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Property;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import xfacthd.framedblocks.common.block.stairs.standard.FramedDoubleStairsBlock;
 
 @Mixin(StairBlock.class)
 public class MixinStairBlock
@@ -22,7 +23,7 @@ public class MixinStairBlock
     @SuppressWarnings({ "ConstantValue", "rawtypes" })
     private Object framedblocks$preventWaterloggedDefaultValue(BlockState instance, Property<?> property, Comparable<?> comparable, Operation<Object> original)
     {
-        if (property != BlockStateProperties.WATERLOGGED)
+        if (property != BlockStateProperties.WATERLOGGED || ((Class) this.getClass()) != FramedDoubleStairsBlock.class)
         {
             return original.call(instance, property, comparable);
         }

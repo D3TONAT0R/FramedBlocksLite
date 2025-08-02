@@ -1,7 +1,6 @@
 package xfacthd.framedblocks.api.camo.block;
 
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
 
 public final class SimpleBlockCamoContainer extends AbstractBlockCamoContainer<SimpleBlockCamoContainer>
 {
@@ -20,7 +19,7 @@ public final class SimpleBlockCamoContainer extends AbstractBlockCamoContainer<S
     }
 
     @Override
-    public boolean equals(@Nullable Object obj)
+    public boolean equals(Object obj)
     {
         if (obj == this) return true;
         if (obj == null || obj.getClass() != SimpleBlockCamoContainer.class) return false;

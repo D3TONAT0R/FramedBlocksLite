@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.fml.util.ObfuscationReflectionHelper;
 import net.neoforged.neoforge.client.model.data.ModelProperty;
 import net.neoforged.fml.ModList;
+import net.neoforged.fml.loading.FMLEnvironment;
 import xfacthd.framedblocks.FramedBlocks;
 import xfacthd.framedblocks.api.block.blockentity.FramedBlockEntity;
 import xfacthd.framedblocks.api.util.registration.DeferredBlockEntity;
@@ -79,9 +80,16 @@ public final class CreateCompat
     private static final class GuardedAccess
     {
         private static final Map<Holder<BlockEntityType<?>>, SchematicRequirementRegistries.BlockEntityRequirement> SPECIAL_REQUIREMENT_BLOCK_ENTITIES = Map.of(
+                FBContent.BE_TYPE_FRAMED_FLOWER_POT, new FramedFlowerPotBlockEntityItemRequirement(),
+                FBContent.BE_TYPE_FRAMED_ITEM_FRAME, new FramedItemFrameBlockEntityItemRequirement()
         );
         private static final Map<Holder<BlockEntityType<?>>, SafeNbtWriterRegistry.SafeNbtWriter> SPECIAL_NBT_BLOCK_ENTITIES = Map.of(
-                FBContent.BE_TYPE_FRAMED_CHISELED_BOOKSHELF, new FramedChiseledBookshelfSafeNbtWriter()
+                FBContent.BE_TYPE_FRAMED_CHEST, new FramedBlockSafeNbtWriter(FramedStorageBlockEntity.INVENTORY_NBT_KEY, FramedStorageBlockEntity.OVERFLOW_NBT_KEY),
+                FBContent.BE_TYPE_FRAMED_SECRET_STORAGE, new FramedBlockSafeNbtWriter(FramedStorageBlockEntity.INVENTORY_NBT_KEY, FramedStorageBlockEntity.OVERFLOW_NBT_KEY),
+                FBContent.BE_TYPE_FRAMED_TANK, new FramedBlockSafeNbtWriter(TankFluidHandler.FLUID_NBT_KEY),
+                FBContent.BE_TYPE_FRAMED_ITEM_FRAME, new FramedItemFrameSafeNbtWriter(),
+                FBContent.BE_TYPE_FRAMED_CHISELED_BOOKSHELF, new FramedChiseledBookshelfSafeNbtWriter(),
+                FBContent.BE_TYPE_FRAMED_HOPPER, new FramedBlockSafeNbtWriter(ContainerHelper.TAG_ITEMS, FramedHopperBlockEntity.COOLDOWN_NBT_KEY)
         );
 
         public static void init()
@@ -89,6 +97,7 @@ public final class CreateCompat
             // The interaction behaviour implementations are not exposed as API
             try
             {
+                registerInteractionBehaviour(FBContent.BLOCK_FRAMED_LEVER, new LeverMovingInteraction());
                 registerInteractionBehaviour(FBContent.BLOCK_FRAMED_DOOR, new DoorMovingInteraction());
                 registerInteractionBehaviour(FBContent.BLOCK_FRAMED_TRAP_DOOR, new TrapdoorMovingInteraction());
                 registerInteractionBehaviour(FBContent.BLOCK_FRAMED_FENCE_GATE, new FenceGateMovingInteraction());

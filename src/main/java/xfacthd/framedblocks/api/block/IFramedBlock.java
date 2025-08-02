@@ -5,66 +5,48 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.TriState;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.EmptyBlockGetter;
-import net.minecraft.world.level.Explosion;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.ScheduledTickAccess;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.SupportType;
-import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.item.*;
+import net.minecraft.world.level.*;
+import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.material.*;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.*;
+import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.extensions.IBlockExtension;
+import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import xfacthd.framedblocks.api.block.blockentity.FramedBlockEntity;
+import xfacthd.framedblocks.api.block.cache.IStateCacheAccessor;
 import xfacthd.framedblocks.api.block.cache.StateCache;
-import xfacthd.framedblocks.api.block.item.FramedBlockItem;
-import xfacthd.framedblocks.api.block.render.CullingHelper;
-import xfacthd.framedblocks.api.block.render.ParticleHelper;
+import xfacthd.framedblocks.api.block.render.*;
 import xfacthd.framedblocks.api.blueprint.BlueprintData;
-import xfacthd.framedblocks.api.camo.CamoContainer;
-import xfacthd.framedblocks.api.camo.CamoContent;
-import xfacthd.framedblocks.api.camo.CamoList;
-import xfacthd.framedblocks.api.camo.empty.EmptyCamoContainer;
+import xfacthd.framedblocks.api.camo.*;
 import xfacthd.framedblocks.api.internal.InternalAPI;
-import xfacthd.framedblocks.api.model.data.AbstractFramedBlockData;
+import xfacthd.framedblocks.api.model.data.FramedBlockData;
 import xfacthd.framedblocks.api.predicate.cull.SideSkipPredicate;
 import xfacthd.framedblocks.api.shapes.ShapeProvider;
-import xfacthd.framedblocks.api.util.ConfigView;
-import xfacthd.framedblocks.api.util.SoundUtils;
-import xfacthd.framedblocks.api.util.Utils;
+import xfacthd.framedblocks.api.type.IBlockType;
+import xfacthd.framedblocks.api.util.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public interface IFramedBlock extends EntityBlock, IBlockExtension
@@ -73,20 +55,20 @@ public interface IFramedBlock extends EntityBlock, IBlockExtension
     Component STATE_LOCKED = Utils.translate("msg", "lock_state.locked").withStyle(ChatFormatting.RED);
     Component STATE_UNLOCKED = Utils.translate("msg", "lock_state.unlocked").withStyle(ChatFormatting.GREEN);
     String CAMO_LABEL = Utils.translationKey("desc", "block.stored_camo");
-    String CAMO_LABEL_MULTI = Utils.translationKey("desc", "block.stored_camo_multi");
 
     IBlockType getBlockType();
 
-    static Block.Properties applyDefaultProperties(BlockBehaviour.Properties props, IBlockType type)
+    static Block.Properties createProperties(IBlockType type)
     {
-        props.mapColor(MapColor.WOOD)
+        Block.Properties props = Block.Properties.of()
+                .mapColor(MapColor.WOOD)
                 .ignitedByLava()
                 .instrument(NoteBlockInstrument.BASS)
                 .strength(2F)
                 .sound(SoundType.WOOD)
-                .emissiveRendering(FramedBlockInternals::isEmissiveRendering)
-                .isViewBlocking(FramedBlockInternals::isViewBlocking)
-                .isSuffocating(FramedBlockInternals::isSuffocating);
+                .emissiveRendering(IFramedBlock::isEmissiveRendering)
+                .isViewBlocking(IFramedBlock::isBlockSuffocating)
+                .isSuffocating(IFramedBlock::isBlockSuffocating);
 
         if (!type.canOccludeWithSolidCamo())
         {
@@ -96,9 +78,19 @@ public interface IFramedBlock extends EntityBlock, IBlockExtension
         return props;
     }
 
-    default BlockItem createBlockItem(Item.Properties props)
+    private static boolean isEmissiveRendering(BlockState state, BlockGetter level, BlockPos pos)
     {
-        return new FramedBlockItem((Block) this, props);
+        return ((IFramedBlock) state.getBlock()).isCamoEmissiveRendering(state, level, pos);
+    }
+
+    private static boolean isBlockSuffocating(BlockState state, BlockGetter level, BlockPos pos)
+    {
+        return ((IFramedBlock) state.getBlock()).isSuffocating(state, level, pos);
+    }
+
+    default BlockItem createBlockItem()
+    {
+        return new BlockItem((Block) this, new Item.Properties());
     }
 
     @ApiStatus.OverrideOnly
@@ -109,7 +101,7 @@ public interface IFramedBlock extends EntityBlock, IBlockExtension
 
     default StateCache getCache(BlockState state)
     {
-        return state.framedblocks$getCache();
+        return ((IStateCacheAccessor) state).framedblocks$getCache();
     }
 
     default void tryApplyCamoImmediately(Level level, BlockPos pos, @Nullable LivingEntity placer, ItemStack stack)
@@ -152,13 +144,13 @@ public interface IFramedBlock extends EntityBlock, IBlockExtension
         }
     }
 
-    default InteractionResult handleUse(
+    default ItemInteractionResult handleUse(
             BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit
     )
     {
         if (getBlockType().canLockState() && hand == InteractionHand.MAIN_HAND && lockState(level, pos, player, player.getItemInHand(hand)))
         {
-            return InteractionResult.SUCCESS;
+            return ItemInteractionResult.sidedSuccess(level.isClientSide());
         }
 
         if (Utils.isWrenchRotationTool(player.getItemInHand(hand)))
@@ -171,17 +163,17 @@ public interface IFramedBlock extends EntityBlock, IBlockExtension
                 {
                     level.setBlockAndUpdate(pos, newState);
                 }
-                return InteractionResult.SUCCESS;
+                return ItemInteractionResult.sidedSuccess(level.isClientSide());
             }
 
-            return InteractionResult.FAIL;
+            return ItemInteractionResult.FAIL;
         }
 
         if (level.getBlockEntity(pos) instanceof FramedBlockEntity be)
         {
             return be.handleInteraction(player, hand, hit);
         }
-        return InteractionResult.FAIL;
+        return ItemInteractionResult.FAIL;
     }
 
     @Override
@@ -203,6 +195,18 @@ public interface IFramedBlock extends EntityBlock, IBlockExtension
             return lightManager.getLightAt(pos);
         }
         return 0;
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    default SoundType getSoundType(BlockState state, LevelReader level, BlockPos pos, @Nullable Entity entity)
+    {
+        if (level.getBlockEntity(pos) instanceof FramedBlockEntity be)
+        {
+            CamoContainer<?, ?> camo = be.getCamo();
+            return camo.getContent().getSoundType();
+        }
+        return state.getSoundType();
     }
 
     default List<ItemStack> getCamoDrops(List<ItemStack> drops, LootParams.Builder builder)
@@ -274,17 +278,28 @@ public interface IFramedBlock extends EntityBlock, IBlockExtension
         return state;
     }
 
-    default boolean canOccludeNeighbor(BlockGetter level, BlockPos pos, BlockState state, BlockPos adjPos, BlockState adjState)
+    /**
+     * Extract the nested {@link ModelData}, if any, from the given data based on the given state.
+     * Only relevant for double blocks
+     */
+    default ModelData unpackNestedModelData(ModelData data, BlockState state, BlockState componentState)
+    {
+        return data;
+    }
+
+    default boolean shouldPreventNeighborCulling(
+            BlockGetter level, BlockPos pos, BlockState state, BlockPos adjPos, BlockState adjState
+    )
     {
         if (!ConfigView.Server.INSTANCE.enableIntangibility())
         {
-            return true;
+            return false;
         }
         if (adjState.getBlock() instanceof IFramedBlock adjBlock && adjBlock.isIntangible(adjState, level, adjPos, null))
         {
-            return true;
+            return false;
         }
-        return !isIntangible(state, level, pos, null);
+        return isIntangible(state, level, pos, null);
     }
 
     @Override
@@ -390,22 +405,67 @@ public interface IFramedBlock extends EntityBlock, IBlockExtension
         return level.getBlockEntity(pos) instanceof FramedBlockEntity be && be.isIntangible(ctx);
     }
 
+    default boolean isCamoEmissiveRendering(@SuppressWarnings("unused") BlockState state, BlockGetter level, BlockPos pos)
+    {
+        ModelData modelData = level.getModelData(pos);
+        return isCamoEmissiveRendering(modelData);
+    }
+
+    static boolean isCamoEmissiveRendering(@Nullable ModelData modelData)
+    {
+        if (modelData == ModelData.EMPTY || modelData == null) return false;
+
+        FramedBlockData fbData = modelData.get(FramedBlockData.PROPERTY);
+        if (fbData != null)
+        {
+            return fbData.getCamoContent().isEmissive();
+        }
+        return false;
+    }
+
+    @SuppressWarnings("deprecation")
+    default boolean isSuffocating(BlockState state, BlockGetter level, BlockPos pos)
+    {
+        if (ConfigView.Server.INSTANCE.enableIntangibility() && getBlockType().allowMakingIntangible())
+        {
+            // The given BlockPos may be a neighboring block due to how Entity#isInWall() calls this
+            BlockState stateAtPos = level.getBlockState(pos);
+            if (state != stateAtPos || isIntangible(state, level, pos, null))
+            {
+                return false;
+            }
+        }
+
+        // Copy of the default suffocation check
+        return state.blocksMotion() && state.isCollisionShapeFullBlock(level, pos);
+    }
+
     default boolean useCamoOcclusionShapeForLightOcclusion(BlockState state)
     {
-        //noinspection ConstantValue
         if (getBlockType() != null && !getBlockType().canOccludeWithSolidCamo())
         {
             return false;
         }
-        return BlockUtils.tryGetValue(state, FramedProperties.SOLID, false) && !state.getValue(FramedProperties.GLOWING);
+        return Utils.tryGetValue(state, FramedProperties.SOLID, false) && !state.getValue(FramedProperties.GLOWING);
+    }
+
+    /**
+     * @deprecated Use overload with {@link ShapeProvider} param instead
+     */
+    @Deprecated(forRemoval = true)
+    default VoxelShape getCamoOcclusionShape(BlockState state, BlockGetter level, BlockPos pos)
+    {
+        return getCamoOcclusionShape(state, level, pos, null);
     }
 
     /**
      * {@return the shape to use for occlusion checks}
      * @param state This block's state
+     * @param level The level this block is in
+     * @param pos The position of this block in the level
      * @param occlusionShapes The {@link ShapeProvider} to get the shape from if this block uses separate main and occlusion shapes
      */
-    default VoxelShape getCamoOcclusionShape(BlockState state, @Nullable ShapeProvider occlusionShapes)
+    default VoxelShape getCamoOcclusionShape(BlockState state, BlockGetter level, BlockPos pos, @Nullable ShapeProvider occlusionShapes)
     {
         if (getBlockType().canOccludeWithSolidCamo() && !state.getValue(FramedProperties.SOLID))
         {
@@ -415,7 +475,7 @@ public interface IFramedBlock extends EntityBlock, IBlockExtension
         {
             return occlusionShapes.get(state);
         }
-        return state.getShape(EmptyBlockGetter.INSTANCE, BlockPos.ZERO);
+        return state.getShape(level, pos);
     }
 
     default VoxelShape getCamoVisualShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx)
@@ -429,8 +489,11 @@ public interface IFramedBlock extends EntityBlock, IBlockExtension
 
     default float getCamoShadeBrightness(@SuppressWarnings("unused") BlockState state, BlockGetter level, BlockPos pos, float ownShade)
     {
-        AbstractFramedBlockData fbData = level.getModelData(pos).get(AbstractFramedBlockData.PROPERTY);
-        return fbData != null ? fbData.getCamoShadeBrightness(level, pos, ownShade) : ownShade;
+        if (level.getBlockEntity(pos) instanceof FramedBlockEntity be)
+        {
+            return be.getCamoShadeBrightness(ownShade);
+        }
+        return ownShade;
     }
 
     @Override
@@ -458,39 +521,9 @@ public interface IFramedBlock extends EntityBlock, IBlockExtension
     }
 
     @Override
-    default void playStepSound(BlockState state, Level level, BlockPos pos, Entity entity, float volumeMult, float pitchMult)
-    {
-        CamoContainer<?, ?> camo = level.getBlockEntity(pos) instanceof FramedBlockEntity be ? be.getCamo() : EmptyCamoContainer.EMPTY;
-        SoundUtils.playStepSound(entity, camo.getContent().getSoundType(), volumeMult, pitchMult);
-    }
-
-    @Override
-    default void playFallSound(BlockState state, Level level, BlockPos pos, LivingEntity entity)
-    {
-        CamoContainer<?, ?> camo = level.getBlockEntity(pos) instanceof FramedBlockEntity be ? be.getCamo() : EmptyCamoContainer.EMPTY;
-        SoundUtils.playFallSound(entity, camo.getContent().getSoundType());
-    }
-
-    @Override
     default boolean hidesNeighborFace(BlockGetter level, BlockPos pos, BlockState state, BlockState adjState, Direction side)
     {
         return CullingHelper.hidesNeighborFace(this, level, pos, state, adjState, side);
-    }
-
-    default CamoContainer<?, ?> getCamo(BlockGetter level, BlockPos pos, BlockState state, Direction side)
-    {
-        AbstractFramedBlockData fbData = level.getModelData(pos).get(AbstractFramedBlockData.PROPERTY);
-        return fbData != null ? fbData.unwrap(false).getCamoContainer() : EmptyCamoContainer.EMPTY;
-    }
-
-    default boolean isSolidSide(BlockGetter level, BlockPos pos, BlockState state, Direction side)
-    {
-        if (state.framedblocks$getCache().isFullFace(side))
-        {
-            AbstractFramedBlockData fbData = level.getModelData(pos).get(AbstractFramedBlockData.PROPERTY);
-            return fbData != null && fbData.unwrap(false).getCamoContent().isSolid();
-        }
-        return false;
     }
 
     @Override
@@ -539,7 +572,7 @@ public interface IFramedBlock extends EntityBlock, IBlockExtension
         return true;
     }
 
-    default BlockState updateShapeLockable(BlockState state, LevelReader level, ScheduledTickAccess tickAccess, BlockPos pos, Supplier<BlockState> updateShape)
+    default BlockState updateShapeLockable(BlockState state, LevelAccessor level, BlockPos pos, Supplier<BlockState> updateShape)
     {
         if (!state.getValue(FramedProperties.STATE_LOCKED))
         {
@@ -548,7 +581,7 @@ public interface IFramedBlock extends EntityBlock, IBlockExtension
 
         if (getBlockType().supportsWaterLogging() && state.getValue(BlockStateProperties.WATERLOGGED))
         {
-            tickAccess.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+            level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
         return state;
     }
@@ -579,7 +612,6 @@ public interface IFramedBlock extends EntityBlock, IBlockExtension
     }
 
     @Override
-    @Nullable
     default Integer getBeaconColorMultiplier(BlockState state, LevelReader level, BlockPos pos, BlockPos beaconPos)
     {
         if (!doesBlockOccludeBeaconBeam(state, level, pos))
@@ -633,11 +665,33 @@ public interface IFramedBlock extends EntityBlock, IBlockExtension
     }
 
     @Override
-    FramedBlockEntity newBlockEntity(BlockPos pos, BlockState state);
-
-    default CamoList getCamosFromBlueprint(BlueprintData blueprintData)
+    default BlockEntity newBlockEntity(BlockPos pos, BlockState state)
     {
-        return blueprintData.camos();
+        return new FramedBlockEntity(pos, state);
+    }
+
+    default void appendCamoHoverText(ItemStack stack, List<Component> lines)
+    {
+        Optional<MutableComponent> camoText = printCamoData(stack.getOrDefault(Utils.DC_TYPE_CAMO_LIST, CamoList.EMPTY), false);
+        if (camoText.isPresent())
+        {
+            lines.add(Component.translatable(CAMO_LABEL, camoText.get()).withStyle(ChatFormatting.GOLD));
+        }
+    }
+
+    default Optional<MutableComponent> printCamoBlock(BlueprintData blueprintData)
+    {
+        return printCamoData(blueprintData.camos(), true);
+    }
+
+    default Optional<MutableComponent> printCamoData(CamoList camos, boolean blueprint)
+    {
+        CamoContainer<?, ?> camoContent = camos.getCamo(0);
+        if (camoContent.isEmpty())
+        {
+            return Optional.empty();
+        }
+        return Optional.of(camoContent.getContent().getCamoName().withStyle(ChatFormatting.WHITE));
     }
 
     static boolean toggleYSlope(BlockState state, Level level, BlockPos pos, Player player)
@@ -685,5 +739,13 @@ public interface IFramedBlock extends EntityBlock, IBlockExtension
     default float getJadeRenderScale(BlockState state)
     {
         return 1F;
+    }
+
+    /**
+     * {@return whether this block should use the GUI transform from the model or fall back to a default transform}
+     */
+    default boolean shouldApplyGuiTransformFromModel()
+    {
+        return true;
     }
 }

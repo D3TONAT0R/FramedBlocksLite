@@ -2,8 +2,12 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "F": "framedblocks:framed_cube",
-    "P": "minecraft:paper"
+    "F": {
+      "item": "framedblocks:framed_cube"
+    },
+    "P": {
+      "item": "minecraft:paper"
+    }
   },
   "pattern": [
     " F ",

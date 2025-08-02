@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -12,8 +13,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
@@ -34,16 +33,16 @@ public final class FluidCamoContainerFactory extends CamoContainerFactory<FluidC
             .map(FluidCamoContainer::new, FluidCamoContainer::getFluid);
 
     @Override
-    protected void writeToNetwork(ValueOutput valueOutput, FluidCamoContainer container)
+    protected void writeToNetwork(CompoundTag tag, FluidCamoContainer container)
     {
         Fluid fluid = container.getFluid();
-        valueOutput.putInt("fluid", BuiltInRegistries.FLUID.getId(fluid));
+        tag.putInt("fluid", BuiltInRegistries.FLUID.getId(fluid));
     }
 
     @Override
-    protected FluidCamoContainer readFromNetwork(ValueInput valueInput)
+    protected FluidCamoContainer readFromNetwork(CompoundTag tag)
     {
-        Fluid fluid = BuiltInRegistries.FLUID.byId(valueInput.getIntOr("fluid", -1));
+        Fluid fluid = BuiltInRegistries.FLUID.byId(tag.getInt("fluid"));
         return new FluidCamoContainer(fluid);
     }
 

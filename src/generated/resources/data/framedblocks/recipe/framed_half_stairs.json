@@ -2,8 +2,12 @@
   "type": "minecraft:crafting_shapeless",
   "category": "building",
   "ingredients": [
-    "framedblocks:framed_hammer",
-    "framedblocks:framed_stairs"
+    {
+      "item": "framedblocks:framed_hammer"
+    },
+    {
+      "item": "framedblocks:framed_stairs"
+    }
   ],
   "result": {
     "count": 2,

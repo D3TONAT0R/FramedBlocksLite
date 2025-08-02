@@ -7,13 +7,12 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import xfacthd.framedblocks.api.block.blockentity.FramedBlockEntity;
 
-public record FrameConfig(boolean glowing, boolean intangible, boolean reinforced, boolean emissive)
+public record FrameConfig(boolean glowing, boolean intangible, boolean reinforced)
 {
     public static final Codec<FrameConfig> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Codec.BOOL.fieldOf("glowing").forGetter(FrameConfig::glowing),
             Codec.BOOL.fieldOf("intangible").forGetter(FrameConfig::intangible),
-            Codec.BOOL.fieldOf("reinforced").forGetter(FrameConfig::reinforced),
-            Codec.BOOL.fieldOf("emissive").forGetter(FrameConfig::emissive)
+            Codec.BOOL.fieldOf("reinforced").forGetter(FrameConfig::reinforced)
     ).apply(inst, FrameConfig::new));
     public static final StreamCodec<ByteBuf, FrameConfig> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.BOOL,
@@ -22,17 +21,14 @@ public record FrameConfig(boolean glowing, boolean intangible, boolean reinforce
             FrameConfig::intangible,
             ByteBufCodecs.BOOL,
             FrameConfig::reinforced,
-            ByteBufCodecs.BOOL,
-            FrameConfig::emissive,
             FrameConfig::new
     );
-    public static final FrameConfig DEFAULT = new FrameConfig(false, false, false, false);
+    public static final FrameConfig DEFAULT = new FrameConfig(false, false, false);
 
     public void apply(FramedBlockEntity be)
     {
         be.setGlowing(glowing);
         be.setIntangible(intangible);
         be.setReinforced(reinforced);
-        be.setEmissive(emissive);
     }
 }

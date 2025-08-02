@@ -4,9 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.EmptyBlockGetter;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -18,7 +16,6 @@ import xfacthd.framedblocks.api.util.Utils;
 public abstract class AbstractBlockCamoContainerFactory<T extends AbstractBlockCamoContainer<T>> extends CamoContainerFactory<T>
 {
     @Override
-    @Nullable
     public final T applyCamo(Level level, BlockPos pos, Player player, ItemStack stack)
     {
         BlockState state = getStateFromItemStack(level, pos, player, stack);

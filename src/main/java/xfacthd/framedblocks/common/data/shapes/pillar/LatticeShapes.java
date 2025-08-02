@@ -6,9 +6,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import xfacthd.framedblocks.api.block.FramedProperties;
-import xfacthd.framedblocks.api.shapes.ShapeGenerator;
-import xfacthd.framedblocks.api.shapes.ShapeProvider;
-import xfacthd.framedblocks.api.shapes.ShapeUtils;
+import xfacthd.framedblocks.api.shapes.*;
 
 public final class LatticeShapes implements ShapeGenerator
 {
@@ -53,7 +51,7 @@ public final class LatticeShapes implements ShapeGenerator
             {
                 shape = ShapeUtils.orUnoptimized(shape, zShape);
             }
-            shapes[i] = ShapeUtils.optimize(shape);
+            shapes[i] = shape.optimize();
         }
 
         for (BlockState state : states)

@@ -37,24 +37,25 @@ public final class CullingHelper
         IFramedBlock adjBlock = null;
         if (adjState.getBlock() instanceof IFramedBlock block)
         {
-            if (!block.canOccludeNeighbor(level, adjPos, adjState, pos, state))
+            if (block.shouldPreventNeighborCulling(level, adjPos, adjState, pos, state))
             {
                 return false;
             }
             adjFramed = true;
             adjBlock = block;
         }
-        else if (adjState.isSolidRender())
+        else if (adjState.isSolidRender(level, adjPos))
         {
             // Let the game handle culling against fully solid cubes automatically,
             // prevents xray issues with block tool modifications like farmland tilling
             return false;
         }
 
-        boolean fullFace = state.framedblocks$getCache().isFullFace(side);
+        IFramedBlock block = (IFramedBlock) state.getBlock();
+        boolean fullFace = block.getCache(state).isFullFace(side);
         if (!adjFramed || fullFace || !ConfigView.Client.INSTANCE.detailedCullingEnabled())
         {
-            if (fullFace && (!adjFramed || adjState.framedblocks$getCache().isFullFace(side.getOpposite())))
+            if (fullFace && (!adjFramed || adjBlock.getCache(adjState).isFullFace(side.getOpposite())))
             {
                 if (!(level.getBlockEntity(pos) instanceof FramedBlockEntity be))
                 {
@@ -69,14 +70,14 @@ public final class CullingHelper
                         return false;
                     }
                     CamoContent<?> adjCamoContent = adjBe.getCamo(side.getOpposite()).getContent();
-                    return camoContent.isOccludedBy(adjCamoContent, level, pos, adjPos, side);
+                    return camoContent.isOccludedBy(adjCamoContent, level, pos, adjPos);
                 }
-                return camoContent.isOccludedBy(adjState, level, pos, adjPos, side);
+                return camoContent.isOccludedBy(adjState, level, pos, adjPos);
             }
             return false;
         }
 
-        SideSkipPredicate pred = ((IFramedBlock) state.getBlock()).getBlockType().getSideSkipPredicate();
+        SideSkipPredicate pred = block.getBlockType().getSideSkipPredicate();
         BlockState adjTestState = adjBlock.runOcclusionTestAndGetLookupState(pred, level, pos, state, adjState, side);
         if (adjTestState != null)
         {
@@ -89,7 +90,7 @@ public final class CullingHelper
             if (!adjCamoContent.isEmpty() && level.getBlockEntity(pos) instanceof FramedBlockEntity be)
             {
                 CamoContent<?> camoContent = be.getCamo(state).getContent();
-                return camoContent.isOccludedBy(adjCamoContent, level, pos, adjPos, side);
+                return camoContent.isOccludedBy(adjCamoContent, level, pos, adjPos);
             }
             return false;
         }
@@ -119,17 +120,16 @@ public final class CullingHelper
         {
             return false;
         }
-        BlockPos adjPos = pos.relative(side);
-        if (!block.canOccludeNeighbor(level, pos, state, adjPos, adjState))
+        if (level.getBlockEntity(pos) instanceof FramedBlockEntity be)
         {
-            return false;
+            if (((IFramedBlock) state.getBlock()).getCache(state).isFullFace(side))
+            {
+                CamoContent<?> camoContent = be.getCamo(side).getContent();
+                return camoContent.occludes(adjState, level, pos, adjPos);
+            }
+            return be.isSolidSide(side);
         }
-        if (state.framedblocks$getCache().isFullFace(side))
-        {
-            CamoContent<?> camoContent = block.getCamo(level, pos, state, side).getContent();
-            return camoContent.occludes(adjState, level, pos, adjPos, side);
-        }
-        return block.isSolidSide(level, pos, state, side);
+        return false;
     }
 
 

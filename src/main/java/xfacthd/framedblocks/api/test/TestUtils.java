@@ -3,25 +3,19 @@ package xfacthd.framedblocks.api.test;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleEngine;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.HolderSet;
+import net.minecraft.core.*;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.gametest.framework.GameTestAssertPosException;
-import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.network.chat.Component;
+import net.minecraft.gametest.framework.*;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -30,63 +24,83 @@ import net.neoforged.neoforge.client.extensions.common.IClientBlockExtensions;
 import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.fml.loading.FMLEnvironment;
 import org.slf4j.Logger;
-import xfacthd.framedblocks.api.block.IFramedBlock;
+import xfacthd.framedblocks.api.block.*;
 import xfacthd.framedblocks.api.block.blockentity.FramedBlockEntity;
-import xfacthd.framedblocks.api.block.blockentity.FramedDoubleBlockEntity;
-import xfacthd.framedblocks.api.block.render.FramedClientBlockExtensions;
-import xfacthd.framedblocks.api.camo.CamoContainer;
-import xfacthd.framedblocks.api.camo.CamoContainerFactory;
-import xfacthd.framedblocks.api.camo.CamoContainerHelper;
-import xfacthd.framedblocks.api.camo.empty.EmptyCamoContainer;
-import xfacthd.framedblocks.api.util.ConfigView;
-import xfacthd.framedblocks.api.util.Utils;
+import xfacthd.framedblocks.api.block.render.FramedBlockRenderProperties;
+import xfacthd.framedblocks.api.util.*;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
+import java.util.*;
+import java.util.function.*;
 
 public final class TestUtils
 {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final BlockPos EMISSION_BLOCK = new BlockPos(1, 1, 1);
-    private static final BlockPos EMISSION_LIGHT = new BlockPos(1, 2, 1);
+    private static final BlockPos OCCLUSION_BLOCK_TOP_BOTTOM = new BlockPos(1, 3, 1);
+    private static final BlockPos OCCLUSION_BLOCK_SIDE = new BlockPos(1, 2, 2);
+    private static final BlockPos OCCLUSION_LIGHT_TOP = new BlockPos(1, 4, 1);
+    private static final BlockPos OCCLUSION_LIGHT_BOTTOM = new BlockPos(1, 2, 1);
+    private static final BlockPos OCCLUSION_LIGHT_SIDE = new BlockPos(1, 2, 3);
+    private static final BlockPos EMISSION_BLOCK = new BlockPos(1, 2, 1);
+    private static final BlockPos EMISSION_LIGHT = new BlockPos(1, 3, 1);
+    private static final BlockPos INTANGIBILITY_BLOCK = new BlockPos(0, 2, 0);
     private static final BlockPos BEACON_TINT_BLOCK = new BlockPos(0, 2, 0);
     private static final BlockPos BEACON_TINT_BEACON = new BlockPos(0, 0, 0);
     private static final Predicate<Integer> BEACON_PREDICATE_RED = color -> Objects.equals(color, DyeColor.RED.getTextureDiffuseColor());
-    private static final String BEACON_COLOR_TEXT_RED = Integer.toHexString(0xFF000000 | DyeColor.RED.getTextureDiffuseColor());
+    private static final String BEACON_COLOR_TEXT_RED = Objects.toString(DyeColor.RED.getTextureDiffuseColor());
 
-    public static void applyCamo(GameTestHelper helper, BlockPos pos, Block camo)
+    public static boolean assertFramedBlock(GameTestHelper helper, Block block)
     {
-        FramedBlockEntity be = helper.getBlockEntity(pos, FramedBlockEntity.class);
-
-        CamoContainer<?, ?> camoContainer;
-        if (camo == Blocks.AIR)
+        if (!(block instanceof IFramedBlock))
         {
-            camoContainer = EmptyCamoContainer.EMPTY;
+            helper.fail(String.format("Expected instance of IFramedBlock, got %s", BuiltInRegistries.BLOCK.getKey(block)));
+            return false;
         }
-        else
-        {
-            ItemStack stack = new ItemStack(camo);
-            CamoContainerFactory<?> camoFactory = CamoContainerHelper.findCamoFactory(stack);
-            if (camoFactory == null)
-            {
-                helper.fail(Component.literal(String.format("No camo factory for %s", camo)));
-                return;
-            }
+        return true;
+    }
 
-            Player player = helper.makeMockPlayer(GameType.SURVIVAL);
-            camoContainer = camoFactory.applyCamo(helper.getLevel(), helper.absolutePos(pos), player, stack);
-            if (camoContainer == null)
-            {
-                helper.fail(Component.literal(String.format("No camo container produced for %s", camo)));
-                return;
-            }
-        }
-        be.setCamo(camoContainer, false);
-        if (be instanceof FramedDoubleBlockEntity)
+    public static void applyCamo(GameTestHelper helper, BlockPos pos, Block camo, List<Direction> camoSides)
+    {
+        Map<Direction, Block> camos = new LinkedHashMap<>();
+        camoSides.forEach(side -> camos.put(side, camo));
+        applyCamo(helper, pos, camos);
+    }
+
+    public static void applyCamo(GameTestHelper helper, BlockPos pos, Map<Direction, Block> camos)
+    {
+        BlockPos absPos = helper.absolutePos(pos);
+        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+
+        int count = 0;
+        for (Map.Entry<Direction, Block> entry : camos.entrySet())
         {
-            be.setCamo(camoContainer, true);
+            Direction side = entry.getKey();
+            Block camo = entry.getValue();
+
+            Item item = camo == Blocks.AIR ? Utils.FRAMED_HAMMER.value() : camo.asItem();
+            ItemStack stack = new ItemStack(item);
+            player.setItemInHand(InteractionHand.MAIN_HAND, stack);
+
+            Vec3 hitVec = switch (count)
+            {
+                case 0 -> Vec3.atCenterOf(absPos).add(-.1, -.1, -.1);
+                case 1 -> Vec3.atCenterOf(absPos).add(.1, .1, .1);
+                default -> Vec3.atCenterOf(absPos);
+            };
+            ItemInteractionResult result = helper.getBlockState(pos).useItemOn(
+                    stack,
+                    helper.getLevel(),
+                    player,
+                    InteractionHand.MAIN_HAND,
+                    new BlockHitResult(hitVec, side, absPos, true)
+            );
+            count++;
+
+            if (!result.consumesAction())
+            {
+                helper.fail(String.format(
+                        "Camo application on side '%s' of block '%s' failed", side, helper.getBlockState(pos)
+                ), pos);
+            }
         }
     }
 
@@ -115,7 +129,7 @@ public final class TestUtils
         ItemStack stack = new ItemStack(item);
         player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(item));
 
-        InteractionResult result = helper.getBlockState(pos).useItemOn(
+        ItemInteractionResult result = helper.getBlockState(pos).useItemOn(
                 stack,
                 helper.getLevel(),
                 player,
@@ -123,9 +137,9 @@ public final class TestUtils
                 new BlockHitResult(Vec3.atCenterOf(absPos), side, absPos, true)
         );
 
-        if (!result.consumesAction())
+        if (result != ItemInteractionResult.SUCCESS)
         {
-            helper.fail(Component.literal(String.format("Interaction with block '%s' on side '%s' failed with result '%s'", helper.getBlockState(pos), side, result)), pos);
+            helper.fail(String.format("Interaction with block %s failed", helper.getBlockState(pos)), pos);
         }
     }
 
@@ -166,11 +180,27 @@ public final class TestUtils
         return delay;
     }
 
+    public static <T extends BlockEntity> T getBlockEntity(GameTestHelper helper, BlockPos relPos, Class<T> beClass)
+    {
+        BlockEntity be = helper.getBlockEntity(relPos);
+        if (!beClass.isInstance(be))
+        {
+            throw new GameTestAssertPosException(
+                    String.format("Expected %s, got %s", beClass.getSimpleName(), be.getClass().getSimpleName()),
+                    helper.absolutePos(relPos),
+                    relPos,
+                    helper.getTick()
+            );
+        }
+
+        return beClass.cast(be);
+    }
+
     public static void assertTrue(GameTestHelper helper, BlockPos relPos, boolean value, Supplier<String> message)
     {
         if (!value)
         {
-            throw new GameTestAssertPosException(Component.literal(message.get()), helper.absolutePos(relPos), relPos, (int) helper.getTick());
+            throw new GameTestAssertPosException(message.get(), helper.absolutePos(relPos), relPos, helper.getTick());
         }
     }
 
@@ -179,35 +209,147 @@ public final class TestUtils
         helper.spawnItem(item, relPos.getX() + .5F, relPos.getY(), relPos.getZ() + .5F);
     }
 
+    // == Occlusion testing ==
+
+    public static boolean assertCanOcclude(GameTestHelper helper, Block block)
+    {
+        if (!assertFramedBlock(helper, block))
+        {
+            return false;
+        }
+
+        if (!((IFramedBlock) block).getBlockType().canOccludeWithSolidCamo())
+        {
+            helper.fail(String.format("Block %s can not occlude with a solid camo", BuiltInRegistries.BLOCK.getKey(block)));
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Test whether the given {@link BlockState} occludes the light source placed below the block
+     */
+    public static void testBlockOccludesLightBelow(GameTestHelper helper, BlockState state)
+    {
+        testBlockOccludesLight(helper, OCCLUSION_BLOCK_TOP_BOTTOM, OCCLUSION_LIGHT_TOP, state, List.of(Direction.UP));
+    }
+
+    /**
+     * Test whether the given {@link BlockState} occludes the light source placed above the block
+     */
+    public static void testBlockOccludesLightAbove(GameTestHelper helper, BlockState state)
+    {
+        testBlockOccludesLight(helper, OCCLUSION_BLOCK_TOP_BOTTOM, OCCLUSION_LIGHT_BOTTOM, state, List.of(Direction.DOWN));
+    }
+
+    /**
+     * Test whether the given {@link BlockState} occludes the light source placed on the north side of the block
+     */
+    public static void testBlockOccludesLightNorth(GameTestHelper helper, BlockState state)
+    {
+        testBlockOccludesLight(helper, OCCLUSION_BLOCK_SIDE, OCCLUSION_LIGHT_SIDE, state, List.of(Direction.SOUTH));
+    }
+
+    /**
+     * Test whether the given double block {@link BlockState} occludes the light source placed below the block
+     */
+    public static void testDoubleBlockOccludesLightBelow(GameTestHelper helper, BlockState state, List<Direction> camoSides)
+    {
+        testBlockOccludesLight(helper, OCCLUSION_BLOCK_TOP_BOTTOM, OCCLUSION_LIGHT_TOP, state, camoSides);
+    }
+
+    /**
+     * Test whether the given double block {@link BlockState} occludes the light source placed above the block
+     */
+    public static void testDoubleBlockOccludesLightAbove(GameTestHelper helper, BlockState state, List<Direction> camoSides)
+    {
+        testBlockOccludesLight(helper, OCCLUSION_BLOCK_TOP_BOTTOM, OCCLUSION_LIGHT_BOTTOM, state, camoSides);
+    }
+
+    /**
+     * Test whether the given {@link BlockState} occludes the light source placed on the north side of the block
+     */
+    public static void testDoubleBlockOccludesLightNorth(GameTestHelper helper, BlockState state, List<Direction> camoSides)
+    {
+        testBlockOccludesLight(helper, OCCLUSION_BLOCK_SIDE, OCCLUSION_LIGHT_SIDE, state, camoSides);
+    }
+
+    private static void testBlockOccludesLight(
+            GameTestHelper helper, BlockPos blockPos, BlockPos lightPos, BlockState state, List<Direction> camoSides
+    )
+    {
+        if (!assertCanOcclude(helper, state.getBlock()))
+        {
+            return;
+        }
+
+        //Indirectly validate that the correct structure is used
+        helper.assertBlockPresent(Blocks.AIR, blockPos);
+        helper.assertBlockPresent(Blocks.GLASS, lightPos);
+
+        chainTasks(helper, List.of(
+                () -> helper.setBlock(blockPos, state),
+                new TestDelay(5), //Light occlusion changes from BlockState changes may take a few ticks to propagate, apparently
+                () ->
+                {
+                    helper.assertBlockProperty(blockPos, FramedProperties.SOLID, false);
+                    assertBlockLight(helper, blockPos, lightPos, 13);
+                },
+                () -> applyCamo(helper, blockPos, Blocks.GLASS, camoSides),
+                new TestDelay(5), //Light occlusion changes from BlockState changes may take a few ticks to propagate, apparently
+                () ->
+                {
+                    helper.assertBlockProperty(blockPos, FramedProperties.SOLID, false);
+                    assertBlockLight(helper, blockPos, lightPos, 13);
+                },
+                () -> applyCamo(helper, blockPos, Blocks.AIR, camoSides),
+                () -> applyCamo(helper, blockPos, Blocks.GRANITE, camoSides),
+                new TestDelay(5), //Light occlusion changes from BlockState changes may take a few ticks to propagate, apparently
+                () ->
+                {
+                    helper.assertBlockProperty(blockPos, FramedProperties.SOLID, true);
+                    assertBlockLight(helper, blockPos, lightPos, 0);
+                },
+                helper::succeed
+        ));
+    }
+
     // == Light emission testing ==
 
-    public static void testBlockLightEmission(GameTestHelper helper, BlockState state)
+    public static void testBlockLightEmission(GameTestHelper helper, BlockState state, List<Direction> camoSides)
+    {
+        testBlockLightEmission(helper, state, camoSides, 0);
+    }
+
+    public static void testBlockLightEmission(
+            GameTestHelper helper, BlockState state, List<Direction> camoSides, int baseEmission
+    )
     {
         //noinspection deprecation
         int glowstoneLight = Blocks.GLOWSTONE.defaultBlockState().getLightEmission();
 
         chainTasks(helper, List.of(
                 () -> helper.setBlock(EMISSION_BLOCK, state),
-                () -> assertBlockLightEmission(helper, EMISSION_BLOCK, EMISSION_LIGHT, 0), //Check base emission
-                () -> applyCamo(helper, EMISSION_BLOCK, Blocks.GLOWSTONE),
+                () -> assertBlockLightEmission(helper, EMISSION_BLOCK, EMISSION_LIGHT, baseEmission), //Check base emission
+                () -> applyCamo(helper, EMISSION_BLOCK, Blocks.GLOWSTONE, camoSides),
                 new TestDelay(5), //Light changes from BlockState changes may take a few ticks to propagate, apparently
                 () -> assertBlockLightEmission(helper, EMISSION_BLOCK, EMISSION_LIGHT, glowstoneLight), //Check camo emission
-                () -> applyCamo(helper, EMISSION_BLOCK, Blocks.AIR),
+                () -> applyCamo(helper, EMISSION_BLOCK, Blocks.AIR, camoSides),
                 new TestDelay(5), //Light changes from BlockState changes may take a few ticks to propagate, apparently
-                () -> assertBlockLightEmission(helper, EMISSION_BLOCK, EMISSION_LIGHT, 0), //Check camo emission reset
+                () -> assertBlockLightEmission(helper, EMISSION_BLOCK, EMISSION_LIGHT, baseEmission), //Check camo emission reset
                 () -> clickWithItem(helper, EMISSION_BLOCK, Items.GLOWSTONE_DUST),
                 new TestDelay(5), //Light changes from BlockState changes may take a few ticks to propagate, apparently
                 () -> assertBlockLightEmission(helper, EMISSION_BLOCK, EMISSION_LIGHT, 15), //Check glowstone dust emission without camo
-                () -> applyCamo(helper, EMISSION_BLOCK, Blocks.GLASS),
+                () -> applyCamo(helper, EMISSION_BLOCK, Blocks.GLASS, camoSides),
                 new TestDelay(5), //Light changes from BlockState changes may take a few ticks to propagate, apparently
                 () -> assertBlockLightEmission(helper, EMISSION_BLOCK, EMISSION_LIGHT, 15), //Check glowstone dust emission with non-solid camo
-                () -> applyCamo(helper, EMISSION_BLOCK, Blocks.AIR),
+                () -> applyCamo(helper, EMISSION_BLOCK, Blocks.AIR, camoSides),
                 new TestDelay(5), //Light changes from BlockState changes may take a few ticks to propagate, apparently
                 () -> assertBlockLightEmission(helper, EMISSION_BLOCK, EMISSION_LIGHT, 15), //Check glowstone dust emission after non-solid camo removed
-                () -> applyCamo(helper, EMISSION_BLOCK, Blocks.GRANITE),
+                () -> applyCamo(helper, EMISSION_BLOCK, Blocks.GRANITE, camoSides),
                 new TestDelay(5), //Light changes from BlockState changes may take a few ticks to propagate, apparently
                 () -> assertBlockLightEmission(helper, EMISSION_BLOCK, EMISSION_LIGHT, 15), //Check glowstone dust emission with solid camo
-                () -> applyCamo(helper, EMISSION_BLOCK, Blocks.AIR),
+                () -> applyCamo(helper, EMISSION_BLOCK, Blocks.AIR, camoSides),
                 new TestDelay(5), //Light changes from BlockState changes may take a few ticks to propagate, apparently
                 () -> assertBlockLightEmission(helper, EMISSION_BLOCK, EMISSION_LIGHT, 15), //Check glowstone dust emission after solid camo removed
                 helper::succeed
@@ -221,10 +363,10 @@ public final class TestUtils
         {
             BlockState state = helper.getBlockState(blockPos);
             throw new GameTestAssertPosException(
-                    Component.literal(String.format("Incorrect light emission for %s, expected %d, got %d", state, light, emission)),
+                    String.format("Incorrect light emission for %s, expected %d, got %d", state, light, emission),
                     helper.absolutePos(lightPos),
                     lightPos,
-                    (int) helper.getTick()
+                    helper.getTick()
             );
         }
 
@@ -238,22 +380,170 @@ public final class TestUtils
         {
             BlockState state = helper.getBlockState(blockPos);
             throw new GameTestAssertPosException(
-                    Component.literal(String.format("Incorrect light level for %s, expected %d, got %d", state, light, actualLight)),
+                    String.format("Incorrect light level for %s, expected %d, got %d", state, light, actualLight),
                     helper.absolutePos(lightPos),
                     lightPos,
-                    (int) helper.getTick()
+                    helper.getTick()
             );
+        }
+    }
+
+    // == Intangibility testing ==
+
+    public static void testBlockIntangibility(GameTestHelper helper, BlockState state)
+    {
+        if (!ConfigView.Server.INSTANCE.enableIntangibility())
+        {
+            helper.fail("Intangibility is not enabled in the ServerConfig");
+        }
+
+        chainTasks(helper, List.of(
+                () -> helper.setBlock(INTANGIBILITY_BLOCK, state),
+                () ->
+                {
+                    FramedBlockEntity be = getBlockEntity(helper, INTANGIBILITY_BLOCK, FramedBlockEntity.class);
+                    assertTrue(
+                            helper,
+                            INTANGIBILITY_BLOCK,
+                            !be.isIntangible(CollisionContext.empty()),
+                            () -> String.format("Block '%s' is intangible without interaction", state.getBlock())
+                    );
+
+                    BlockPos pos = helper.absolutePos(INTANGIBILITY_BLOCK);
+                    BlockState currState = helper.getBlockState(INTANGIBILITY_BLOCK);
+                    assertTrue(
+                            helper,
+                            INTANGIBILITY_BLOCK,
+                            !currState.getShape(helper.getLevel(), pos, CollisionContext.empty()).isEmpty(),
+                            () -> String.format("Block '%s' returns an empty shape when not intangible", state.getBlock())
+                    );
+                },
+                () -> clickWithItem(helper, INTANGIBILITY_BLOCK, Utils.PHANTOM_PASTE.value()),
+                () ->
+                {
+                    FramedBlockEntity be = getBlockEntity(helper, INTANGIBILITY_BLOCK, FramedBlockEntity.class);
+                    assertTrue(
+                            helper,
+                            INTANGIBILITY_BLOCK,
+                            be.isIntangible(CollisionContext.empty()),
+                            () -> String.format("Block '%s' is not intangible after interaction", state.getBlock())
+                    );
+
+                    BlockPos pos = helper.absolutePos(INTANGIBILITY_BLOCK);
+                    BlockState currState = helper.getBlockState(INTANGIBILITY_BLOCK);
+                    assertTrue(
+                            helper,
+                            INTANGIBILITY_BLOCK,
+                            currState.getShape(helper.getLevel(), pos, CollisionContext.empty()).isEmpty(),
+                            () -> String.format("Block '%s' does not return an empty shape when intangible", state.getBlock())
+                    );
+
+                    Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+                    CollisionContext ctx = CollisionContext.of(player);
+                    BuiltInRegistries.ITEM.getTag(Utils.DISABLE_INTANGIBLE)
+                            .stream()
+                            .flatMap(HolderSet::stream)
+                            .forEach(item ->
+                            {
+                                player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(item));
+
+                                assertTrue(
+                                        helper,
+                                        INTANGIBILITY_BLOCK,
+                                        !be.isIntangible(ctx),
+                                        () -> String.format(
+                                                "Block '%s' is intangible when targetted by item '%s' which is tagged with 'framedblocks:disable_intangible'",
+                                                state.getBlock(),
+                                                item
+                                        )
+                                );
+
+                                assertTrue(
+                                        helper,
+                                        INTANGIBILITY_BLOCK,
+                                        !currState.getShape(helper.getLevel(), pos, ctx).isEmpty(),
+                                        () -> String.format(
+                                                "Block '%s' is intangible when targetted by item '%s' which is tagged with 'framedblocks:disable_intangible'",
+                                                state.getBlock(),
+                                                item
+                                        )
+                                );
+                            });
+
+                    if (FMLEnvironment.dist.isClient())
+                    {
+                        ClientGuard.testHasParticleOverride(helper, state);
+                    }
+                    else
+                    {
+                        LOGGER.warn("Can't test particle override of block '{}', running on dedicated server", state.getBlock());
+                    }
+                },
+                () -> clickWithItem(helper, INTANGIBILITY_BLOCK, Utils.FRAMED_SCREWDRIVER.value(), true),
+                () ->
+                {
+                    FramedBlockEntity be = getBlockEntity(helper, INTANGIBILITY_BLOCK, FramedBlockEntity.class);
+                    assertTrue(
+                            helper,
+                            INTANGIBILITY_BLOCK,
+                            !be.isIntangible(CollisionContext.empty()),
+                            () -> String.format("Block '%s' is intangible after removing marker", state.getBlock())
+                    );
+
+                    BlockPos pos = helper.absolutePos(INTANGIBILITY_BLOCK);
+                    BlockState currState = helper.getBlockState(INTANGIBILITY_BLOCK);
+                    assertTrue(
+                            helper,
+                            INTANGIBILITY_BLOCK,
+                            !currState.getShape(helper.getLevel(), pos, CollisionContext.empty()).isEmpty(),
+                            () -> String.format("Block '%s' does returns an empty shape after removing marker", state.getBlock())
+                    );
+                },
+                helper::succeed
+        ));
+    }
+
+    private static final class ClientGuard
+    {
+        public static void testHasParticleOverride(GameTestHelper helper, BlockState state)
+        {
+            IClientBlockExtensions blockExt = IClientBlockExtensions.of(state);
+            assertTrue(
+                    helper,
+                    INTANGIBILITY_BLOCK,
+                    blockExt instanceof FramedBlockRenderProperties,
+                    () -> String.format("Block '%s' doesn't have required IClientBlockExtensions", state.getBlock())
+            );
+
+            BlockPos pos = helper.absolutePos(INTANGIBILITY_BLOCK);
+            BlockHitResult miss = BlockHitResult.miss(Vec3.ZERO, Direction.UP, pos);
+            boolean hit = false;
+            boolean destroy = false;
+
+            try
+            {
+                ParticleEngine engine = Minecraft.getInstance().particleEngine;
+                hit = blockExt.addHitEffects(state, helper.getLevel(), miss, engine);
+                destroy = blockExt.addDestroyEffects(state, helper.getLevel(), pos, engine);
+            }
+            catch (Throwable e)
+            {
+                helper.fail(String.format("Error while testing particle overrides, likely caused by a misconfigured particle override:\n%s", e));
+            }
+
+            assertTrue(helper, INTANGIBILITY_BLOCK, hit, () -> String.format("Block '%s' doesn't handle hit particles", state.getBlock()));
+            assertTrue(helper, INTANGIBILITY_BLOCK, destroy, () -> String.format("Block '%s' doesn't handle destroy particles", state.getBlock()));
         }
     }
 
     // == Beacon beam tint testing ==
 
-    public static void testBeaconBeamTinting(GameTestHelper helper, BlockState state)
+    public static void testBeaconBeamTinting(GameTestHelper helper, BlockState state, List<Direction> camoSides)
     {
         chainTasks(helper, List.of(
                 () -> helper.setBlock(BEACON_TINT_BLOCK, state),
                 () -> assertBeaconTint(helper, Blocks.AIR, Objects::isNull, "null"),
-                () -> applyCamo(helper, BEACON_TINT_BLOCK, Blocks.RED_STAINED_GLASS),
+                () -> applyCamo(helper, BEACON_TINT_BLOCK, Blocks.RED_STAINED_GLASS, camoSides),
                 () -> assertBeaconTint(helper, Blocks.RED_STAINED_GLASS, BEACON_PREDICATE_RED, BEACON_COLOR_TEXT_RED),
                 helper::succeed
         ));
@@ -262,7 +552,7 @@ public final class TestUtils
     private static void assertBeaconTint(GameTestHelper helper, Block camo, Predicate<Integer> predicate, String expected)
     {
         BlockState state = helper.getBlockState(BEACON_TINT_BLOCK);
-        helper.assertBlock(BEACON_TINT_BLOCK, IFramedBlock.class::isInstance, block -> Component.literal(String.format("Expected instance of IFramedBlock, got %s", block)));
+        assertFramedBlock(helper, state.getBlock());
 
         Integer tint = state.getBeaconColorMultiplier(
                 helper.getLevel(),
@@ -271,7 +561,7 @@ public final class TestUtils
         );
         assertTrue(helper, BEACON_TINT_BLOCK, predicate.test(tint), () -> String.format(
                 "Block '%s' applies incorrect beacon color multiplier for camo '%s', expected %s, got %s",
-                state.getBlock(), camo, expected, tint != null ? Integer.toHexString(0xFF000000 | tint) : "null"
+                state.getBlock(), camo, expected, tint
         ));
     }
 

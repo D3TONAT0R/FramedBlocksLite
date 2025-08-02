@@ -3,7 +3,9 @@
   "additives": [
     {
       "count": 1,
-      "ingredient": "#c:ingots/iron"
+      "ingredient": {
+        "tag": "c:ingots/iron"
+      }
     }
   ],
   "material": 1536,

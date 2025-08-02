@@ -1,6 +1,6 @@
 package xfacthd.framedblocks.api.model.wrapping;
 
-import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.world.level.block.state.BlockState;
 import xfacthd.framedblocks.api.model.geometry.Geometry;
 
@@ -10,11 +10,5 @@ public interface GeometryFactory
 
 
 
-    record Context(BlockState state, BlockStateModel baseModel, AuxModelProvider auxModels, TextureLookup textureLookup)
-    {
-        public Context withState(BlockState newState)
-        {
-            return new Context(newState, baseModel, auxModels, textureLookup);
-        }
-    }
+    record Context(BlockState state, BakedModel baseModel, ModelLookup modelLookup, TextureLookup textureLookup) { }
 }

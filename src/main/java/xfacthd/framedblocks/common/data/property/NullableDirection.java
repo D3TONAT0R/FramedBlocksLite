@@ -7,10 +7,8 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ByIdMap;
 import net.minecraft.util.StringRepresentable;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
-import java.util.Objects;
 import java.util.function.IntFunction;
 
 public enum NullableDirection implements StringRepresentable
@@ -27,21 +25,14 @@ public enum NullableDirection implements StringRepresentable
     public static final Codec<NullableDirection> CODEC = StringRepresentable.fromEnum(NullableDirection::values);
     public static final StreamCodec<ByteBuf, NullableDirection> STREAM_CODEC = ByteBufCodecs.idMapper(BY_ID, NullableDirection::ordinal);
 
-    @Nullable
     private final Direction dir;
 
-    NullableDirection(@Nullable Direction dir)
+    NullableDirection(Direction dir)
     {
         this.dir = dir;
     }
 
     public Direction toDirection()
-    {
-        return Objects.requireNonNull(dir);
-    }
-
-    @Nullable
-    public Direction toNullableDirection()
     {
         return dir;
     }
@@ -54,7 +45,7 @@ public enum NullableDirection implements StringRepresentable
 
 
 
-    public static NullableDirection fromDirection(@Nullable Direction dir)
+    public static NullableDirection fromDirection(Direction dir)
     {
         if (dir == null)
         {

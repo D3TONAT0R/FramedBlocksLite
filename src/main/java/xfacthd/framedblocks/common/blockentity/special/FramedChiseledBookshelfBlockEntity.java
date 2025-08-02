@@ -1,22 +1,22 @@
 package xfacthd.framedblocks.common.blockentity.special;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.Clearable;
-import net.minecraft.world.ContainerHelper;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.ChiseledBookShelfBlock;
 import net.minecraft.world.level.block.entity.ChiseledBookShelfBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import xfacthd.framedblocks.api.block.blockentity.FramedBlockEntity;
-import xfacthd.framedblocks.api.util.Utils;
 import xfacthd.framedblocks.common.FBContent;
 
-public class FramedChiseledBookshelfBlockEntity extends FramedBlockEntity implements Clearable
+import java.util.ArrayList;
+import java.util.List;
+
+public class FramedChiseledBookshelfBlockEntity extends FramedBlockEntity
 {
     public static final String INVENTORY_NBT_KEY = "inventory";
     public static final String LAST_SLOT_NBT_KEY = "last_slot";
@@ -68,10 +68,26 @@ public class FramedChiseledBookshelfBlockEntity extends FramedBlockEntity implem
         return itemHandler;
     }
 
-    @Override
-    public void clearContent()
+    public List<ItemStack> getDrops()
     {
-        Utils.clearItemHandler(itemHandler);
+        List<ItemStack> drops = new ArrayList<>();
+        for (int i = 0; i < itemHandler.getSlots(); i++)
+        {
+            ItemStack stack = itemHandler.getStackInSlot(i);
+            if (!stack.isEmpty())
+            {
+                drops.add(stack);
+            }
+        }
+        return drops;
+    }
+
+    public void clearContents()
+    {
+        for (int i = 0; i < itemHandler.getSlots(); i++)
+        {
+            itemHandler.setStackInSlot(i, ItemStack.EMPTY);
+        }
     }
 
     public int getAnalogOutputSignal()
@@ -80,7 +96,7 @@ public class FramedChiseledBookshelfBlockEntity extends FramedBlockEntity implem
     }
 
     @Override
-    public void preRemoveSideEffects(BlockPos pos, BlockState state)
+    public void saveAdditional(CompoundTag nbt, HolderLookup.Provider provider)
     {
         nbt.put(INVENTORY_NBT_KEY, itemHandler.serializeNBT(provider));
         nbt.putInt(LAST_SLOT_NBT_KEY, lastInteractedSlot);
@@ -88,7 +104,7 @@ public class FramedChiseledBookshelfBlockEntity extends FramedBlockEntity implem
     }
 
     @Override
-    public void saveAdditional(ValueOutput valueOutput)
+    public void loadAdditional(CompoundTag nbt, HolderLookup.Provider provider)
     {
         super.loadAdditional(nbt, provider);
         itemHandler.deserializeNBT(provider, nbt.getCompound(INVENTORY_NBT_KEY));

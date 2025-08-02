@@ -3,7 +3,6 @@ package xfacthd.framedblocks.api.camo.empty;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.MutableComponent;
 import net.neoforged.neoforge.registries.DeferredHolder;
-import org.jetbrains.annotations.Nullable;
 import xfacthd.framedblocks.api.camo.CamoContainer;
 import xfacthd.framedblocks.api.camo.CamoContainerFactory;
 import xfacthd.framedblocks.api.util.FramedConstants;
@@ -28,7 +27,6 @@ public final class EmptyCamoContainer extends CamoContainer<EmptyCamoContent, Em
     }
 
     @Override
-    @Nullable
     public EmptyCamoContainer rotateCamo()
     {
         return null;

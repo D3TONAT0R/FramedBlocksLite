@@ -1,20 +1,15 @@
 package xfacthd.framedblocks;
 
 import com.mojang.logging.LogUtils;
-import net.minecraft.world.entity.ai.village.poi.PoiTypes;
-import net.neoforged.fml.CrashReportCallables;
-import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.*;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.loading.FMLEnvironment;
-import net.neoforged.neoforge.common.world.poi.ExtendPoiTypesEvent;
-import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import org.slf4j.Logger;
-import xfacthd.framedblocks.common.config.ClientConfig;
-import xfacthd.framedblocks.common.config.DevToolsConfig;
-import xfacthd.framedblocks.common.config.ServerConfig;
+import xfacthd.framedblocks.common.config.*;
 import xfacthd.framedblocks.common.data.BlueprintBehaviours;
 import xfacthd.framedblocks.common.data.capabilities.CapabilitySetup;
 import xfacthd.framedblocks.common.data.FramedDataMaps;
@@ -23,7 +18,7 @@ import xfacthd.framedblocks.common.data.shapes.ShapeReloader;
 import xfacthd.framedblocks.api.util.FramedConstants;
 import xfacthd.framedblocks.common.FBContent;
 import xfacthd.framedblocks.common.compat.CompatHandler;
-import xfacthd.framedblocks.common.crafting.saw.FramingSawRecipeCache;
+import xfacthd.framedblocks.common.crafting.FramingSawRecipeCache;
 import xfacthd.framedblocks.common.data.StateCacheBuilder;
 import xfacthd.framedblocks.common.data.camo.CamoContainerFactories;
 import xfacthd.framedblocks.common.data.conpreds.ConnectionPredicates;
@@ -63,7 +58,7 @@ public final class FramedBlocks
 
         if (!FMLEnvironment.production)
         {
-            NeoForge.EVENT_BUS.addListener(FramedBlocks::onAddDebugReloadListener);
+            forgeBus.addListener(FramedBlocks::onAddDebugReloadListener);
         }
 
         FullFacePredicates.PREDICATES.initialize();
@@ -79,7 +74,7 @@ public final class FramedBlocks
         );
     }
 
-    private static void onCommonSetup(FMLCommonSetupEvent event)
+    private static void onCommonSetup(final FMLCommonSetupEvent event)
     {
         StateCacheBuilder.ensureStateCachesInitialized();
         FramedBlueprintItem.init();
@@ -87,15 +82,10 @@ public final class FramedBlocks
         CamoContainerFactories.registerCamoFactories();
     }
 
-    private static void onAddDebugReloadListener(AddServerReloadListenersEvent event)
+    private static void onAddDebugReloadListener(final AddReloadListenerEvent event)
     {
-        event.addListener(ShapeReloader.LISTENER_ID, ShapeReloader.INSTANCE);
-        event.addListener(StateCacheBuilder.CacheReloader.LISTENER_ID, StateCacheBuilder.CacheReloader.INSTANCE);
-    }
-
-    private static void onExtendPoiTypes(ExtendPoiTypesEvent event)
-    {
-
+        event.addListener(ShapeReloader.INSTANCE);
+        event.addListener(StateCacheBuilder.CacheReloader.INSTANCE);
     }
 
     private static String getBlockEntityWarning()

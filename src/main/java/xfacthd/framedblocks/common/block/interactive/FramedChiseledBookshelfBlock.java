@@ -3,35 +3,26 @@ package xfacthd.framedblocks.common.block.interactive;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.*;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.*;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.ChiseledBookShelfBlock;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
-import xfacthd.framedblocks.api.block.BlockUtils;
 import xfacthd.framedblocks.api.block.FramedProperties;
 import xfacthd.framedblocks.api.block.PlacementStateBuilder;
-import xfacthd.framedblocks.api.block.blockentity.FramedBlockEntity;
 import xfacthd.framedblocks.api.util.Utils;
 import xfacthd.framedblocks.common.block.FramedBlock;
 import xfacthd.framedblocks.common.blockentity.special.FramedChiseledBookshelfBlockEntity;
@@ -41,9 +32,9 @@ import java.util.OptionalInt;
 
 public class FramedChiseledBookshelfBlock extends FramedBlock
 {
-    public FramedChiseledBookshelfBlock(Properties props)
+    public FramedChiseledBookshelfBlock()
     {
-        super(BlockType.FRAMED_CHISELED_BOOKSHELF, props);
+        super(BlockType.FRAMED_CHISELED_BOOKSHELF);
         BlockState state = defaultBlockState();
         for (BooleanProperty prop : ChiseledBookShelfBlock.SLOT_OCCUPIED_PROPERTIES)
         {
@@ -61,7 +52,6 @@ public class FramedChiseledBookshelfBlock extends FramedBlock
     }
 
     @Override
-    @Nullable
     public BlockState getStateForPlacement(BlockPlaceContext ctx)
     {
         return PlacementStateBuilder.of(this, ctx).withHorizontalFacing(true).build();
@@ -85,32 +75,32 @@ public class FramedChiseledBookshelfBlock extends FramedBlock
     }
 
     @Override
-    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit)
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit)
     {
-        InteractionResult result = super.useItemOn(stack, state, level, pos, player, hand, hit);
+        ItemInteractionResult result = super.useItemOn(stack, state, level, pos, player, hand, hit);
         if (result.consumesAction()) return result;
 
         if (level.getBlockEntity(pos) instanceof FramedChiseledBookshelfBlockEntity be)
         {
             if (!stack.is(ItemTags.BOOKSHELF_BOOKS))
             {
-                return InteractionResult.TRY_WITH_EMPTY_HAND;
+                return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
             }
 
             OptionalInt slot = ((ChiseledBookShelfBlock) Blocks.CHISELED_BOOKSHELF).getHitSlot(hit, state);
             if (slot.isEmpty())
             {
-                return InteractionResult.PASS;
+                return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
             }
             if (state.getValue(ChiseledBookShelfBlock.SLOT_OCCUPIED_PROPERTIES.get(slot.getAsInt())))
             {
-                return InteractionResult.TRY_WITH_EMPTY_HAND;
+                return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
             }
 
             placeBook(level, pos, player, be, stack, slot.getAsInt());
-            return InteractionResult.SUCCESS;
+            return ItemInteractionResult.sidedSuccess(level.isClientSide());
         }
-        return InteractionResult.PASS;
+        return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
     }
 
     @Override
@@ -129,7 +119,7 @@ public class FramedChiseledBookshelfBlock extends FramedBlock
             }
 
             takeBook(level, pos, player, be, slot.getAsInt());
-            return InteractionResult.SUCCESS;
+            return InteractionResult.sidedSuccess(level.isClientSide());
         }
         return InteractionResult.PASS;
     }
@@ -173,9 +163,16 @@ public class FramedChiseledBookshelfBlock extends FramedBlock
     }
 
     @Override
-    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean isMoving)
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving)
     {
-        level.updateNeighbourForOutputSignal(pos, this);
+        if (newState.getBlock() != state.getBlock() && level.getBlockEntity(pos) instanceof FramedChiseledBookshelfBlockEntity be)
+        {
+            be.getDrops().forEach(stack -> popResource(level, pos, stack));
+            be.clearContents();
+            level.updateNeighbourForOutputSignal(pos, this);
+        }
+
+        super.onRemove(state, level, pos, newState, isMoving);
     }
 
     @Override
@@ -204,11 +201,11 @@ public class FramedChiseledBookshelfBlock extends FramedBlock
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror)
     {
-        return BlockUtils.mirrorFaceBlock(state, mirror);
+        return Utils.mirrorFaceBlock(state, mirror);
     }
 
     @Override
-    public FramedBlockEntity newBlockEntity(BlockPos pos, BlockState state)
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state)
     {
         return new FramedChiseledBookshelfBlockEntity(pos, state);
     }

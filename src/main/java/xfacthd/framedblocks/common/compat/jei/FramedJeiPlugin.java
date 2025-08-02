@@ -1,47 +1,40 @@
 package xfacthd.framedblocks.common.compat.jei;
 
+import me.shedaniel.rei.plugincompatibilities.api.REIPluginCompatIgnore;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.RecipeTypes;
-import mezz.jei.api.recipe.types.IRecipeType;
-import mezz.jei.api.registration.IAdvancedRegistration;
-import mezz.jei.api.registration.IGuiHandlerRegistration;
-import mezz.jei.api.registration.IRecipeCatalystRegistration;
-import mezz.jei.api.registration.IRecipeCategoryRegistration;
-import mezz.jei.api.registration.IRecipeRegistration;
-import mezz.jei.api.registration.IRecipeTransferRegistration;
-import mezz.jei.api.registration.IVanillaCategoryExtensionRegistration;
+import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.registration.*;
 import mezz.jei.api.runtime.IIngredientManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.neoforged.neoforge.client.event.RecipesReceivedEvent;
 import org.jetbrains.annotations.Nullable;
 import xfacthd.framedblocks.api.util.Utils;
 import xfacthd.framedblocks.client.screen.FramingSawScreen;
+import xfacthd.framedblocks.client.screen.FramingSawWithEncoderScreen;
+import xfacthd.framedblocks.client.screen.PoweredFramingSawScreen;
 import xfacthd.framedblocks.common.FBContent;
 import xfacthd.framedblocks.common.compat.jei.camo.CamoCraftingHelper;
 import xfacthd.framedblocks.common.compat.jei.camo.CamoCraftingRecipeExtension;
 import xfacthd.framedblocks.common.compat.jei.camo.CamoRecipeManagerPlugin;
 import xfacthd.framedblocks.common.compat.jei.camo.JeiCamoApplicationRecipe;
-import xfacthd.framedblocks.common.crafting.camo.CamoApplicationRecipe;
-import xfacthd.framedblocks.common.crafting.saw.FramingSawRecipe;
-import xfacthd.framedblocks.common.crafting.saw.FramingSawRecipeCache;
-
-import java.util.Optional;
+import xfacthd.framedblocks.common.crafting.FramingSawRecipe;
+import xfacthd.framedblocks.common.crafting.FramingSawRecipeCache;
 
 @JeiPlugin
+@REIPluginCompatIgnore
 public final class FramedJeiPlugin implements IModPlugin
 {
     private static final ResourceLocation ID = Utils.rl("jei_plugin");
-    static final IRecipeType<FramingSawRecipe> FRAMING_SAW_RECIPE_TYPE = IRecipeType.create(
+    static final RecipeType<FramingSawRecipe> FRAMING_SAW_RECIPE_TYPE = new RecipeType<>(
             Utils.rl("framing_saw"), FramingSawRecipe.class
     );
     @Nullable
-    private static CamoCraftingHelper camoCraftingHelperInstance;
+    private CamoCraftingHelper camoCraftingHelperInstance;
 
-    private static CamoCraftingHelper getCamoCraftingHelper()
+    private CamoCraftingHelper getCamoCraftingHelper()
     {
         if (camoCraftingHelperInstance == null)
         {
@@ -84,14 +77,22 @@ public final class FramedJeiPlugin implements IModPlugin
                 new FramingSawTransferHandler.FramingSaw(registration.getTransferHelper()),
                 FRAMING_SAW_RECIPE_TYPE
         );
+        registration.addRecipeTransferHandler(
+                new FramingSawTransferHandler.PoweredFramingSaw(registration.getTransferHelper()),
+                FRAMING_SAW_RECIPE_TYPE
+        );
     }
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration)
     {
-        registration.addCraftingStation(
-                FRAMING_SAW_RECIPE_TYPE,
-                new ItemStack(FBContent.BLOCK_FRAMING_SAW.value())
+        registration.addRecipeCatalyst(
+                new ItemStack(FBContent.BLOCK_FRAMING_SAW.value()),
+                FRAMING_SAW_RECIPE_TYPE
+        );
+        registration.addRecipeCatalyst(
+                new ItemStack(FBContent.BLOCK_POWERED_FRAMING_SAW.value()),
+                FRAMING_SAW_RECIPE_TYPE
         );
     }
 
@@ -99,16 +100,32 @@ public final class FramedJeiPlugin implements IModPlugin
     public void registerGuiHandlers(IGuiHandlerRegistration registration)
     {
         IIngredientManager ingredientManager = registration.getJeiHelpers().getIngredientManager();
+        registration.addGhostIngredientHandler(
+                FramingSawWithEncoderScreen.class,
+                new FramingSawGhostIngredientHandler()
+        );
+        registration.addGuiContainerHandler(
+                FramingSawWithEncoderScreen.class,
+                new FramingSawWithEncoderGuiContainerHandler(ingredientManager)
+        );
         registration.addGuiContainerHandler(
                 FramingSawScreen.class,
-                new FramingSawGuiContainerHandler<>()
+                new FramingSawGuiContainerHandler<>(ingredientManager)
+        );
+        registration.addGhostIngredientHandler(
+                PoweredFramingSawScreen.class,
+                new PoweredFramingSawGhostIngredientHandler()
+        );
+        registration.addGuiContainerHandler(
+                PoweredFramingSawScreen.class,
+                new PoweredFramingSawGuiContainerHandler(ingredientManager)
         );
     }
 
     @Override
     public void registerAdvanced(IAdvancedRegistration registration)
     {
-        registration.addSimpleRecipeManagerPlugin(
+        registration.addTypedRecipeManagerPlugin(
                 RecipeTypes.CRAFTING,
                 new CamoRecipeManagerPlugin(getCamoCraftingHelper())
         );
@@ -124,17 +141,5 @@ public final class FramedJeiPlugin implements IModPlugin
     public ResourceLocation getPluginUid()
     {
         return ID;
-    }
-
-    static void onRecipesReceived(RecipesReceivedEvent event)
-    {
-        Optional<CamoApplicationRecipe> camoRecipe = event.getRecipeMap()
-                .byType(RecipeType.CRAFTING)
-                .stream()
-                .map(RecipeHolder::value)
-                .filter(CamoApplicationRecipe.class::isInstance)
-                .map(CamoApplicationRecipe.class::cast)
-                .findFirst();
-        getCamoCraftingHelper().captureRecipe(camoRecipe);
     }
 }

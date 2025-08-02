@@ -5,9 +5,7 @@ import com.google.common.math.IntMath;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
+import net.minecraft.core.*;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -15,47 +13,36 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.TagKey;
+import net.minecraft.tags.*;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.util.TriState;
-import net.minecraft.world.Containers;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.item.*;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.entity.*;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.material.*;
+import net.minecraft.world.phys.*;
 import net.neoforged.neoforge.common.ItemAbility;
 import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
-import xfacthd.framedblocks.api.camo.CamoList;
+import xfacthd.framedblocks.api.block.blockentity.FramedBlockEntity;
+import xfacthd.framedblocks.api.block.FramedProperties;
+import xfacthd.framedblocks.api.camo.CamoContainer;
+import xfacthd.framedblocks.api.camo.empty.EmptyCamoContainer;
 import xfacthd.framedblocks.api.component.FrameConfig;
 import xfacthd.framedblocks.api.util.registration.DeferredDataComponentType;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.ServiceLoader;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.UnaryOperator;
+import java.util.*;
+import java.util.function.*;
 import java.util.stream.Collectors;
 
 public final class Utils
@@ -89,14 +76,23 @@ public final class Utils
      * Providing by tools for configuring blocks (respected for camo rotation)
      */
     public static final ItemAbility ACTION_WRENCH_CONFIGURE = ItemAbility.get("wrench_configure");
+    /**
+     * @deprecated Use {@link #ACTION_WRENCH_ROTATE} instead
+     */
+    @Deprecated(forRemoval = true)
+    public static final ItemAbility ACTION_WRENCH = ACTION_WRENCH_ROTATE;
 
-    public static final Holder<Block> FRAMED_CUBE = DeferredBlock.createBlock(Utils.rl("framed_cube"));
+    public static final Set<Property<?>> REQUIRED_STATE_PROPERTIES = Set.of(
+            FramedProperties.GLOWING,
+            FramedProperties.PROPAGATES_SKYLIGHT
+    );
 
     public static final Holder<Item> FRAMED_HAMMER = DeferredItem.createItem(Utils.rl("framed_hammer"));
     public static final Holder<Item> FRAMED_WRENCH = DeferredItem.createItem(Utils.rl("framed_wrench"));
     public static final Holder<Item> FRAMED_KEY = DeferredItem.createItem(Utils.rl("framed_key"));
     public static final Holder<Item> FRAMED_SCREWDRIVER = DeferredItem.createItem(Utils.rl("framed_screwdriver"));
     public static final Holder<Item> FRAMED_REINFORCEMENT = DeferredItem.createItem(Utils.rl("framed_reinforcement"));
+    public static final Holder<Item> PHANTOM_PASTE = DeferredItem.createItem(Utils.rl("phantom_paste"));
 
     public static final DeferredDataComponentType<CamoList> DC_TYPE_CAMO_LIST = DeferredDataComponentType.createDataComponent(
             Utils.rl("camo_list")
@@ -107,7 +103,7 @@ public final class Utils
 
     private static final Long2ObjectMap<Direction> DIRECTION_BY_NORMAL = Arrays.stream(Direction.values())
             .collect(Collectors.toMap(
-                    side -> new BlockPos(side.getUnitVec3i()).asLong(),
+                    side -> new BlockPos(side.getNormal()).asLong(),
                     Function.identity(),
                     (sideA, sideB) -> { throw new IllegalArgumentException("Duplicate keys"); },
                     Long2ObjectOpenHashMap::new
@@ -177,17 +173,25 @@ public final class Utils
         return (long) a * (long) (b / IntMath.gcd(a, b));
     }
 
-    public static MutableComponent translate(@Nullable String prefix, @Nullable String postfix, Object... arguments)
+    @SuppressWarnings("unchecked")
+    public static <E extends BlockEntity, A extends BlockEntity> BlockEntityTicker<A> createBlockEntityTicker(
+            BlockEntityType<A> type, BlockEntityType<E> actualType, BlockEntityTicker<? super E> ticker
+    )
+    {
+        return actualType == type ? (BlockEntityTicker<A>)ticker : null;
+    }
+
+    public static MutableComponent translate(String prefix, String postfix, Object... arguments)
     {
         return Component.translatable(translationKey(prefix, postfix), arguments);
     }
 
-    public static MutableComponent translate(@Nullable String prefix, @Nullable String postfix)
+    public static MutableComponent translate(String prefix, String postfix)
     {
         return Component.translatable(translationKey(prefix, postfix));
     }
 
-    public static String translationKey(@Nullable String prefix, @Nullable String postfix)
+    public static String translationKey(String prefix, String postfix)
     {
         String key = "";
         if (prefix != null)
@@ -258,59 +262,17 @@ public final class Utils
         return dir.getAxis() == Direction.Axis.Z;
     }
 
-    @Nullable
     public static Direction dirByNormal(int x, int y, int z)
     {
         return DIRECTION_BY_NORMAL.get(BlockPos.asLong(x, y, z));
     }
 
-    @Nullable
     public static Direction dirByNormal(BlockPos from, BlockPos to)
     {
         int nx = to.getX() - from.getX();
         int ny = to.getY() - from.getY();
         int nz = to.getZ() - from.getZ();
         return dirByNormal(nx, ny, nz);
-    }
-
-    public static Direction getDirByCross(Direction face, Vec3 hitVec)
-    {
-        hitVec = Utils.fraction(hitVec);
-
-        if (Utils.isY(face))
-        {
-            double x = hitVec.x() - .5;
-            double z = hitVec.z() - .5;
-            if (Math.max(Math.abs(x), Math.abs(z)) == Math.abs(x))
-            {
-                return x > 0 ? Direction.EAST : Direction.WEST;
-            }
-            else
-            {
-                return z > 0 ? Direction.SOUTH : Direction.NORTH;
-            }
-        }
-        else
-        {
-            double xz = (Utils.isX(face) ? hitVec.z() : hitVec.x()) - .5;
-            double y = hitVec.y() - .5;
-
-            if (Math.max(Math.abs(xz), Math.abs(y)) == Math.abs(xz))
-            {
-                if (Utils.isX(face))
-                {
-                    return xz < 0 ? Direction.NORTH : Direction.SOUTH;
-                }
-                else
-                {
-                    return (xz < 0) ? Direction.WEST : Direction.EAST;
-                }
-            }
-            else
-            {
-                return y < 0 ? Direction.DOWN : Direction.UP;
-            }
-        }
     }
 
     public static Direction.Axis nextAxisNotEqualTo(Direction.Axis axis, Direction.Axis except)
@@ -323,6 +285,96 @@ public final class Utils
         while (axis == except);
 
         return axis;
+    }
+
+    /**
+     * Mirrors a block that is oriented towards a face of the block space.
+     * @param state The {@link BlockState} to mirror
+     * @param mirror The {@link Mirror} to apply to the state
+     * @apiNote The given state must have the {@link FramedProperties#FACING_HOR} property
+     */
+    public static BlockState mirrorFaceBlock(BlockState state, Mirror mirror)
+    {
+        return mirrorFaceBlock(state, FramedProperties.FACING_HOR, mirror);
+    }
+
+    /**
+     * Mirrors a block that is oriented towards a face of the block space
+     * @param state The {@link BlockState} to mirror
+     * @param property The {@link DirectionProperty} that should be mirrored on the given state
+     * @param mirror The {@link Mirror} to apply to the state
+     * @apiNote The given property must support at least all four cardinal directions
+     */
+    public static BlockState mirrorFaceBlock(BlockState state, DirectionProperty property, Mirror mirror)
+    {
+        if (mirror == Mirror.NONE)
+        {
+            return state;
+        }
+
+        Direction dir = state.getValue(property);
+        //Y directions are inherently ignored
+        if ((mirror == Mirror.FRONT_BACK && isX(dir)) || (mirror == Mirror.LEFT_RIGHT && isZ(dir)))
+        {
+            return state.setValue(property, dir.getOpposite());
+        }
+        return state;
+    }
+
+    /**
+     * Mirrors a block that is oriented into a corner of the block space.
+     * @param state The {@link BlockState} to mirror
+     * @param mirror The {@link Mirror} to apply to the state
+     * @apiNote The given state must have the {@link FramedProperties#FACING_HOR} property
+     */
+    public static BlockState mirrorCornerBlock(BlockState state, Mirror mirror)
+    {
+        return mirrorCornerBlock(state, FramedProperties.FACING_HOR, mirror);
+    }
+
+    /**
+     * Mirrors a block that is oriented into a corner of the block space
+     * @param state The {@link BlockState} to mirror
+     * @param property The {@link DirectionProperty} that should be mirrored on the given state
+     * @param mirror The {@link Mirror} to apply to the state
+     * @apiNote The given property must support at least all four cardinal directions
+     */
+    public static BlockState mirrorCornerBlock(BlockState state, DirectionProperty property, Mirror mirror)
+    {
+        if (mirror == Mirror.NONE)
+        {
+            return state;
+        }
+
+        Direction dir = state.getValue(property);
+        if (isY(dir))
+        {
+            return state;
+        }
+
+        if (mirror == Mirror.LEFT_RIGHT)
+        {
+            dir = switch (dir)
+            {
+                case NORTH -> Direction.WEST;
+                case EAST -> Direction.SOUTH;
+                case SOUTH -> Direction.EAST;
+                case WEST -> Direction.NORTH;
+                default -> throw new IllegalArgumentException("Unreachable!");
+            };
+        }
+        else
+        {
+            dir = switch (dir)
+            {
+                case NORTH -> Direction.EAST;
+                case EAST -> Direction.NORTH;
+                case SOUTH -> Direction.WEST;
+                case WEST -> Direction.SOUTH;
+                default -> throw new IllegalArgumentException("Unreachable!");
+            };
+        }
+        return state.setValue(property, dir);
     }
 
     public static <T> List<T> concat(List<T> listOne, List<T> listTwo)
@@ -348,8 +400,6 @@ public final class Utils
     @SuppressWarnings({ "UseBulkOperation", "ForLoopReplaceableByForEach" })
     public static <T> ArrayList<T> copyAll(List<T> src, ArrayList<T> dest)
     {
-        if (src.isEmpty()) return dest;
-
         dest.ensureCapacity(dest.size() + src.size());
         for (int i = 0; i < src.size(); i++)
         {
@@ -361,8 +411,6 @@ public final class Utils
     @SuppressWarnings("ForLoopReplaceableByForEach")
     public static <T> ArrayList<T> copyAllWithModifier(List<T> src, ArrayList<T> dest, UnaryOperator<T> modifier)
     {
-        if (src.isEmpty()) return dest;
-
         dest.ensureCapacity(dest.size() + src.size());
         for (int i = 0; i < src.size(); i++)
         {
@@ -391,6 +439,41 @@ public final class Utils
         return ItemTags.create(Utils.rl(modid, name));
     }
 
+    public static Property<?> getRotatableProperty(BlockState state)
+    {
+        for (Property<?> prop : state.getProperties())
+        {
+            if (prop.getValueClass() == Direction.Axis.class)
+            {
+                return prop;
+            }
+            else if (prop instanceof DirectionProperty)
+            {
+                return prop;
+            }
+        }
+        return null;
+    }
+
+    public static <T extends Comparable<T>> T tryGetValue(BlockState state, Property<T> property, T _default)
+    {
+        return state.hasProperty(property) ? state.getValue(property) : _default;
+    }
+
+    public static void addRequiredProperties(StateDefinition.Builder<Block, BlockState> builder)
+    {
+        REQUIRED_STATE_PROPERTIES.forEach(builder::add);
+    }
+
+    public static BlockState copyRequiredProperties(BlockState from, BlockState to)
+    {
+        for (Property<?> property : REQUIRED_STATE_PROPERTIES)
+        {
+            to = Block.copyProperty(from, to, property);
+        }
+        return to;
+    }
+
     public static void forAllDirections(Consumer<Direction> consumer)
     {
         forAllDirections(true, consumer);
@@ -416,9 +499,49 @@ public final class Utils
         }
     }
 
-    public static int maskNullDirection(@Nullable Direction dir)
+    public static int maskNullDirection(Direction dir)
     {
         return dir == null ? DIRECTIONS.length : dir.ordinal();
+    }
+
+    public static void wrapInStateCopy(
+            LevelAccessor level,
+            BlockPos pos,
+            Player player,
+            ItemStack stack,
+            boolean writeToCamoTwo,
+            boolean consumeItem,
+            Runnable action
+    )
+    {
+        CamoContainer<?, ?> camo = EmptyCamoContainer.EMPTY;
+        boolean glowing = false;
+        boolean intangible = false;
+        boolean reinforced = false;
+
+        if (level.getBlockEntity(pos) instanceof FramedBlockEntity be)
+        {
+            camo = be.getCamo();
+            glowing = be.isGlowing();
+            intangible = be.isIntangible(null);
+            reinforced = be.isReinforced();
+        }
+
+        action.run();
+
+        if (consumeItem && !player.isCreative())
+        {
+            stack.shrink(1);
+            player.getInventory().setChanged();
+        }
+
+        if (level.getBlockEntity(pos) instanceof FramedBlockEntity be)
+        {
+            be.setCamo(camo, writeToCamoTwo);
+            be.setGlowing(glowing);
+            be.setIntangible(intangible);
+            be.setReinforced(reinforced);
+        }
     }
 
     public static ResourceLocation rl(String path)
@@ -475,26 +598,6 @@ public final class Utils
         }
     }
 
-    public static void dropItemHandlerContents(Level level, BlockPos pos, IItemHandler itemHandler)
-    {
-        for (int i = 0; i < itemHandler.getSlots(); i++)
-        {
-            ItemStack stack = itemHandler.getStackInSlot(i);
-            if (!stack.isEmpty())
-            {
-                Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), stack);
-            }
-        }
-    }
-
-    public static void clearItemHandler(IItemHandlerModifiable itemHandler)
-    {
-        for (int i = 0; i < itemHandler.getSlots(); i++)
-        {
-            itemHandler.setStackInSlot(i, ItemStack.EMPTY);
-        }
-    }
-
     public static boolean isWrenchRotationTool(ItemStack stack)
     {
         return stack.canPerformAction(ACTION_WRENCH_ROTATE) || (stack.is(TOOL_WRENCH) && !stack.is(COMPLEX_WRENCH));
@@ -542,11 +645,6 @@ public final class Utils
             result.append("Entity", entityHit.getEntity());
         }
         return result.toString();
-    }
-
-    public static TriState toTriState(boolean value)
-    {
-        return value ? TriState.TRUE : TriState.FALSE;
     }
 
     @ApiStatus.Internal

@@ -11,7 +11,6 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import xfacthd.framedblocks.api.util.registration.DeferredBlockEntity;
 
-import java.util.Set;
 import java.util.function.Supplier;
 
 public final class DeferredBlockEntityRegister extends DeferredRegister<BlockEntityType<?>>
@@ -31,10 +30,11 @@ public final class DeferredBlockEntityRegister extends DeferredRegister<BlockEnt
     }
 
     public <T extends BlockEntity> DeferredBlockEntity<T> registerBlockEntity(
-            String name, BlockEntityType.BlockEntitySupplier<T> factory, Supplier<Set<Block>> blocks, boolean opOnlyNbt
+            String name, BlockEntityType.BlockEntitySupplier<T> factory, Supplier<Block[]> blocks
     )
     {
-        return (DeferredBlockEntity<T>) register(name, () -> new BlockEntityType<>(factory, blocks.get(), opOnlyNbt));
+        //noinspection ConstantConditions
+        return (DeferredBlockEntity<T>) register(name, () -> BlockEntityType.Builder.of(factory, blocks.get()).build(null));
     }
 
 

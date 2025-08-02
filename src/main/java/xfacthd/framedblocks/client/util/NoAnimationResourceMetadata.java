@@ -1,7 +1,7 @@
 package xfacthd.framedblocks.client.util;
 
 import net.minecraft.client.resources.metadata.animation.AnimationMetadataSection;
-import net.minecraft.server.packs.metadata.MetadataSectionType;
+import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
 import net.minecraft.server.packs.resources.ResourceMetadata;
 
 import java.util.Optional;
@@ -19,9 +19,9 @@ public final class NoAnimationResourceMetadata implements ResourceMetadata
     }
 
     @Override
-    public <T> Optional<T> getSection(MetadataSectionType<T> serializer)
+    public <T> Optional<T> getSection(MetadataSectionSerializer<T> serializer)
     {
-        if (serializer == AnimationMetadataSection.TYPE)
+        if (serializer == AnimationMetadataSection.SERIALIZER)
         {
             return Optional.empty();
         }

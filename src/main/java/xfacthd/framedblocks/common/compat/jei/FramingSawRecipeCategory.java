@@ -7,33 +7,24 @@ import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
-import mezz.jei.api.recipe.IFocusGroup;
-import mezz.jei.api.recipe.RecipeIngredientRole;
+import mezz.jei.api.recipe.*;
 import mezz.jei.api.recipe.category.IRecipeCategory;
-import mezz.jei.api.recipe.types.IRecipeType;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
-import net.minecraft.world.item.crafting.display.SlotDisplay;
-import net.minecraft.world.item.crafting.display.SlotDisplayContext;
 import org.jetbrains.annotations.Nullable;
 import xfacthd.framedblocks.api.util.Utils;
 import xfacthd.framedblocks.client.screen.FramingSawScreen;
 import xfacthd.framedblocks.common.FBContent;
 import xfacthd.framedblocks.common.block.special.FramingSawBlock;
-import xfacthd.framedblocks.common.crafting.saw.FramingSawRecipe;
-import xfacthd.framedblocks.common.crafting.saw.FramingSawRecipeAdditive;
-import xfacthd.framedblocks.common.crafting.saw.FramingSawRecipeCache;
-import xfacthd.framedblocks.common.crafting.saw.FramingSawRecipeCalculation;
+import xfacthd.framedblocks.common.crafting.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.stream.Stream;
 
 public final class FramingSawRecipeCategory implements IRecipeCategory<FramingSawRecipe>
 {
@@ -58,7 +49,7 @@ public final class FramingSawRecipeCategory implements IRecipeCategory<FramingSa
     }
 
     @Override
-    public IRecipeType<FramingSawRecipe> getRecipeType()
+    public RecipeType<FramingSawRecipe> getRecipeType()
     {
         return FramedJeiPlugin.FRAMING_SAW_RECIPE_TYPE;
     }
@@ -70,15 +61,9 @@ public final class FramingSawRecipeCategory implements IRecipeCategory<FramingSa
     }
 
     @Override
-    public int getWidth()
+    public IDrawable getBackground()
     {
-        return WIDTH;
-    }
-
-    @Override
-    public int getHeight()
-    {
-        return HEIGHT;
+        return background;
     }
 
     @Override
@@ -163,13 +148,10 @@ public final class FramingSawRecipeCategory implements IRecipeCategory<FramingSa
 
         List<FramingSawRecipeAdditive> additives = recipe.getAdditives();
         List<List<ItemStack>> flatAdditives = new ArrayList<>(FramingSawRecipe.MAX_ADDITIVE_COUNT);
-        ContextMap context = SlotDisplayContext.fromLevel(Objects.requireNonNull(Minecraft.getInstance().level));
         for (FramingSawRecipeAdditive additive : additives)
         {
             int addCount = additive.count() * (outputCount / recipe.getResult().getCount());
-            List<ItemStack> additiveStacks = additive.ingredient()
-                    .display()
-                    .resolve(context, SlotDisplay.ItemStackContentsFactory.INSTANCE)
+            List<ItemStack> additiveStacks = Stream.of(additive.ingredient().getItems())
                     .map(ItemStack::copy)
                     .peek(s -> s.setCount(addCount))
                     .toList();
@@ -178,13 +160,13 @@ public final class FramingSawRecipeCategory implements IRecipeCategory<FramingSa
         List<List<ItemStack>> combinations = Lists.cartesianProduct(flatAdditives);
         combinations.forEach(stacks ->
         {
-            inputSlot.add(inputStack);
-            outputSlot.add(outputStack);
+            inputSlot.addItemStack(inputStack);
+            outputSlot.addItemStack(outputStack);
             if (additiveSlots != null)
             {
                 for (int i = 0; i < stacks.size(); i++)
                 {
-                    additiveSlots[i].add(stacks.get(i));
+                    additiveSlots[i].addItemStack(stacks.get(i));
                 }
             }
         });
@@ -193,8 +175,6 @@ public final class FramingSawRecipeCategory implements IRecipeCategory<FramingSa
     @Override
     public void draw(FramingSawRecipe recipe, IRecipeSlotsView slots, GuiGraphics graphics, double mouseX, double mouseY)
     {
-        background.draw(graphics);
-
         ItemStack input = slots.findSlotByName("input")
                 .orElseThrow()
                 .getDisplayedItemStack()
@@ -202,11 +182,11 @@ public final class FramingSawRecipeCategory implements IRecipeCategory<FramingSa
 
         if (FramingSawRecipeCache.get(true).containsAdditive(input.getItem()))
         {
-            graphics.pose().pushMatrix();
-            graphics.pose().scale(WARNING_SCALE, WARNING_SCALE);
-            graphics.pose().translate(WARNING_X * (1F / WARNING_SCALE), WARNING_Y * (1F / WARNING_SCALE));
+            graphics.pose().pushPose();
+            graphics.pose().scale(WARNING_SCALE, WARNING_SCALE, 1F);
+            graphics.pose().translate(WARNING_X * (1F / WARNING_SCALE), WARNING_Y * (1F / WARNING_SCALE), 0);
             warning.draw(graphics);
-            graphics.pose().popMatrix();
+            graphics.pose().popPose();
         }
     }
 

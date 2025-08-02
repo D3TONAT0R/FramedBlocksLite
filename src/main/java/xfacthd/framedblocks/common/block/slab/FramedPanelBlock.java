@@ -1,17 +1,12 @@
 package xfacthd.framedblocks.common.block.slab;
 
 import net.minecraft.core.Direction;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import org.jetbrains.annotations.Nullable;
-import xfacthd.framedblocks.api.block.BlockUtils;
 import xfacthd.framedblocks.api.block.FramedProperties;
 import xfacthd.framedblocks.api.block.PlacementStateBuilder;
 import xfacthd.framedblocks.api.util.Utils;
@@ -22,9 +17,9 @@ import xfacthd.framedblocks.common.item.FramedSpecialBlockItem;
 
 public class FramedPanelBlock extends FramedBlock
 {
-    public FramedPanelBlock(Properties props)
+    public FramedPanelBlock()
     {
-        super(BlockType.FRAMED_PANEL, props);
+        super(BlockType.FRAMED_PANEL);
     }
 
     @Override
@@ -35,7 +30,6 @@ public class FramedPanelBlock extends FramedBlock
     }
 
     @Override
-    @Nullable
     public BlockState getStateForPlacement(BlockPlaceContext ctx)
     {
         return PlacementStateBuilder.of(this, ctx)
@@ -61,7 +55,7 @@ public class FramedPanelBlock extends FramedBlock
     }
 
     @Override
-    public BlockItem createBlockItem(Item.Properties props)
+    public BlockItem createBlockItem()
     {
         return new FramedSpecialBlockItem(this, true, new Item.Properties())
         {
@@ -92,7 +86,7 @@ public class FramedPanelBlock extends FramedBlock
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror)
     {
-        return BlockUtils.mirrorFaceBlock(state, mirror);
+        return Utils.mirrorFaceBlock(state, mirror);
     }
 
     @Override

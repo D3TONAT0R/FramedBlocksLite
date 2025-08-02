@@ -2,11 +2,10 @@ package xfacthd.framedblocks.common.compat.jade;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
-import snownee.jade.api.IWailaClientRegistration;
-import snownee.jade.api.IWailaPlugin;
-import snownee.jade.api.WailaPlugin;
+import snownee.jade.api.*;
 import xfacthd.framedblocks.api.block.AbstractFramedBlock;
 import xfacthd.framedblocks.api.block.IFramedBlock;
+import xfacthd.framedblocks.common.block.interactive.FramedItemFrameBlock;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -22,6 +21,11 @@ public final class FramedJadePlugin implements IWailaPlugin
             registration.registerBlockIcon(FramedBlockComponentProvider.INSTANCE, target);
             registration.registerBlockComponent(FramedBlockComponentProvider.INSTANCE, target);
         }
+
+        registration.registerBlockIcon(FramedItemFrameComponentProvider.INSTANCE, FramedItemFrameBlock.class);
+        registration.registerBlockComponent(FramedItemFrameComponentProvider.INSTANCE, FramedItemFrameBlock.class);
+
+        registration.addRayTraceCallback(new FramedOneWayWindowRayTraceCallback(registration));
     }
 
     private static Set<Class<? extends Block>> collectTargetClasses()

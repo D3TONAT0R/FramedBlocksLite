@@ -8,7 +8,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.common.util.Lazy;
 import org.lwjgl.glfw.GLFW;
 import xfacthd.framedblocks.FramedBlocks;
@@ -28,13 +27,7 @@ public final class KeyMappings
         );
     }
 
-    public static void onRegisterKeyMappings(RegisterKeyMappingsEvent event)
-    {
-        event.register(KEYMAPPING_UPDATE_CULLING.get());
-        event.register(KEYMAPPING_WIPE_CACHE.get());
-    }
-
-    public static void onClientTick(@SuppressWarnings("unused") ClientTickEvent.Pre event)
+    public static void onClientTick(@SuppressWarnings("unused") final ClientTickEvent.Pre event)
     {
         Level level = Minecraft.getInstance().level;
         if (level == null || Minecraft.getInstance().screen != null)
