@@ -29,7 +29,7 @@ public final class SearchEditBox extends EditBox
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int btn)
     {
-        if (btn == 1 && this.clicked(mouseX, mouseY))
+        if (btn == GLFW.GLFW_MOUSE_BUTTON_RIGHT && this.isMouseOver(mouseX, mouseY))
         {
             setValue("");
             if (!NO_DELAY)

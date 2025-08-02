@@ -2,27 +2,33 @@ package xfacthd.framedblocks.common.block.stairs.vertical;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.*;
-import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Half;
+import org.jetbrains.annotations.Nullable;
+import xfacthd.framedblocks.api.block.BlockUtils;
 import xfacthd.framedblocks.api.block.FramedProperties;
 import xfacthd.framedblocks.api.block.PlacementStateBuilder;
-import xfacthd.framedblocks.api.util.*;
 import xfacthd.framedblocks.common.block.FramedBlock;
 import xfacthd.framedblocks.common.block.stairs.standard.FramedHalfStairsBlock;
-import xfacthd.framedblocks.common.data.*;
+import xfacthd.framedblocks.common.data.BlockType;
+import xfacthd.framedblocks.common.data.PropertyHolder;
 import xfacthd.framedblocks.common.data.property.StairsType;
 
 public class FramedVerticalStairsBlock extends FramedBlock
 {
-    public FramedVerticalStairsBlock(BlockType type)
+    public FramedVerticalStairsBlock(BlockType type, Properties props)
     {
-        super(type);
-        registerDefaultState(defaultBlockState().setValue(FramedProperties.STATE_LOCKED, false));
+        super(type, props);
     }
 
     @Override
@@ -36,6 +42,7 @@ public class FramedVerticalStairsBlock extends FramedBlock
     }
 
     @Override
+    @Nullable
     public BlockState getStateForPlacement(BlockPlaceContext ctx)
     {
         return PlacementStateBuilder.of(this, ctx)
@@ -46,17 +53,26 @@ public class FramedVerticalStairsBlock extends FramedBlock
     }
 
     @Override
-    protected BlockState updateShape(BlockState state, Direction facing, BlockState facingState, LevelAccessor level, BlockPos pos, BlockPos facingPos)
+    protected BlockState updateShape(
+            BlockState state,
+            LevelReader level,
+            ScheduledTickAccess tickAccess,
+            BlockPos pos,
+            Direction side,
+            BlockPos adjPos,
+            BlockState adjState,
+            RandomSource random
+    )
     {
         Direction dir = state.getValue(FramedProperties.FACING_HOR);
-        if (facing != dir.getOpposite() && facing != dir.getClockWise())
+        if (side != dir.getOpposite() && side != dir.getClockWise())
         {
             state = getStateFromContext(state, level, pos);
         }
-        return super.updateShape(state, facing, facingState, level, pos, facingPos);
+        return super.updateShape(state, level, tickAccess, pos, side, adjPos, adjState, random);
     }
 
-    private static BlockState getStateFromContext(BlockState state, LevelAccessor level, BlockPos pos)
+    private static BlockState getStateFromContext(BlockState state, LevelReader level, BlockPos pos)
     {
         if (state.getValue(FramedProperties.STATE_LOCKED))
         {
@@ -166,7 +182,7 @@ public class FramedVerticalStairsBlock extends FramedBlock
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror)
     {
-        return Utils.mirrorCornerBlock(state, mirror);
+        return BlockUtils.mirrorCornerBlock(state, mirror);
     }
 
     @Override

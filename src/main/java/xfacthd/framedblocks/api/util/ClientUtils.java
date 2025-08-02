@@ -2,27 +2,25 @@ package xfacthd.framedblocks.api.util;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.*;
+import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import org.jetbrains.annotations.Nullable;
 import xfacthd.framedblocks.api.internal.InternalClientAPI;
 
-import java.util.function.Supplier;
-
 public final class ClientUtils
 {
+    @SuppressWarnings("deprecation")
+    public static final ResourceLocation BLOCK_ATLAS = TextureAtlas.LOCATION_BLOCKS;
     public static final ResourceLocation DUMMY_TEXTURE = Utils.rl("neoforge", "white");
-
-    @Deprecated(forRemoval = true)
-    public static final Supplier<Boolean> OPTIFINE_LOADED = () -> false;
 
     public static void enqueueClientTask(Runnable task)
     {
@@ -57,18 +55,23 @@ public final class ClientUtils
 
     public static boolean isTexture(BakedQuad quad, ResourceLocation texture)
     {
-        return quad.getSprite().contents().name().equals(texture);
+        return quad.sprite().contents().name().equals(texture);
     }
 
     public static void renderTransparentFakeItem(GuiGraphics graphics, ItemStack stack, int x, int y)
     {
         graphics.renderFakeItem(stack, x, y, 0);
-        graphics.fill(RenderType.guiGhostRecipeOverlay(), x, y, x + 16, y + 16, 0x80888888);
+        graphics.fill(x, y, x + 16, y + 16, 0x80888888);
     }
 
     public static boolean isLeftHand(ItemDisplayContext ctx)
     {
         return ctx == ItemDisplayContext.FIRST_PERSON_LEFT_HAND || ctx == ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
+    }
+
+    public static TextureAtlasSprite getBlockSprite(ResourceLocation id)
+    {
+        return Minecraft.getInstance().getTextureAtlas(BLOCK_ATLAS).apply(id);
     }
 
 

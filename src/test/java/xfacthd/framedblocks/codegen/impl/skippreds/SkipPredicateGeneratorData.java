@@ -620,7 +620,6 @@ final class SkipPredicateGeneratorData
                             new TestDir("HalfTriangleDir", "Tri", null, "elev_slope_slab_tri", "ext_slope_panel_tri_y"),
                             new TestDir("TriangleDir", "Stair", null, "stair_xz")
                     ),
-            entry("FRAMED_GLOWING_CUBE", "cube"),
             entry("FRAMED_PYRAMID", "slope")
                     .props(
                             Property.vanilla("Direction", "dir", "FACING", PropType.PRIMITIVE)

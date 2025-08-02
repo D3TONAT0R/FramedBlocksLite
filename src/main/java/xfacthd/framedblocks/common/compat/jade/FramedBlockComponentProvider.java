@@ -3,22 +3,24 @@ package xfacthd.framedblocks.common.compat.jade;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
-import snownee.jade.api.*;
+import snownee.jade.api.BlockAccessor;
+import snownee.jade.api.IBlockComponentProvider;
+import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
-import snownee.jade.api.ui.IElement;
+import snownee.jade.api.ui.Element;
 import xfacthd.framedblocks.api.block.IFramedBlock;
 import xfacthd.framedblocks.api.block.blockentity.FramedBlockEntity;
-import xfacthd.framedblocks.api.block.blockentity.IFramedDoubleBlockEntity;
+import xfacthd.framedblocks.api.block.blockentity.FramedDoubleBlockEntity;
 
-class FramedBlockComponentProvider implements IBlockComponentProvider
+final class FramedBlockComponentProvider implements IBlockComponentProvider
 {
     static final FramedBlockComponentProvider INSTANCE = new FramedBlockComponentProvider();
 
-    protected FramedBlockComponentProvider() { }
+    private FramedBlockComponentProvider() { }
 
     @Override
     @Nullable
-    public IElement getIcon(BlockAccessor accessor, IPluginConfig config, IElement currentIcon)
+    public Element getIcon(BlockAccessor accessor, IPluginConfig config, Element currentIcon)
     {
         if (!(accessor.getBlockState().getBlock() instanceof IFramedBlock block)) return null;
         if (!block.shouldRenderAsBlockInJadeTooltip()) return null;
@@ -32,7 +34,7 @@ class FramedBlockComponentProvider implements IBlockComponentProvider
     {
         if (accessor.getBlockEntity() instanceof FramedBlockEntity fbe)
         {
-            if (fbe.getBlockType().isDoubleBlock() && fbe instanceof IFramedDoubleBlockEntity fdbe)
+            if (fbe.getBlockType().isDoubleBlock() && fbe instanceof FramedDoubleBlockEntity fdbe)
             {
                 tooltip.add(Component.translatable(JadeCompat.LABEL_CAMO_ONE, fbe.getCamo().getContent().getCamoName()));
                 tooltip.add(Component.translatable(JadeCompat.LABEL_CAMO_TWO, fdbe.getCamoTwo().getContent().getCamoName()));

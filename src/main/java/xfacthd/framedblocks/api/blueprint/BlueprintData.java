@@ -2,9 +2,13 @@ package xfacthd.framedblocks.api.blueprint;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.component.BlockItemStateProperties;
@@ -14,6 +18,7 @@ import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 import xfacthd.framedblocks.api.util.CamoList;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public record BlueprintData(
         Block block,
@@ -23,7 +28,7 @@ public record BlueprintData(
         boolean reinforced,
         BlockItemStateProperties blockState,
         Optional<AuxBlueprintData<?>> auxData
-)
+) implements TooltipProvider
 {
     public static final Codec<BlueprintData> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             BuiltInRegistries.BLOCK.byNameCodec().fieldOf("block").forGetter(BlueprintData::block),

@@ -2,41 +2,36 @@ package xfacthd.framedblocks.common.net;
 
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.HandlerThread;
-import xfacthd.framedblocks.common.data.cullupdate.ClientCullingUpdateTracker;
-import xfacthd.framedblocks.common.net.payload.*;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import xfacthd.framedblocks.common.net.payload.clientbound.ClientboundCullingUpdatePayload;
+import xfacthd.framedblocks.common.net.payload.serverbound.ServerboundSelectFramingSawRecipePayload;
 
 public final class NetworkHandler
 {
     private static final String PROTOCOL_VERSION = "3";
 
-    public static void onRegisterPayloads(final RegisterPayloadHandlersEvent event)
+    public static void onRegisterPayloads(RegisterPayloadHandlersEvent event)
     {
-        event.registrar(PROTOCOL_VERSION)
-                .executesOn(HandlerThread.NETWORK)
-                .playToServer(
-                        ServerboundSignUpdatePayload.TYPE,
-                        ServerboundSignUpdatePayload.CODEC,
-                        ServerboundSignUpdatePayload::handle
-                )
-                .playToClient(
-                        ClientboundOpenSignScreenPayload.TYPE,
-                        ClientboundOpenSignScreenPayload.CODEC,
-                        ClientboundOpenSignScreenPayload::handle
-                )
+        PayloadRegistrar registrar = event.registrar(PROTOCOL_VERSION);
+        registerNetworkThreadPayloads(registrar);
+        registerMainThreadPayloads(registrar);
+    }
+
+    private static void registerNetworkThreadPayloads(PayloadRegistrar registrar)
+    {
+    }
+
+    private static void registerMainThreadPayloads(PayloadRegistrar registrar)
+    {
+        registrar.executesOn(HandlerThread.MAIN)
                 .playToClient(
                         ClientboundCullingUpdatePayload.TYPE,
-                        ClientboundCullingUpdatePayload.CODEC,
-                        ClientCullingUpdateTracker::handleCullingUpdates
+                        ClientboundCullingUpdatePayload.CODEC
                 )
                 .playToServer(
                         ServerboundSelectFramingSawRecipePayload.TYPE,
                         ServerboundSelectFramingSawRecipePayload.CODEC,
                         ServerboundSelectFramingSawRecipePayload::handle
-                )
-                .playToServer(
-                        ServerboundEncodeFramingSawPatternPayload.TYPE,
-                        ServerboundEncodeFramingSawPatternPayload.STREAM_CODEC,
-                        ServerboundEncodeFramingSawPatternPayload::handle
                 );
     }
 

@@ -1,26 +1,29 @@
 package xfacthd.framedblocks.common.compat.jei;
 
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
-import mezz.jei.api.recipe.RecipeType;
-import mezz.jei.api.recipe.transfer.*;
+import mezz.jei.api.recipe.transfer.IRecipeTransferError;
+import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
+import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
+import mezz.jei.api.recipe.transfer.IRecipeTransferInfo;
+import mezz.jei.api.recipe.types.IRecipeType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jetbrains.annotations.Nullable;
 import xfacthd.framedblocks.common.FBContent;
-import xfacthd.framedblocks.common.crafting.FramingSawRecipe;
-import xfacthd.framedblocks.common.crafting.FramingSawRecipeCache;
-import xfacthd.framedblocks.common.menu.*;
-import xfacthd.framedblocks.common.net.payload.ServerboundSelectFramingSawRecipePayload;
+import xfacthd.framedblocks.common.crafting.saw.FramingSawRecipe;
+import xfacthd.framedblocks.common.crafting.saw.FramingSawRecipeCache;
+import xfacthd.framedblocks.common.menu.FramingSawMenu;
+import xfacthd.framedblocks.common.menu.IFramingSawMenu;
+import xfacthd.framedblocks.common.net.payload.serverbound.ServerboundSelectFramingSawRecipePayload;
 
 import java.util.List;
 import java.util.Optional;
 
-public abstract sealed class FramingSawTransferHandler<C extends AbstractContainerMenu & IFramingSawMenu>
+public abstract class FramingSawTransferHandler<C extends AbstractContainerMenu & IFramingSawMenu>
         implements IRecipeTransferHandler<C, FramingSawRecipe>
-        permits FramingSawTransferHandler.FramingSaw, FramingSawTransferHandler.PoweredFramingSaw
 {
     private final IRecipeTransferHandlerHelper transferHelper;
     private final IRecipeTransferInfo<C, FramingSawRecipe> transferInfo;
@@ -54,7 +57,7 @@ public abstract sealed class FramingSawTransferHandler<C extends AbstractContain
     }
 
     @Override
-    public RecipeType<FramingSawRecipe> getRecipeType()
+    public IRecipeType<FramingSawRecipe> getRecipeType()
     {
         return transferInfo.getRecipeType();
     }
@@ -84,7 +87,7 @@ public abstract sealed class FramingSawTransferHandler<C extends AbstractContain
 
             if (doTransfer && menu.clickMenuButton(player, idx))
             {
-                PacketDistributor.sendToServer(new ServerboundSelectFramingSawRecipePayload(menu.containerId, idx));
+                ClientPacketDistributor.sendToServer(new ServerboundSelectFramingSawRecipePayload(menu.containerId, idx));
             }
             // TODO: return null instead of "transfer not implemented" when the suggestion is implemented
             return new RecipeTransferErrorTransferNotImplemented();
@@ -99,14 +102,6 @@ public abstract sealed class FramingSawTransferHandler<C extends AbstractContain
         public FramingSaw(IRecipeTransferHandlerHelper transferHelper)
         {
             super(transferHelper, FramingSawMenu.class, FBContent.MENU_TYPE_FRAMING_SAW.get());
-        }
-    }
-
-    public static final class PoweredFramingSaw extends FramingSawTransferHandler<PoweredFramingSawMenu>
-    {
-        public PoweredFramingSaw(IRecipeTransferHandlerHelper transferHelper)
-        {
-            super(transferHelper, PoweredFramingSawMenu.class, FBContent.MENU_TYPE_POWERED_FRAMING_SAW.get());
         }
     }
 }

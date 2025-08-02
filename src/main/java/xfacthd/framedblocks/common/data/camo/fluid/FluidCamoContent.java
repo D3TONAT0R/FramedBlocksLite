@@ -5,17 +5,24 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.util.TriState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.*;
+import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.*;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.MapColor;
 import net.neoforged.fml.loading.FMLEnvironment;
-import net.neoforged.neoforge.common.util.TriState;
 import org.jetbrains.annotations.Nullable;
-import xfacthd.framedblocks.api.camo.*;
+import xfacthd.framedblocks.api.camo.CamoClientHandler;
+import xfacthd.framedblocks.api.camo.CamoContainerHelper;
+import xfacthd.framedblocks.api.camo.CamoContent;
 import xfacthd.framedblocks.api.util.ClientUtils;
 import xfacthd.framedblocks.common.particle.FluidParticleOptions;
 
@@ -34,7 +41,7 @@ public final class FluidCamoContent extends CamoContent<FluidCamoContent>
     }
 
     @Override
-    public boolean propagatesSkylightDown(BlockGetter level, BlockPos pos)
+    public boolean propagatesSkylightDown()
     {
         return true;
     }
@@ -90,7 +97,7 @@ public final class FluidCamoContent extends CamoContent<FluidCamoContent>
     @Override
     public boolean shouldDisplayFluidOverlay(BlockAndTintGetter level, BlockPos pos, FluidState fluidState)
     {
-        return fluidState.getType() != fluid;
+        return fluidState.getFluidType() != fluid.getFluidType();
     }
 
     @Override
@@ -148,7 +155,7 @@ public final class FluidCamoContent extends CamoContent<FluidCamoContent>
     }
 
     @Override
-    public boolean isSolid(BlockGetter level, BlockPos pos)
+    public boolean isSolid()
     {
         return false;
     }
@@ -172,19 +179,19 @@ public final class FluidCamoContent extends CamoContent<FluidCamoContent>
     }
 
     @Override
-    public boolean isOccludedBy(BlockState adjState, BlockGetter level, BlockPos pos, BlockPos adjPos)
+    public boolean isOccludedBy(BlockState adjState, BlockGetter level, BlockPos pos, BlockPos adjPos, Direction side)
     {
-        return adjState.isSolidRender(level, pos);
+        return adjState.isSolidRender();
     }
 
     @Override
-    public boolean isOccludedBy(CamoContent<?> adjCamo, BlockGetter level, BlockPos pos, BlockPos adjPos)
+    public boolean isOccludedBy(CamoContent<?> adjCamo, BlockGetter level, BlockPos pos, BlockPos adjPos, Direction side)
     {
-        return adjCamo.isSolid(level, pos) || equals(adjCamo);
+        return adjCamo.isSolid() || equals(adjCamo);
     }
 
     @Override
-    public boolean occludes(BlockState adjState, BlockGetter level, BlockPos pos, BlockPos adjPos)
+    public boolean occludes(BlockState adjState, BlockGetter level, BlockPos pos, BlockPos adjPos, Direction side)
     {
         return false;
     }
@@ -220,11 +227,9 @@ public final class FluidCamoContent extends CamoContent<FluidCamoContent>
     }
 
     @Override
-    public boolean equals(Object obj)
+    public boolean equals(@Nullable Object obj)
     {
-        if (obj == this) return true;
-        if (obj == null || obj.getClass() != FluidCamoContent.class) return false;
-        return fluid == ((FluidCamoContent) obj).fluid;
+        return obj == this || (obj instanceof FluidCamoContent camo && fluid == camo.fluid);
     }
 
     @Override

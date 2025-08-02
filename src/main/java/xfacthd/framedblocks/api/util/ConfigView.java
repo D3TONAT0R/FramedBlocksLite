@@ -1,12 +1,13 @@
 package xfacthd.framedblocks.api.util;
 
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.world.item.Item;
+import org.jetbrains.annotations.ApiStatus;
 import xfacthd.framedblocks.api.predicate.contex.ConTexMode;
 
 @SuppressWarnings("unused")
 public final class ConfigView
 {
+    @ApiStatus.NonExtendable
     public interface Server
     {
         Server INSTANCE = Utils.loadService(ConfigView.Server.class);
@@ -22,16 +23,6 @@ public final class ConfigView
          * If true, certain blocks can be made intangible
          */
         boolean enableIntangibility();
-
-        /**
-         * Get the item used to make blocks intangible
-         * @deprecated No longer configurable, use {@link Utils#PHANTOM_PASTE} instead
-         */
-        @Deprecated(forRemoval = true)
-        default Item getIntangibilityMarkerItem()
-        {
-            return Utils.PHANTOM_PASTE.value();
-        }
 
         /**
          * If true, the One-Way Window is owned by the player who placed it and can only be configured by said player
@@ -54,6 +45,7 @@ public final class ConfigView
         boolean areBlocksFireproof();
     }
 
+    @ApiStatus.NonExtendable
     public interface Client
     {
         Client INSTANCE = Utils.loadService(ConfigView.Client.class);
@@ -106,8 +98,14 @@ public final class ConfigView
          * Returns whether item models of framed blocks should render with the camo stored on the stack, if present
          */
         boolean shouldRenderItemModelsWithCamo();
+
+        /**
+         * Returns whether weighted models are taken into account ({@code true}) or unwrapped ({@code false})
+         */
+        boolean supportWeightedVariants();
     }
 
+    @ApiStatus.NonExtendable
     public interface DevTools
     {
         DevTools INSTANCE = Utils.loadService(DevTools.class);

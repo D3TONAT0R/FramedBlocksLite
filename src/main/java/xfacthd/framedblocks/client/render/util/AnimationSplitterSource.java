@@ -6,11 +6,16 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.SpriteContents;
-import net.minecraft.client.renderer.texture.atlas.*;
+import net.minecraft.client.renderer.texture.atlas.SpriteResourceLoader;
+import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.client.renderer.texture.atlas.sources.LazyLoadedImage;
-import net.minecraft.client.resources.metadata.animation.*;
+import net.minecraft.client.resources.metadata.animation.AnimationFrame;
+import net.minecraft.client.resources.metadata.animation.AnimationMetadataSection;
+import net.minecraft.client.resources.metadata.animation.FrameSize;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.*;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceMetadata;
 import net.minecraft.util.ExtraCodecs;
 import xfacthd.framedblocks.FramedBlocks;
 import xfacthd.framedblocks.client.util.NoAnimationResourceMetadata;
@@ -20,11 +25,10 @@ import java.util.Optional;
 
 public record AnimationSplitterSource(ResourceLocation resource, List<Frame> frames) implements SpriteSource
 {
-    private static final MapCodec<AnimationSplitterSource> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
+    public static final MapCodec<AnimationSplitterSource> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             ResourceLocation.CODEC.fieldOf("resource").forGetter(s -> s.resource),
             ExtraCodecs.nonEmptyList(Frame.CODEC.listOf()).fieldOf("frames").forGetter(s -> s.frames)
     ).apply(inst, AnimationSplitterSource::new));
-    public static final SpriteSourceType TYPE = new SpriteSourceType(CODEC);
 
     @Override
     public void run(ResourceManager mgr, Output out)
@@ -44,9 +48,9 @@ public record AnimationSplitterSource(ResourceLocation resource, List<Frame> fra
     }
 
     @Override
-    public SpriteSourceType type()
+    public MapCodec<AnimationSplitterSource> codec()
     {
-        return TYPE;
+        return CODEC;
     }
 
 
@@ -67,7 +71,7 @@ public record AnimationSplitterSource(ResourceLocation resource, List<Frame> fra
             try
             {
                 ResourceMetadata srcMeta = resource.metadata();
-                Optional<AnimationMetadataSection> optAnim = srcMeta.getSection(AnimationMetadataSection.SERIALIZER);
+                Optional<AnimationMetadataSection> optAnim = srcMeta.getSection(AnimationMetadataSection.TYPE);
                 if (optAnim.isEmpty())
                 {
                     throw new IllegalArgumentException("Texture '%s' is not an animated texture".formatted(texPath));
@@ -106,19 +110,23 @@ public record AnimationSplitterSource(ResourceLocation resource, List<Frame> fra
                 ResourceLocation texPath, AnimationMetadataSection anim, int frameIdx, int frameCount
         )
         {
-            boolean[] frameFound = new boolean[1];
-            int[] maxIdx = new int[] { -1 };
-            anim.forEachFrame((idx, time) ->
+            boolean frameFound = false;
+            int maxIdx = -1;
+            if (anim.frames().isPresent())
             {
-                maxIdx[0] = Math.max(maxIdx[0], idx);
-                if (idx == frameIdx)
+                for (AnimationFrame frame : anim.frames().get())
                 {
-                    frameFound[0] = true;
+                    maxIdx = Math.max(maxIdx, frame.index());
+                    if (frame.index() == frameIdx)
+                    {
+                        frameFound = true;
+                        break;
+                    }
                 }
-            });
-            if (!frameFound[0] && (maxIdx[0] != -1 || frameIdx >= frameCount))
+            }
+            if (!frameFound && (maxIdx != -1 || frameIdx >= frameCount))
             {
-                int max = maxIdx[0] != -1 ? maxIdx[0] : frameCount;
+                int max = maxIdx != -1 ? maxIdx : frameCount;
                 throw new IllegalArgumentException("Texture '%s' has no frame with index %d, max index is %d".formatted(
                         texPath, frameIdx, max
                 ));

@@ -2,14 +2,22 @@ package xfacthd.framedblocks.common.data.camo;
 
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import org.jetbrains.annotations.Nullable;
 import xfacthd.framedblocks.api.block.IFramedBlock;
 import xfacthd.framedblocks.api.camo.*;
 import xfacthd.framedblocks.common.FBContent;
+import xfacthd.framedblocks.common.data.FramedRegistries;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Predicate;
 
 public final class CamoContainerFactories
@@ -21,7 +29,7 @@ public final class CamoContainerFactories
 
     public static void registerCamoFactories()
     {
-        FBContent.CAMO_CONTAINER_FACTORY_REGISTRY
+        FramedRegistries.CAMO_CONTAINER_FACTORIES
                 .entrySet()
                 .stream()
                 .map(Map.Entry::getValue)
@@ -109,7 +117,7 @@ public final class CamoContainerFactories
             Set<CamoContainerFactory<?>> factories = REMOVAL_ITEMS.computeIfAbsent(item, $ -> new ReferenceOpenHashSet<>());
             if (factories.contains(factory))
             {
-                String factoryName = Objects.requireNonNull(FBContent.CAMO_CONTAINER_FACTORY_REGISTRY.getKey(factory)).toString();
+                String factoryName = Objects.requireNonNull(FramedRegistries.CAMO_CONTAINER_FACTORIES.getKey(factory)).toString();
                 throw new IllegalArgumentException(String.format("Factory %s is already registered to item %s!", factoryName, item));
             }
             factories.add(factory);

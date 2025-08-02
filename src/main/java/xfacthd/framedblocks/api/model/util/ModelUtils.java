@@ -1,93 +1,76 @@
 package xfacthd.framedblocks.api.model.util;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.BlockModelPart;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.block.model.SimpleModelWrapper;
+import net.minecraft.client.renderer.block.model.SingleVariant;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.WeightedBakedModel;
+import net.minecraft.client.resources.model.BlockModelRotation;
+import net.minecraft.client.resources.model.MissingBlockModel;
+import net.minecraft.client.resources.model.ModelBaker;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.TriState;
+import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.EmptyBlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.ChunkRenderTypeSet;
 import net.neoforged.neoforge.client.model.IQuadTransformer;
-import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.common.util.Lazy;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
-import xfacthd.framedblocks.api.model.data.FramedBlockData;
+import xfacthd.framedblocks.api.internal.InternalClientAPI;
+import xfacthd.framedblocks.api.model.ExtendedBlockModelPart;
+import xfacthd.framedblocks.api.model.data.QuadMap;
+import xfacthd.framedblocks.api.model.geometry.DefaultAO;
 import xfacthd.framedblocks.api.model.quad.QuadData;
 import xfacthd.framedblocks.api.util.ConfigView;
 import xfacthd.framedblocks.api.util.Utils;
-import xfacthd.framedblocks.mixin.client.AccessorWeightedBakedModel;
 
-import java.util.*;
-import java.util.function.Predicate;
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public final class ModelUtils
 {
-    private static final Direction[] DIRECTIONS = Direction.values();
-    public static final ChunkRenderTypeSet SOLID = ChunkRenderTypeSet.of(RenderType.solid());
-    public static final ChunkRenderTypeSet CUTOUT = ChunkRenderTypeSet.of(RenderType.cutout());
-    public static final ChunkRenderTypeSet TRANSLUCENT = ChunkRenderTypeSet.of(RenderType.translucent());
     // Factor 16 is required because the relative UV of a TextureAtlasSprite is not 0-16 anymore since 1.20.2
     public static final float UV_SUBSTEP_COUNT = 16F * 8F;
-
-    public static Direction fillNormal(QuadData data)
-    {
-        Vector3f v1 = data.pos(3, new Vector3f());
-        Vector3f t1 = data.pos(1, new Vector3f());
-        Vector3f v2 = data.pos(2, new Vector3f());
-        Vector3f t2 = data.pos(0, new Vector3f());
-
-        v1.sub(t1);
-        v2.sub(t2);
-        v2.cross(v1);
-        v2.normalize();
-
-        for (int vert = 0; vert < 4; vert++)
-        {
-            data.normal(vert, v2);
-        }
-
-        return Direction.getNearest(v2.x, v2.y, v2.z);
-    }
+    public static final ModelBaker.SharedOperationKey<BlockStateModel> MISSING_MODEL_KEY = makeSharedOpsKey(
+            baker -> new SingleVariant(SimpleModelWrapper.bake(baker, MissingBlockModel.LOCATION, BlockModelRotation.X0_Y0))
+    );
 
     /**
      * Maps a coordinate 'coordTo' between the given coordinates 'coord1' and 'coord2'
      * onto the UV range they occupy as given by the values at 'uv1' and 'uv2' in the 'uv'
      * array, calculates the target UV coordinate corresponding to the value of 'coordTo'
      * and places it at 'uvTo' in the 'uv' array
-     * @param quadDir The direction the quad is facing in
      * @param sprite The quad's texture
+     * @param data The {@link QuadData} being operated on
      * @param coord1 The first coordinate
      * @param coord2 The second coordinate
      * @param coordTo The target coordinate, must lie between coord1 and coord2
-     * @param data The {@link QuadData} being operated on
      * @param uv1 The first UV texture coordinate
      * @param uv2 The second UV texture coordinate
      * @param uvTo The target UV texture coordinate
      * @param vAxis Whether the modification should happen on the V axis or the U axis
-     * @param invert Whether the coordinates grow in the opposite direction of the texture coordinates
      * @param rotated Whether the UVs are rotated
-     * @param mirrored Whether the UVs are mirrored
      */
     @Deprecated(forRemoval = true)
     @SuppressWarnings("unused")
     public static void remapUV(
-            Direction quadDir,
             TextureAtlasSprite sprite,
+            QuadData data,
             float coord1,
             float coord2,
             float coordTo,
-            QuadData data,
             int uv1,
             int uv2,
             int uvTo,
             boolean vAxis,
-            boolean invert,
-            boolean rotated,
-            boolean mirrored
+            boolean rotated
     )
     {
         remapUV(sprite, data, coord1, coord2, coordTo, uv1, uv2, uvTo, vAxis, rotated);
@@ -170,20 +153,6 @@ public final class ModelUtils
                (Mth.equal(data.uv(1, 0), data.uv(2, 0)) || Mth.equal(data.uv(0, 0), data.uv(3, 0)));
     }
 
-    public static boolean isQuadMirrored(QuadData data, boolean rotated)
-    {
-        if (!rotated)
-        {
-            return (data.uv(0, 0) > data.uv(3, 0) && data.uv(1, 0) > data.uv(2, 0)) ||
-                   (data.uv(0, 1) > data.uv(1, 1) && data.uv(3, 1) > data.uv(2, 1));
-        }
-        else
-        {
-            return (data.uv(0, 0) > data.uv(1, 0) && data.uv(3, 0) > data.uv(2, 0)) ||
-                   (data.uv(0, 1) < data.uv(3, 1) && data.uv(1, 1) < data.uv(2, 1));
-        }
-    }
-
     /**
      * Creates a shallow copy of the given BakedQuad in order to invert the tint index for BakedQuads
      * used by the second model of a double block
@@ -195,11 +164,13 @@ public final class ModelUtils
         if (quad.getTintIndex() == -1) return quad;
 
         return new BakedQuad(
-                quad.getVertices(), //Don't need to copy the vertex data, it won't be modified by the caller
-                encodeSecondaryTintIndex(quad.getTintIndex()),
-                quad.getDirection(),
-                quad.getSprite(),
-                quad.isShade()
+                quad.vertices(), //Don't need to copy the vertex data, it won't be modified by the caller
+                encodeSecondaryTintIndex(quad.tintIndex()),
+                quad.direction(),
+                quad.sprite(),
+                quad.shade(),
+                quad.lightEmission(),
+                quad.hasAmbientOcclusion()
         );
     }
 
@@ -213,56 +184,40 @@ public final class ModelUtils
         return (tintIndex * -1) - 2;
     }
 
-    public static ModelData getCamoModelData(ModelData data)
-    {
-        ModelData camoData = data.get(FramedBlockData.CAMO_DATA);
-        return camoData != null ? camoData : ModelData.EMPTY;
-    }
-
-    public static BakedModel getModel(BlockState state)
+    public static BlockStateModel getModel(BlockState state)
     {
         return Minecraft.getInstance().getBlockRenderer().getBlockModel(state);
     }
 
-    public static ChunkRenderTypeSet getRenderTypes(BlockState state, RandomSource random, ModelData data)
+    public static Supplier<BlockStateModel> getModelDeferred(BlockState state)
     {
-        return getModel(state).getRenderTypes(state, random, data);
+        return Lazy.of(() -> getModel(state));
     }
 
-    public static ArrayList<BakedQuad> getCullableQuads(
-            BakedModel model,
-            BlockState state,
-            RandomSource rand,
-            ModelData data,
-            RenderType renderType,
-            Predicate<Direction> filter
-    )
+    public static ExtendedBlockModelPart makeModelPart(BlockModelPart srcPart, QuadMap quadMap, BlockState state, DefaultAO defaultAO, @Nullable BlockState shaderState)
     {
-        if (model instanceof WeightedBakedModel weighted)
-        {
-            model = ((AccessorWeightedBakedModel) weighted).framedblocks$getWrappedModel();
-        }
+        TriState partAO = defaultAO.apply(srcPart.ambientOcclusion());
+        ChunkSectionLayer chunkLayer = srcPart.getRenderType(state);
+        return makeModelPart(quadMap, partAO, srcPart.particleIcon(), chunkLayer, shaderState);
+    }
 
-        ArrayList<BakedQuad> quads = new ArrayList<>();
-        for (Direction dir : DIRECTIONS)
+    public static ExtendedBlockModelPart makeModelPart(QuadMap quadMap, TriState partAO, TextureAtlasSprite particleSprite, ChunkSectionLayer chunkLayer, @Nullable BlockState shaderState)
+    {
+        return InternalClientAPI.INSTANCE.makeBlockModelPart(quadMap, partAO, particleSprite, chunkLayer, shaderState);
+    }
+
+    public static List<BlockModelPart> collectModelParts(BlockStateModel camoModel, BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random, boolean supportDynamicGeometry)
+    {
+        if (!supportDynamicGeometry)
         {
-            if (filter.test(dir))
-            {
-                List<BakedQuad> sideQuads = model.getQuads(state, dir, rand, data, renderType);
-                if (sideQuads.isEmpty())
-                {
-                    // Try extracting useful quads from the list of (supposedly) uncullable quads if querying cullable
-                    // ones returned nothing due to the dev forgetting to specify cull-faces in the model
-                    sideQuads = getFilteredNullQuads(model, state, rand, data, renderType, dir);
-                }
-                Utils.copyAll(sideQuads, quads);
-            }
+            level = EmptyBlockAndTintGetter.INSTANCE;
+            pos = BlockPos.ZERO;
         }
-        return quads;
+        return camoModel.collectParts(level, pos, state, random);
     }
 
     /**
-     * Guess the cull-face of quads returned by {@link BakedModel#getQuads(BlockState, Direction, RandomSource, ModelData, RenderType)}
+     * Guess the cull-face of quads returned by {@link BlockModelPart#getQuads(Direction)}
      * with a {@code null} side (i.e. supposedly uncullable quads) and filter them to return the ones applicable to the given
      * {@link Direction} and touching the block edge. This fixes blocks becoming invisible when mods forget to specify
      * cull-faces in their models
@@ -271,25 +226,17 @@ public final class ModelUtils
      * licensed under LGPL v3
      */
     @SuppressWarnings("ForLoopReplaceableByForEach")
-    public static List<BakedQuad> getFilteredNullQuads(
-            BakedModel model,
-            BlockState state,
-            RandomSource rand,
-            ModelData data,
-            @Nullable RenderType renderType,
-            Direction side
-    )
+    public static void getFilteredNullQuads(List<BakedQuad> quadsOut, BlockModelPart modelPart, Direction side)
     {
-        List<BakedQuad> nullQuads = model.getQuads(state, null, rand, data, renderType);
-        if (nullQuads.isEmpty()) return Collections.emptyList();
+        List<BakedQuad> nullQuads = modelPart.getQuads(null);
+        if (nullQuads.isEmpty()) return;
 
-        List<BakedQuad> filtered = new ArrayList<>();
         for (int i = 0; i < nullQuads.size(); i++)
         {
             BakedQuad quad = nullQuads.get(i);
 
             // Filter out quads pointing completely the wrong way early
-            if (quad.getDirection() != side) continue;
+            if (quad.direction() != side) continue;
 
             float minX = 32F;
             float minY = 32F;
@@ -298,7 +245,7 @@ public final class ModelUtils
             float maxY = -32F;
             float maxZ = -32F;
 
-            int[] vertexData = quad.getVertices();
+            int[] vertexData = quad.vertices();
             for (int vert = 0; vert < 4; ++vert)
             {
                 int offset = vert * IQuadTransformer.STRIDE + IQuadTransformer.POSITION;
@@ -325,10 +272,22 @@ public final class ModelUtils
 
             if (aligned)
             {
-                filtered.add(quad);
+                quadsOut.add(quad);
             }
         }
-        return filtered;
+    }
+
+    @SuppressWarnings({ "Convert2Lambda", "Anonymous2MethodRef" })
+    public static <T> ModelBaker.SharedOperationKey<T> makeSharedOpsKey(Function<ModelBaker, T> operation)
+    {
+        return new ModelBaker.SharedOperationKey<>()
+        {
+            @Override
+            public T compute(ModelBaker baker)
+            {
+                return operation.apply(baker);
+            }
+        };
     }
 
 

@@ -3,6 +3,7 @@ package xfacthd.framedblocks.common.compat.amendments;
 import net.mehvahdjukaar.amendments.Amendments;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.LevelReader;
 import net.neoforged.fml.ModList;
 import xfacthd.framedblocks.FramedBlocks;
@@ -63,9 +64,9 @@ public final class AmendmentsCompat
 
     public static final class Client
     {
-        public static final ModelResourceLocation HANGING_MODEL_LOCATION = ModelResourceLocation.standalone(
-                Utils.rl(MOD_ID, "block/hanging_flower_pot_rope")
-        );
+        // public static final ModelResourceLocation HANGING_MODEL_LOCATION = ModelResourceLocation.standalone(
+        //         Utils.rl(MOD_ID, "block/hanging_flower_pot_rope")
+        // );
 
 
 

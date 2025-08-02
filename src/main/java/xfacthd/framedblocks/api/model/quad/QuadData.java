@@ -1,6 +1,8 @@
 package xfacthd.framedblocks.api.model.quad;
 
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.core.Direction;
+import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.client.model.IQuadTransformer;
 import org.joml.Vector3f;
 import xfacthd.framedblocks.api.model.util.ModelUtils;
@@ -12,15 +14,13 @@ public final class QuadData
     final BakedQuad quad;
     final int[] vertexData;
     private final boolean uvRotated;
-    private final boolean uvMirrored;
 
     public QuadData(BakedQuad quad)
     {
         this.quad = quad;
-        int[] vertexData = quad.getVertices();
+        int[] vertexData = quad.vertices();
         this.vertexData = Arrays.copyOf(vertexData, vertexData.length);
         this.uvRotated = ModelUtils.isQuadRotated(this);
-        this.uvMirrored = ModelUtils.isQuadMirrored(this, uvRotated);
     }
 
     QuadData(QuadData data)
@@ -28,7 +28,6 @@ public final class QuadData
         this.quad = data.quad;
         this.vertexData = Arrays.copyOf(data.vertexData, data.vertexData.length);
         this.uvRotated = data.uvRotated;
-        this.uvMirrored = data.uvMirrored;
     }
 
     public BakedQuad quad()
@@ -39,11 +38,6 @@ public final class QuadData
     public boolean uvRotated()
     {
         return uvRotated;
-    }
-
-    public boolean uvMirrored()
-    {
-        return uvMirrored;
     }
 
     public float pos(int vert, int idx)
@@ -158,5 +152,21 @@ public final class QuadData
     {
         int offset = vert * IQuadTransformer.STRIDE + IQuadTransformer.UV2;
         vertexData[offset] = val;
+    }
+
+    public Direction recomputeNormals()
+    {
+        int normal = ClientHooks.computeQuadNormal(vertexData);
+
+        for (int vert = 0; vert < 4; vert++)
+        {
+            int offset = vert * IQuadTransformer.STRIDE + IQuadTransformer.NORMAL;
+            vertexData[offset] = (normal & 0x00FFFFFF) | (vertexData[offset] & 0xFF000000);
+        }
+
+        float nX = ((byte) ( normal        & 0xFF)) / 127F;
+        float nY = ((byte) ((normal >>  8) & 0xFF)) / 127F;
+        float nZ = ((byte) ((normal >> 16) & 0xFF)) / 127F;
+        return Direction.getApproximateNearest(nX, nY, nZ);
     }
 }

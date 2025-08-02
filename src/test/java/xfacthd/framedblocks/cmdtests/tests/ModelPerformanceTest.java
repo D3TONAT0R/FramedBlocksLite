@@ -3,28 +3,39 @@ package xfacthd.framedblocks.cmdtests.tests;
 import com.google.common.base.Stopwatch;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.model.BlockModelPart;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.model.data.ModelData;
-import xfacthd.framedblocks.api.block.blockentity.IFramedDoubleBlockEntity;
-import xfacthd.framedblocks.api.camo.CamoContent;
-import xfacthd.framedblocks.api.camo.block.BlockCamoContent;
-import xfacthd.framedblocks.api.camo.empty.EmptyCamoContent;
-import xfacthd.framedblocks.client.model.FramedBlockModel;
+import net.minecraft.world.level.levelgen.RandomSupport;
+import net.minecraft.world.level.levelgen.SingleThreadedRandomSource;
+import net.neoforged.neoforge.model.data.ModelData;
+import xfacthd.framedblocks.api.block.IFramedDoubleBlock;
+import xfacthd.framedblocks.api.camo.CamoContainer;
+import xfacthd.framedblocks.api.camo.block.SimpleBlockCamoContainer;
+import xfacthd.framedblocks.api.camo.empty.EmptyCamoContainer;
+import xfacthd.framedblocks.api.model.ModelPartCollectionFakeLevel;
+import xfacthd.framedblocks.api.model.data.AbstractFramedBlockData;
 import xfacthd.framedblocks.api.model.data.FramedBlockData;
+import xfacthd.framedblocks.api.model.data.FramedDoubleBlockData;
+import xfacthd.framedblocks.client.model.baked.FramedBlockModel;
 import xfacthd.framedblocks.cmdtests.SpecialTestCommand;
 import xfacthd.framedblocks.common.FBContent;
 import xfacthd.framedblocks.common.data.BlockType;
-import xfacthd.framedblocks.util.MarkdownTable;
+import xfacthd.framedblocks.common.util.MarkdownTable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -38,9 +49,8 @@ public final class ModelPerformanceTest
     private static final Direction[] DIRECTIONS = Stream.concat(
             Arrays.stream(Direction.values()), Stream.of((Direction) null)
     ).toArray(Direction[]::new);
-    private static final RandomSource RANDOM = RandomSource.create();
-    private static final ModelData MODEL_DATA_EMPTY = makeModelData(EmptyCamoContent.EMPTY);
-    private static final ModelData MODEL_DATA_CAMO = makeModelData(new BlockCamoContent(Blocks.STONE.defaultBlockState()));
+    private static final RandomSource RANDOM = new SingleThreadedRandomSource(RandomSupport.generateUniqueSeed());
+    private static final CamoContainer<?, ?> TEST_CAMO_CONTAINER = new SimpleBlockCamoContainer(Blocks.STONE.defaultBlockState(), FBContent.FACTORY_BLOCK.get());
 
     public static void testModelPerformance(
             @SuppressWarnings("unused") CommandContext<CommandSourceStack> ctx, Consumer<Component> msgQueueAppender
@@ -61,8 +71,8 @@ public final class ModelPerformanceTest
         msgQueueAppender.accept(Component.literal(PREFIX + "Warmup..."));
         for (BlockState state : testStates.values())
         {
-            testModel(state, MODEL_DATA_EMPTY);
-            testModel(state, MODEL_DATA_CAMO);
+            testModel(state, makeModelData(state, EmptyCamoContainer.EMPTY));
+            testModel(state, makeModelData(state, TEST_CAMO_CONTAINER));
         }
 
         msgQueueAppender.accept(Component.literal(PREFIX + "Measure..."));
@@ -75,8 +85,8 @@ public final class ModelPerformanceTest
             {
                 BlockState state = entry.getValue();
                 boolean stone = state.getBlock() == Blocks.STONE;
-                long timeEmpty = testModel(state, MODEL_DATA_EMPTY);
-                long timeCamo = stone ? 0 : testModel(state, MODEL_DATA_CAMO);
+                long timeEmpty = testModel(state, makeModelData(state, EmptyCamoContainer.EMPTY));
+                long timeCamo = stone ? 0 : testModel(state, makeModelData(state, TEST_CAMO_CONTAINER));
                 results.computeIfAbsent(entry.getKey(), $ -> new ArrayList<>()).add(new Result(timeEmpty, timeCamo));
             }
         }
@@ -93,7 +103,9 @@ public final class ModelPerformanceTest
 
         int[] count = new int[1];
         long[] stoneAvg = new long[1];
+        long[] allEmptyAvg = new long[results.size() - 1];
         float[] allEmptyRel = new float[results.size() - 1];
+        long[] allCamoAvg = new long[results.size() - 1];
         float[] allCamoRel = new float[results.size() - 1];
         results.forEach((name, values) ->
         {
@@ -128,53 +140,66 @@ public final class ModelPerformanceTest
             float camoRel = ((float) camoAvg / (float) stoneAvg[0]);
             table.cell("%6d us".formatted(camoAvg)).cell("%6.02f".formatted(camoRel)).newRow();
 
+            allEmptyAvg[count[0] - 1] = emptyAvg;
             allEmptyRel[count[0] - 1] = emptyRel;
+            allCamoAvg[count[0] - 1] = camoAvg;
             allCamoRel[count[0] - 1] = camoRel;
             count[0]++;
         });
 
         StringBuilder data = new StringBuilder();
 
-        float minBlank = Float.MAX_VALUE;
-        float maxBlank = 0;
-        float minCamo = Float.MAX_VALUE;
-        float maxCamo = 0;
+        int minBlank = 0;
+        int maxBlank = 0;
+        int minCamo = 0;
+        int maxCamo = 0;
         for (int i = 0; i < results.size() - 1; i++)
         {
-            minBlank = Math.min(allEmptyRel[i], minBlank);
-            maxBlank = Math.max(allEmptyRel[i], maxBlank);
-            minCamo = Math.min(allCamoRel[i], minCamo);
-            maxCamo = Math.max(allCamoRel[i], maxCamo);
+            minBlank = compare(allEmptyAvg, i, minBlank, true);
+            maxBlank = compare(allEmptyAvg, i, maxBlank, false);
+            minCamo = compare(allCamoAvg, i, minCamo, true);
+            maxCamo = compare(allCamoAvg, i, maxCamo, false);
         }
 
         data.append("Relative speed:\n")
-                .append("- Min (blank): ").append("%6.2f\n".formatted(minBlank))
-                .append("- Max (blank): ").append("%6.2f\n".formatted(maxBlank))
-                .append("- Min (camo):  ").append("%6.2f\n".formatted(minCamo))
-                .append("- Max (camo):  ").append("%6.2f\n".formatted(maxCamo))
+                .append("- Min (blank): ").append("%6.2f (%6d us)\n".formatted(allEmptyRel[minBlank], allEmptyAvg[minBlank]))
+                .append("- Max (blank): ").append("%6.2f (%6d us)\n".formatted(allEmptyRel[maxBlank], allEmptyAvg[maxBlank]))
+                .append("- Min (camo):  ").append("%6.2f (%6d us)\n".formatted(allCamoRel[minCamo], allCamoAvg[minCamo]))
+                .append("- Max (camo):  ").append("%6.2f (%6d us)\n".formatted(allCamoRel[maxCamo], allCamoAvg[maxCamo]))
                 .append("\n\n").append(table.print());
 
         Component msg = SpecialTestCommand.writeResultToFile("modelperf", "md", data.toString());
         msgQueueAppender.accept(Component.literal(PREFIX).append(msg));
     }
 
+    private static int compare(long[] data, int idx, int prevIdx, boolean min)
+    {
+        if (min ? data[idx] < data[prevIdx] : data[idx] > data[prevIdx])
+        {
+            return idx;
+        }
+        return prevIdx;
+    }
+
     private static long testModel(BlockState state, ModelData data)
     {
-        BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(state);
+        BlockStateModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(state);
         if (model instanceof FramedBlockModel framedModel)
         {
             framedModel.clearCache();
         }
 
+        BlockAndTintGetter level = new ModelPartCollectionFakeLevel(state, data);
+
         Stopwatch watch = Stopwatch.createStarted();
 
         for (int i = 0; i < SAMPLE_COUNT; i++)
         {
-            for (RenderType layer : model.getRenderTypes(state, RANDOM, data))
+            for (BlockModelPart part : model.collectParts(level, BlockPos.ZERO, state, RANDOM))
             {
                 for (Direction side : DIRECTIONS)
                 {
-                    model.getQuads(state, side, RANDOM, data, layer);
+                    part.getQuads(side);
                 }
             }
         }
@@ -183,22 +208,20 @@ public final class ModelPerformanceTest
         return watch.elapsed(TimeUnit.MICROSECONDS);
     }
 
-    private static ModelData makeModelData(CamoContent<?> camo)
+    private static ModelData makeModelData(BlockState state, CamoContainer<?, ?> camo)
     {
-        FramedBlockData dataOne = new FramedBlockData(camo, false);
-        FramedBlockData dataTwo = new FramedBlockData(camo, true);
-
-        return ModelData.builder()
-                .with(FramedBlockData.PROPERTY, dataOne)
-                .with(IFramedDoubleBlockEntity.DATA_ONE, ModelData.builder()
-                        .with(FramedBlockData.PROPERTY, dataOne)
-                        .build()
-                )
-                .with(IFramedDoubleBlockEntity.DATA_TWO, ModelData.builder()
-                        .with(FramedBlockData.PROPERTY, dataTwo)
-                        .build()
-                )
-                .build();
+        AbstractFramedBlockData fbData;
+        if (state.getBlock() instanceof IFramedDoubleBlock doubleBlock)
+        {
+            FramedBlockData dataOne = new FramedBlockData(camo, false);
+            FramedBlockData dataTwo = new FramedBlockData(camo, true);
+            fbData = new FramedDoubleBlockData(doubleBlock.getCache(state).getParts(), dataOne, dataTwo);
+        }
+        else
+        {
+            fbData = new FramedBlockData(camo, false);
+        }
+        return ModelData.of(AbstractFramedBlockData.PROPERTY, fbData);
     }
 
 

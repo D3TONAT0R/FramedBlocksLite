@@ -1,33 +1,36 @@
 package xfacthd.framedblocks.api.camo;
 
 import net.minecraft.client.color.block.BlockColor;
-import net.minecraft.client.color.item.ItemColor;
+import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.util.TriState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.*;
+import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.MapColor;
 import net.neoforged.neoforge.common.extensions.IBlockStateExtension;
-import net.neoforged.neoforge.common.util.TriState;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import xfacthd.framedblocks.api.camo.empty.EmptyCamoContent;
 import xfacthd.framedblocks.api.model.cache.QuadCacheKey;
-import xfacthd.framedblocks.api.util.EmptyBlockAndTintGetter;
 
 public abstract class CamoContent<C extends CamoContent<C>> implements QuadCacheKey
 {
     /**
      * {@return whether this camo propagates skylight downwards}
-     * @see BlockBehaviour.BlockStateBase#propagatesSkylightDown(BlockGetter, BlockPos)
+     * @see BlockBehaviour.BlockStateBase#propagatesSkylightDown()
      */
-    public abstract boolean propagatesSkylightDown(BlockGetter level, BlockPos pos);
+    public abstract boolean propagatesSkylightDown();
 
     /**
      * {@return the explosion resistance of this camo}
@@ -116,10 +119,7 @@ public abstract class CamoContent<C extends CamoContent<C>> implements QuadCache
     /**
      * {@return the tint color corresponding to the given tint index for use with {@link ItemColor }}
      */
-    public int getTintColor(ItemStack stack, int tintIdx)
-    {
-        return getTintColor(EmptyBlockAndTintGetter.INSTANCE, BlockPos.ZERO, tintIdx);
-    }
+    public abstract int getTintColor(ItemStack stack, int tintIdx);
 
     /**
      * {@return the beacon color multiplier of this camo}
@@ -130,9 +130,9 @@ public abstract class CamoContent<C extends CamoContent<C>> implements QuadCache
 
     /**
      * {@return whether this camo is fully solid}
-     * @see BlockBehaviour.BlockStateBase#isSolidRender(BlockGetter, BlockPos)
+     * @see BlockBehaviour.BlockStateBase#isSolidRender()
      */
-    public abstract boolean isSolid(BlockGetter level, BlockPos pos);
+    public abstract boolean isSolid();
 
     /**
      * {@return whether this camo can occlude other blocks}
@@ -155,18 +155,18 @@ public abstract class CamoContent<C extends CamoContent<C>> implements QuadCache
     /**
      * {@return whether this camo can be occluded by the given adjacent non-framed block at the given adjacent position}
      */
-    public abstract boolean isOccludedBy(BlockState adjState, BlockGetter level, BlockPos pos, BlockPos adjPos);
+    public abstract boolean isOccludedBy(BlockState adjState, BlockGetter level, BlockPos pos, BlockPos adjPos, Direction side);
 
     /**
      * {@return whether this camo can be occluded by the given camo applied to an adjacent framed block at the given
      * adjacent position}
      */
-    public abstract boolean isOccludedBy(CamoContent<?> adjCamo, BlockGetter level, BlockPos pos, BlockPos adjPos);
+    public abstract boolean isOccludedBy(CamoContent<?> adjCamo, BlockGetter level, BlockPos pos, BlockPos adjPos, Direction side);
 
     /**
      * {@return whether this camo occludes the given adjacent non-framed block at the given adjacent position}
      */
-    public abstract boolean occludes(BlockState adjState, BlockGetter level, BlockPos pos, BlockPos adjPos);
+    public abstract boolean occludes(BlockState adjState, BlockGetter level, BlockPos pos, BlockPos adjPos, Direction side);
 
     /**
      * {@return {@link ParticleOptions} to be spawned when an entity runs over or lands on a block with this camo}
@@ -202,12 +202,13 @@ public abstract class CamoContent<C extends CamoContent<C>> implements QuadCache
     public abstract int hashCode();
 
     @Override
-    public abstract boolean equals(Object obj);
+    public abstract boolean equals(@Nullable Object obj);
 
     @Override
     public abstract String toString();
 
     @Override
+    @ApiStatus.Internal
     public final CamoContent<?> camo()
     {
         return this;
@@ -215,8 +216,23 @@ public abstract class CamoContent<C extends CamoContent<C>> implements QuadCache
 
     @Override
     @Nullable
+    @ApiStatus.Internal
     public final Object ctCtx()
     {
         return null;
+    }
+
+    @Override
+    @ApiStatus.Internal
+    public boolean secondPart()
+    {
+        return false;
+    }
+
+    @Override
+    @ApiStatus.Internal
+    public final boolean emissive()
+    {
+        return false;
     }
 }

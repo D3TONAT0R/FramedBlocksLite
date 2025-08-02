@@ -3,7 +3,8 @@ package xfacthd.framedblocks.common.block.special;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.*;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -30,10 +31,9 @@ public class FramingSawBlock extends Block
     public static final Component SAW_MENU_TITLE = Utils.translate("title", "framing_saw");
     protected static final VoxelShape SHAPE = box(0, 0, 0, 16, 9, 16);
 
-    public FramingSawBlock()
+    public FramingSawBlock(Properties props)
     {
-        super(Properties.of()
-                .mapColor(MapColor.STONE)
+        super(props.mapColor(MapColor.STONE)
                 .instrument(NoteBlockInstrument.BASEDRUM)
                 .requiresCorrectToolForDrops()
                 .strength(3.5F)
@@ -77,7 +77,7 @@ public class FramingSawBlock extends Block
                 }
             }, pos);
         }
-        return InteractionResult.sidedSuccess(level.isClientSide());
+        return InteractionResult.SUCCESS;
     }
 
     @Override

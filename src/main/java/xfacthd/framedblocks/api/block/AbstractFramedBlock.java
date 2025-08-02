@@ -5,28 +5,38 @@ import it.unimi.dsi.fastutil.objects.Reference2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Reference2BooleanOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.*;
-import net.minecraft.world.level.*;
-import net.minecraft.world.level.block.*;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.material.*;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.*;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import xfacthd.framedblocks.api.shapes.ShapeProvider;
 import xfacthd.framedblocks.api.shapes.ShapeUtils;
-import xfacthd.framedblocks.api.type.IBlockType;
+import xfacthd.framedblocks.api.util.Utils;
 
 import java.util.List;
-import java.util.function.UnaryOperator;
 
 public abstract class AbstractFramedBlock extends Block implements IFramedBlock, SimpleWaterloggedBlock
 {
@@ -34,12 +44,8 @@ public abstract class AbstractFramedBlock extends Block implements IFramedBlock,
     private final IBlockType blockType;
     private final ShapeProvider shapes;
     private final ShapeProvider occlusionShapes;
+    @Nullable
     private final Reference2BooleanMap<BlockState> beaconBeamOcclusion;
-
-    public AbstractFramedBlock(IBlockType blockType, UnaryOperator<Properties> propertyModifier)
-    {
-        this(blockType, propertyModifier.apply(IFramedBlock.createProperties(blockType)));
-    }
 
     public AbstractFramedBlock(IBlockType blockType, Properties props)
     {
@@ -49,31 +55,17 @@ public abstract class AbstractFramedBlock extends Block implements IFramedBlock,
         this.occlusionShapes = blockType.generateOcclusionShapes(getStateDefinition().getPossibleStates(), shapes);
         this.beaconBeamOcclusion = computeBeaconBeamOcclusion(shapes);
 
-        registerDefaultState(defaultBlockState()
-                .setValue(FramedProperties.GLOWING, false)
-                .setValue(FramedProperties.PROPAGATES_SKYLIGHT, false)
-        );
-
-        if (blockType.canOccludeWithSolidCamo())
-        {
-            registerDefaultState(defaultBlockState()
-                    .setValue(FramedProperties.SOLID, false)
-            );
-        }
-        if (blockType.supportsWaterLogging())
-        {
-            registerDefaultState(defaultBlockState().setValue(BlockStateProperties.WATERLOGGED, false));
-        }
+        BlockUtils.configureStandardProperties(this);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder)
     {
-        builder.add(FramedProperties.GLOWING, FramedProperties.PROPAGATES_SKYLIGHT);
+        BlockUtils.addRequiredProperties(builder);
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(
+    protected InteractionResult useItemOn(
             ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit
     )
     {
@@ -89,24 +81,26 @@ public abstract class AbstractFramedBlock extends Block implements IFramedBlock,
     @Override
     protected BlockState updateShape(
             BlockState state,
-            Direction facing,
-            BlockState facingState,
-            LevelAccessor level,
+            LevelReader level,
+            ScheduledTickAccess tickAccess,
             BlockPos pos,
-            BlockPos facingPos
+            Direction side,
+            BlockPos adjPos,
+            BlockState adjState,
+            RandomSource random
     )
     {
         updateCulling(level, pos);
         if (isWaterLoggable() && state.getValue(BlockStateProperties.WATERLOGGED))
         {
-            level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+            tickAccess.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
 
-        return super.updateShape(state, facing, facingState, level, pos, facingPos);
+        return super.updateShape(state, level, tickAccess, pos, side, adjPos, adjState, random);
     }
 
     @Override
-    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving)
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, @Nullable Orientation orientation, boolean isMoving)
     {
         updateCulling(level, pos);
     }
@@ -128,9 +122,9 @@ public abstract class AbstractFramedBlock extends Block implements IFramedBlock,
     }
 
     @Override
-    protected VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos)
+    protected VoxelShape getOcclusionShape(BlockState state)
     {
-        return getCamoOcclusionShape(state, level, pos, occlusionShapes);
+        return getCamoOcclusionShape(state, occlusionShapes);
     }
 
     @Override
@@ -146,7 +140,7 @@ public abstract class AbstractFramedBlock extends Block implements IFramedBlock,
     }
 
     @Override
-    protected boolean propagatesSkylightDown(BlockState state, BlockGetter level, BlockPos pos)
+    protected boolean propagatesSkylightDown(BlockState state)
     {
         return state.getValue(FramedProperties.PROPAGATES_SKYLIGHT);
     }
@@ -162,9 +156,9 @@ public abstract class AbstractFramedBlock extends Block implements IFramedBlock,
     }
 
     @Override
-    public boolean canPlaceLiquid(@Nullable Player player, BlockGetter level, BlockPos pos, BlockState state, Fluid fluid)
+    public boolean canPlaceLiquid(@Nullable LivingEntity entity, BlockGetter level, BlockPos pos, BlockState state, Fluid fluid)
     {
-        return isWaterLoggable() && SimpleWaterloggedBlock.super.canPlaceLiquid(player, level, pos, state, fluid);
+        return isWaterLoggable() && SimpleWaterloggedBlock.super.canPlaceLiquid(entity, level, pos, state, fluid);
     }
 
     @Override
@@ -174,25 +168,19 @@ public abstract class AbstractFramedBlock extends Block implements IFramedBlock,
     }
 
     @Override
-    public ItemStack pickupBlock(@Nullable Player player, LevelAccessor level, BlockPos pos, BlockState state)
+    public ItemStack pickupBlock(@Nullable LivingEntity entity, LevelAccessor level, BlockPos pos, BlockState state)
     {
         if (!isWaterLoggable())
         {
             return ItemStack.EMPTY;
         }
-        return SimpleWaterloggedBlock.super.pickupBlock(player, level, pos, state);
+        return SimpleWaterloggedBlock.super.pickupBlock(entity, level, pos, state);
     }
 
     @Override
     protected List<ItemStack> getDrops(BlockState state, LootParams.Builder builder)
     {
         return getCamoDrops(super.getDrops(state, builder), builder);
-    }
-
-    @Override
-    public void appendHoverText(ItemStack stack, Item.TooltipContext ctx, List<Component> lines, TooltipFlag flag)
-    {
-        appendCamoHoverText(stack, lines);
     }
 
     /**
@@ -211,6 +199,12 @@ public abstract class AbstractFramedBlock extends Block implements IFramedBlock,
     }
 
     @Override
+    protected boolean isPathfindable(BlockState state, PathComputationType type)
+    {
+        return state.is(Utils.GROUP_FULL_CUBE) && super.isPathfindable(state, type);
+    }
+
+    @Override
     public IBlockType getBlockType()
     {
         return blockType;
@@ -223,6 +217,7 @@ public abstract class AbstractFramedBlock extends Block implements IFramedBlock,
 
 
 
+    @Nullable
     private static Reference2BooleanMap<BlockState> computeBeaconBeamOcclusion(ShapeProvider shapes)
     {
         if (shapes.isEmpty())

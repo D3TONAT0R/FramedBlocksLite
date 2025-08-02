@@ -15,45 +15,39 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.fml.ModLoader;
-import xfacthd.framedblocks.api.blueprint.*;
-import xfacthd.framedblocks.api.camo.*;
-import xfacthd.framedblocks.api.util.CamoList;
+import xfacthd.framedblocks.api.blueprint.BlueprintCopyBehaviour;
+import xfacthd.framedblocks.api.blueprint.BlueprintData;
+import xfacthd.framedblocks.api.blueprint.RegisterBlueprintCopyBehavioursEvent;
+import xfacthd.framedblocks.api.camo.CamoContainer;
+import xfacthd.framedblocks.api.camo.CamoContainerHelper;
+import xfacthd.framedblocks.api.camo.CamoList;
 import xfacthd.framedblocks.api.util.Utils;
-import xfacthd.framedblocks.api.block.IFramedBlock;
 import xfacthd.framedblocks.common.FBContent;
-import xfacthd.framedblocks.common.data.*;
 import xfacthd.framedblocks.api.block.blockentity.FramedBlockEntity;
 import xfacthd.framedblocks.common.config.ServerConfig;
+import xfacthd.framedblocks.common.data.FramedToolType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
 public class FramedBlueprintItem extends FramedToolItem
 {
-    public static final String CONTAINED_BLOCK = "desc.framedblocks.blueprint_block";
-    public static final String CAMO_BLOCK = "desc.framedblocks.blueprint_camo";
-    public static final String IS_ILLUMINATED = "desc.framedblocks.blueprint_illuminated";
-    public static final String IS_INTANGIBLE = "desc.framedblocks.blueprint_intangible";
-    public static final String IS_REINFORCED = "desc.framedblocks.blueprint_reinforced";
-    public static final String MISSING_MATERIALS = Utils.translationKey("desc", "blueprint_missing_materials");
-    public static final MutableComponent BLOCK_NONE = Utils.translate("desc", "blueprint_none").withStyle(ChatFormatting.RED);
-    public static final MutableComponent BLOCK_INVALID = Utils.translate("desc", "blueprint_invalid").withStyle(ChatFormatting.RED);
-    public static final MutableComponent FALSE = Utils.translate("desc", "blueprint_false").withStyle(ChatFormatting.RED);
-    public static final MutableComponent TRUE = Utils.translate("desc", "blueprint_true").withStyle(ChatFormatting.GREEN);
-    public static final MutableComponent CANT_COPY = Utils.translate("desc", "blueprint_cant_copy").withStyle(ChatFormatting.RED);
     public static final Component CANT_PLACE_FLUID_CAMO = Utils.translate("desc", "blueprint_cant_place_fluid_camo").withStyle(ChatFormatting.RED);
     private static final String MATERIAL_LIST_PREFIX = "\n  - ";
 
     private static final Map<Block, BlueprintCopyBehaviour> COPY_BEHAVIOURS = new IdentityHashMap<>();
     private static final BlueprintCopyBehaviour NO_OP_BEHAVIOUR = new BlueprintCopyBehaviour(){};
 
-    public FramedBlueprintItem(FramedToolType type)
+    public FramedBlueprintItem(FramedToolType type, Properties props)
     {
-        super(type, new Properties().component(FBContent.DC_TYPE_BLUEPRINT_DATA, BlueprintData.EMPTY));
+        super(type, props.component(FBContent.DC_TYPE_BLUEPRINT_DATA, BlueprintData.EMPTY));
     }
 
     @Override
@@ -63,7 +57,7 @@ public class FramedBlueprintItem extends FramedToolItem
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand)
+    public InteractionResult use(Level level, Player player, InteractionHand hand)
     {
         ItemStack stack = player.getItemInHand(hand);
         if (player.isShiftKeyDown())
@@ -72,7 +66,7 @@ public class FramedBlueprintItem extends FramedToolItem
             {
                 stack.set(FBContent.DC_TYPE_BLUEPRINT_DATA, BlueprintData.EMPTY);
             }
-            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+            return InteractionResult.SUCCESS;
         }
         return super.use(level, player, hand);
     }
@@ -116,7 +110,25 @@ public class FramedBlueprintItem extends FramedToolItem
             data = storeBlockStateProperties(behaviour, data, state);
             stack.set(FBContent.DC_TYPE_BLUEPRINT_DATA, data);
         }
-        return InteractionResult.sidedSuccess(level.isClientSide());
+        return InteractionResult.SUCCESS;
+    }
+
+    private static BlueprintData storeBlockStateProperties(BlueprintCopyBehaviour behaviour, BlueprintData data, BlockState state)
+    {
+        List<Property<?>> properties = behaviour.getPropertiesToCopy(state);
+        if (!properties.isEmpty())
+        {
+            BlockItemStateProperties stateProps = BlockItemStateProperties.EMPTY;
+            for (Property<?> property : properties)
+            {
+                stateProps = stateProps.with(property, state);
+            }
+            if (!stateProps.isEmpty())
+            {
+                return data.withBlockState(stateProps);
+            }
+        }
+        return data;
     }
 
     private static BlueprintData storeBlockStateProperties(BlueprintCopyBehaviour behaviour, BlueprintData data, BlockState state)
@@ -171,9 +183,9 @@ public class FramedBlueprintItem extends FramedToolItem
 
         if (!canCopyAllCamos(camos))
         {
-            if (player.level().isClientSide())
+            if (player instanceof ServerPlayer serverPlayer)
             {
-                player.sendSystemMessage(CANT_PLACE_FLUID_CAMO);
+                serverPlayer.sendSystemMessage(CANT_PLACE_FLUID_CAMO);
             }
             return true;
         }
@@ -196,13 +208,13 @@ public class FramedBlueprintItem extends FramedToolItem
 
         if (!missingMaterials.isEmpty())
         {
-            if (player.level().isClientSide())
+            if (player instanceof ServerPlayer serverPlayer)
             {
                 List<String> names = missingMaterials.stream()
                         .map(s -> s.getHoverName().getString())
                         .toList();
                 String list = MATERIAL_LIST_PREFIX + String.join(MATERIAL_LIST_PREFIX, names);
-                player.sendSystemMessage(Component.translatable(MISSING_MATERIALS).append(list));
+                serverPlayer.sendSystemMessage(Component.translatable(BlueprintData.MISSING_MATERIALS).append(list));
             }
             return true;
         }
@@ -300,11 +312,6 @@ public class FramedBlueprintItem extends FramedToolItem
         {
             materials.add(new ItemStack(Items.GLOWSTONE_DUST, glowstone));
         }
-        int intangible = behaviour.getIntangibleCount(data);
-        if (intangible > 0)
-        {
-            materials.add(new ItemStack(Utils.PHANTOM_PASTE, intangible));
-        }
         int reinforcement = behaviour.getReinforcementCount(data);
         if (reinforcement > 0)
         {
@@ -364,31 +371,10 @@ public class FramedBlueprintItem extends FramedToolItem
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext ctx, List<Component> components, TooltipFlag flag)
+    @SuppressWarnings("deprecation")
+    public void appendHoverText(ItemStack stack, TooltipContext ctx, TooltipDisplay display, Consumer<Component> appender, TooltipFlag flag)
     {
-        BlueprintData blueprintData = stack.getOrDefault(FBContent.DC_TYPE_BLUEPRINT_DATA, BlueprintData.EMPTY);
-        if (blueprintData.isEmpty())
-        {
-            components.add(Component.translatable(CONTAINED_BLOCK, BLOCK_NONE).withStyle(ChatFormatting.GOLD));
-        }
-        else
-        {
-            Block block = blueprintData.block();
-            Component blockName = block == Blocks.AIR ? BLOCK_INVALID : block.getName().withStyle(ChatFormatting.WHITE);
-
-            Component camoName = !(block instanceof IFramedBlock fb) ? BLOCK_NONE : fb.printCamoBlock(blueprintData).orElse(BLOCK_NONE);
-            Component illuminated = blueprintData.glowing() ? TRUE : FALSE;
-            Component intangible = blueprintData.intangible() ? TRUE : FALSE;
-            Component reinforced = blueprintData.reinforced() ? TRUE : FALSE;
-
-            Component lineOne = Component.translatable(CONTAINED_BLOCK, blockName).withStyle(ChatFormatting.GOLD);
-            Component lineTwo = Component.translatable(CAMO_BLOCK, camoName).withStyle(ChatFormatting.GOLD);
-            Component lineThree = Component.translatable(IS_ILLUMINATED, illuminated).withStyle(ChatFormatting.GOLD);
-            Component lineFour = Component.translatable(IS_INTANGIBLE, intangible).withStyle(ChatFormatting.GOLD);
-            Component lineFive = Component.translatable(IS_REINFORCED, reinforced).withStyle(ChatFormatting.GOLD);
-
-            components.addAll(Arrays.asList(lineOne, lineTwo, lineThree, lineFour, lineFive));
-        }
+        stack.getOrDefault(FBContent.DC_TYPE_BLUEPRINT_DATA, BlueprintData.EMPTY).addToTooltip(ctx, appender, flag, stack);
     }
 
 

@@ -2,6 +2,7 @@ package xfacthd.framedblocks.common.data;
 
 import com.google.common.base.Stopwatch;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.world.level.block.Block;
@@ -9,10 +10,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import xfacthd.framedblocks.FramedBlocks;
 import xfacthd.framedblocks.api.block.IFramedBlock;
-import xfacthd.framedblocks.api.block.cache.IStateCacheAccessor;
 import xfacthd.framedblocks.api.block.cache.StateCache;
+import xfacthd.framedblocks.api.util.Utils;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 public final class StateCacheBuilder
 {
@@ -52,11 +55,11 @@ public final class StateCacheBuilder
                         StateCache cache = ((IFramedBlock) state.getBlock()).initCache(state);
                         if (cache.equals(StateCache.EMPTY))
                         {
-                            ((IStateCacheAccessor) state).framedblocks$initCache(StateCache.EMPTY);
+                            state.framedblocks$initCache(StateCache.EMPTY);
                         }
                         else
                         {
-                            ((IStateCacheAccessor) state).framedblocks$initCache(
+                            state.framedblocks$initCache(
                                     Objects.requireNonNullElse(cacheDedup.putIfAbsent(cache, cache), cache)
                             );
                         }
@@ -73,6 +76,7 @@ public final class StateCacheBuilder
     public static final class CacheReloader implements ResourceManagerReloadListener
     {
         public static final CacheReloader INSTANCE = new CacheReloader();
+        public static final ResourceLocation LISTENER_ID = Utils.rl("state_caches");
 
         private CacheReloader() { }
 

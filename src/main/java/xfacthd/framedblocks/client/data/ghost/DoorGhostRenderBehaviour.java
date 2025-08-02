@@ -10,12 +10,12 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 import xfacthd.framedblocks.api.ghost.GhostRenderBehaviour;
-import xfacthd.framedblocks.api.util.CamoList;
+import xfacthd.framedblocks.api.camo.CamoList;
 
 public final class DoorGhostRenderBehaviour implements GhostRenderBehaviour
 {
     @Override
-    public int getPassCount(ItemStack stack, ItemStack proxiedStack)
+    public int getPassCount(ItemStack stack, @Nullable ItemStack proxiedStack)
     {
         return 2;
     }

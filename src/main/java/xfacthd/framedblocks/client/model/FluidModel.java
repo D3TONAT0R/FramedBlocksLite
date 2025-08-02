@@ -1,48 +1,55 @@
 package xfacthd.framedblocks.client.model;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Suppliers;
-import com.mojang.math.Transformation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
-import net.minecraft.client.renderer.texture.*;
-import net.minecraft.client.resources.model.*;
-import net.minecraft.core.Direction;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.block.model.SimpleModelWrapper;
+import net.minecraft.client.renderer.block.model.SingleVariant;
+import net.minecraft.client.renderer.block.model.TextureSlots;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.BlockModelRotation;
+import net.minecraft.client.resources.model.Material;
+import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.client.resources.model.ModelDebugName;
+import net.minecraft.client.resources.model.QuadCollection;
+import net.minecraft.client.resources.model.ResolvedModel;
+import net.minecraft.client.resources.model.SpriteGetter;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.client.ChunkRenderTypeSet;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.neoforged.neoforge.client.model.*;
-import net.neoforged.neoforge.client.model.data.ModelData;
-import net.neoforged.neoforge.registries.NeoForgeRegistries;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.client.model.standalone.SimpleUnbakedStandaloneModel;
+import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
+import xfacthd.framedblocks.api.util.ClientUtils;
 import xfacthd.framedblocks.api.util.Utils;
 
-import java.util.*;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.Map;
 
-public final class FluidModel implements BakedModel
+public final class FluidModel
 {
-    private static final ModelState SIMPLE_STATE = new SimpleModelState(Transformation.identity());
-    public static final ModelResourceLocation BARE_MODEL = ModelResourceLocation.standalone(Utils.rl("fluid/bare"));
-    public static final ModelResourceLocation BARE_MODEL_SINGLE = ModelResourceLocation.standalone(Utils.rl("fluid/bare_single"));
-    @SuppressWarnings("deprecation")
-    private static final Function<ResourceLocation, TextureAtlasSprite> SPRITE_GETTER = (loc ->
-            Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(loc)
-    );
-    private static final Supplier<ResourceLocation> WATER_STILL = Suppliers.memoize(() ->
-            IClientFluidTypeExtensions.of(Fluids.WATER).getStillTexture()
-    );
-    private static final Supplier<ResourceLocation> WATER_FLOWING = Suppliers.memoize(() ->
-            IClientFluidTypeExtensions.of(Fluids.WATER).getFlowingTexture()
-    );
+    private static final ResourceLocation BARE_MODEL = Utils.rl("fluid/bare");
+    private static final ResourceLocation BARE_MODEL_SINGLE = Utils.rl("fluid/bare_single");
+    public static final StandaloneModelKey<Void> BARE_MODEL_KEY = new StandaloneModelKey<>(BARE_MODEL::toString);
+    public static final StandaloneModelKey<Void> BARE_MODEL_SINGLE_KEY = new StandaloneModelKey<>(BARE_MODEL_SINGLE::toString);
+    public static final SimpleUnbakedStandaloneModel<Void> BARE_UNBAKED_MODEL = unbaked(BARE_MODEL);
+    public static final SimpleUnbakedStandaloneModel<Void> BARE_UNBAKED_MODEL_SINGLE = unbaked(BARE_MODEL_SINGLE);
+    private static final SpriteGetter TEXTURE_GETTER = new SpriteGetter()
+    {
+        @Override
+        public TextureAtlasSprite get(Material material, ModelDebugName modelName)
+        {
+            return material.sprite();
+        }
+
+        @Override
+        public TextureAtlasSprite reportMissingReference(String ref, ModelDebugName modelName)
+        {
+            return ClientUtils.getBlockSprite(MissingTextureAtlasSprite.getLocation());
+        }
+    };
     private static final IClientFluidTypeExtensions DUMMY_FLUID_TYPE_EXTENSIONS = new IClientFluidTypeExtensions()
     {
         @Override
@@ -57,86 +64,8 @@ public final class FluidModel implements BakedModel
             return MissingTextureAtlasSprite.getLocation();
         }
     };
-    private final RenderType fluidLayer;
-    private final ChunkRenderTypeSet fluidLayerSet;
-    private final Map<Direction, List<BakedQuad>> quads;
-    private final TextureAtlasSprite particles;
 
-    private FluidModel(RenderType fluidLayer, Map<Direction, List<BakedQuad>> quads, TextureAtlasSprite particles)
-    {
-        this.fluidLayer = fluidLayer;
-        this.fluidLayerSet = ChunkRenderTypeSet.of(fluidLayer);
-        this.quads = quads;
-        this.particles = particles;
-    }
-
-    @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource random)
-    {
-        return getQuads(state, side, random, ModelData.EMPTY, RenderType.translucent());
-    }
-
-    @Override
-    public List<BakedQuad> getQuads(
-            @Nullable BlockState state,
-            @Nullable Direction side,
-            RandomSource rand,
-            ModelData extraData,
-            RenderType layer
-    )
-    {
-        if (side == null || layer != fluidLayer)
-        {
-            return Collections.emptyList();
-        }
-        return quads.get(side);
-    }
-
-    @Override
-    public ChunkRenderTypeSet getRenderTypes(BlockState state, RandomSource rand, ModelData data)
-    {
-        return fluidLayerSet;
-    }
-
-    @Override
-    public boolean useAmbientOcclusion()
-    {
-        return false;
-    }
-
-    @Override
-    public boolean isGui3d()
-    {
-        return false;
-    }
-
-    @Override
-    public boolean usesBlockLight()
-    {
-        return false;
-    }
-
-    @Override
-    public boolean isCustomRenderer()
-    {
-        return false;
-    }
-
-    @Override
-    public TextureAtlasSprite getParticleIcon()
-    {
-        return particles;
-    }
-
-    @Override
-    public ItemOverrides getOverrides()
-    {
-        return ItemOverrides.EMPTY;
-    }
-
-
-
-    public static FluidModel create(Fluid fluid)
+    public static BlockStateModel create(Fluid fluid)
     {
         ModelBakery modelBakery = Minecraft.getInstance().getModelManager().getModelBakery();
 
@@ -153,35 +82,28 @@ public final class FluidModel implements BakedModel
                 fluid
         );
 
+        ModelBakery.ModelBakerImpl baker = modelBakery.new ModelBakerImpl(TEXTURE_GETTER);
+
         boolean singleTexture = flowingTexture.equals(stillTexture);
-        UnbakedModel bareModel = modelBakery.getModel(singleTexture ? BARE_MODEL_SINGLE.id() : BARE_MODEL.id());
+        ResolvedModel bareModel = baker.getModel(singleTexture ? BARE_MODEL_SINGLE : BARE_MODEL);
         Preconditions.checkNotNull(bareModel, "Bare fluid model not loaded!");
 
-        ResourceLocation fluidName = Preconditions.checkNotNull(
-                NeoForgeRegistries.FLUID_TYPES.getKey(fluid.getFluidType()),
-                "Cannot create FluidModel for unregistered FluidType of fluid %s",
-                fluid
+        TextureSlots textures = new TextureSlots(Map.of(
+                "end", new Material(ClientUtils.BLOCK_ATLAS, stillTexture),
+                "side", new Material(ClientUtils.BLOCK_ATLAS, flowingTexture),
+                "particle", new Material(ClientUtils.BLOCK_ATLAS, stillTexture)
+        ));
+        QuadCollection fluidQuads = bareModel.getTopGeometry().bake(
+                textures,
+                baker,
+                BlockModelRotation.X0_Y0,
+                bareModel,
+                bareModel.getTopAdditionalProperties()
         );
-        ModelResourceLocation modelName = new ModelResourceLocation(
-                Utils.rl("fluid/" + fluidName.toString().replace(":", "_")),
-                "framedblocks_dynamic_fluid"
-        );
-        Function<Material, TextureAtlasSprite> spriteGetter = matToSprite(stillTexture, flowingTexture);
-        ModelBakery.ModelBakerImpl baker = modelBakery.new ModelBakerImpl((modelLoc, material) -> spriteGetter.apply(material), modelName);
-        BakedModel model = bareModel.bake(baker, spriteGetter, SIMPLE_STATE);
-        Preconditions.checkNotNull(model, "Failed to bake fluid model for fluid %s", fluid);
+        Preconditions.checkNotNull(fluidQuads, "Failed to bake fluid model for fluid %s", fluid);
+        ChunkSectionLayer chunkLayer = ItemBlockRenderTypes.getRenderLayer(fluid.defaultFluidState());
 
-        Map<Direction, List<BakedQuad>> quads = new EnumMap<>(Direction.class);
-        BlockState defState = fluid.defaultFluidState().createLegacyBlock();
-        RandomSource random = RandomSource.create();
-        RenderType layer = ItemBlockRenderTypes.getRenderLayer(fluid.defaultFluidState());
-
-        for (Direction side : Direction.values())
-        {
-            quads.put(side, model.getQuads(defState, side, random, ModelData.EMPTY, layer));
-        }
-
-        return new FluidModel(layer, quads, SPRITE_GETTER.apply(stillTexture));
+        return new SingleVariant(new SimpleModelWrapper(fluidQuads, false, ClientUtils.getBlockSprite(stillTexture), chunkLayer));
     }
 
     private static IClientFluidTypeExtensions getFluidTypeExtensions(Fluid fluid)
@@ -193,19 +115,12 @@ public final class FluidModel implements BakedModel
         return IClientFluidTypeExtensions.of(fluid);
     }
 
-    private static Function<Material, TextureAtlasSprite> matToSprite(ResourceLocation stillTexture, ResourceLocation flowingTexture)
+    private static SimpleUnbakedStandaloneModel<Void> unbaked(ResourceLocation id)
     {
-        return mat ->
-        {
-            if (mat.texture().equals(WATER_FLOWING.get()))
-            {
-                return SPRITE_GETTER.apply(flowingTexture);
-            }
-            if (mat.texture().equals(WATER_STILL.get()))
-            {
-                return SPRITE_GETTER.apply(stillTexture);
-            }
-            return mat.sprite();
-        };
+        return new SimpleUnbakedStandaloneModel<>(id, (model, baker) -> null);
     }
+
+
+
+    private FluidModel() { }
 }

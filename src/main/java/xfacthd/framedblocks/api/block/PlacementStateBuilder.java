@@ -36,10 +36,17 @@ public class PlacementStateBuilder<T extends PlacementStateBuilder<T>>
         this.block = block;
         this.ctx = ctx;
         this.state = state;
+        this.state = state;
     }
 
     public static PlacementStateBuilder<?> of(Block block, BlockPlaceContext ctx)
     {
+        return of(block, block.defaultBlockState(), ctx);
+    }
+
+    public static PlacementStateBuilder<?> of(Block block, @Nullable BlockState state, BlockPlaceContext ctx)
+    {
+        return new PlacementStateBuilder<>(block, state, ctx);
         return of(block, block.defaultBlockState(), ctx);
     }
 

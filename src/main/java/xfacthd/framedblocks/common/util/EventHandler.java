@@ -10,11 +10,11 @@ import xfacthd.framedblocks.api.block.blockentity.FramedBlockEntity;
 import xfacthd.framedblocks.api.block.IFramedBlock;
 import xfacthd.framedblocks.client.util.ClientAccess;
 import xfacthd.framedblocks.common.config.ServerConfig;
-import xfacthd.framedblocks.common.crafting.FramingSawRecipeCache;
+import xfacthd.framedblocks.common.crafting.saw.FramingSawRecipeCache;
 
 public final class EventHandler
 {
-    public static void onBlockLeftClick(final PlayerInteractEvent.LeftClickBlock event)
+    public static void onBlockLeftClick(PlayerInteractEvent.LeftClickBlock event)
     {
         Level level = event.getLevel();
         BlockPos pos = event.getPos();
@@ -42,7 +42,7 @@ public final class EventHandler
         }
     }
 
-    public static void onServerShutdown(@SuppressWarnings("unused") final ServerStoppedEvent event)
+    public static void onServerShutdown(@SuppressWarnings("unused") ServerStoppedEvent event)
     {
         FramingSawRecipeCache.get(false).clear();
     }

@@ -39,19 +39,7 @@ public final class PillarSkipPredicate implements SideSkipPredicate
                 case FRAMED_WALL -> testAgainstWall(
                         axis, adjState, side
                 );
-                case FRAMED_THICK_LATTICE -> testAgainstThickLattice(
-                        axis, adjState, side
-                );
                 case FRAMED_HALF_PILLAR -> testAgainstHalfPillar(
-                        axis, adjState, side
-                );
-                case FRAMED_PYRAMID -> testAgainstPyramid(
-                        axis, adjState, side
-                );
-                case FRAMED_ELEVATED_PYRAMID_SLAB -> testAgainstElevatedPyramidSlab(
-                        axis, adjState, side
-                );
-                case FRAMED_UPPER_PYRAMID_SLAB -> testAgainstUpperPyramidSlab(
                         axis, adjState, side
                 );
                 default -> false;
@@ -78,18 +66,6 @@ public final class PillarSkipPredicate implements SideSkipPredicate
         return (PillarDirs.Pillar.isPillarDir(axis, side) && PillarDirs.Wall.isPillarDir(adjUp, side.getOpposite()));
     }
 
-    @CullTest.TestTarget(BlockType.FRAMED_THICK_LATTICE)
-    private static boolean testAgainstThickLattice(
-            Direction.Axis axis, BlockState adjState, Direction side
-    )
-    {
-        boolean adjXAxis = adjState.getValue(FramedProperties.X_AXIS);
-        boolean adjYAxis = adjState.getValue(FramedProperties.Y_AXIS);
-        boolean adjZAxis = adjState.getValue(FramedProperties.Z_AXIS);
-
-        return (PillarDirs.Pillar.isPillarDir(axis, side) && PillarDirs.ThickLattice.isPillarDir(adjXAxis, adjYAxis, adjZAxis, side.getOpposite()));
-    }
-
     @CullTest.TestTarget(BlockType.FRAMED_HALF_PILLAR)
     private static boolean testAgainstHalfPillar(
             Direction.Axis axis, BlockState adjState, Direction side
@@ -97,38 +73,5 @@ public final class PillarSkipPredicate implements SideSkipPredicate
     {
         Direction adjDir = adjState.getValue(BlockStateProperties.FACING);
         return (PillarDirs.Pillar.isPillarDir(axis, side) && PillarDirs.HalfPillar.isPillarDir(adjDir, side.getOpposite()));
-    }
-
-    @CullTest.TestTarget(BlockType.FRAMED_PYRAMID)
-    private static boolean testAgainstPyramid(
-            Direction.Axis axis, BlockState adjState, Direction side
-    )
-    {
-        Direction adjDir = adjState.getValue(BlockStateProperties.FACING);
-        PillarConnection adjConnection = adjState.getValue(PropertyHolder.PILLAR_CONNECTION);
-
-        return (PillarDirs.Pillar.isPillarDir(axis, side) && SlopeDirs.Pyramid.isPillarDir(adjDir, adjConnection, side.getOpposite()));
-    }
-
-    @CullTest.TestTarget(BlockType.FRAMED_ELEVATED_PYRAMID_SLAB)
-    private static boolean testAgainstElevatedPyramidSlab(
-            Direction.Axis axis, BlockState adjState, Direction side
-    )
-    {
-        Direction adjDir = adjState.getValue(BlockStateProperties.FACING);
-        PillarConnection adjConnection = adjState.getValue(PropertyHolder.PILLAR_CONNECTION);
-
-        return (PillarDirs.Pillar.isPillarDir(axis, side) && SlopeDirs.ElevatedPyramidSlab.isPillarDir(adjDir, adjConnection, side.getOpposite()));
-    }
-
-    @CullTest.TestTarget(BlockType.FRAMED_UPPER_PYRAMID_SLAB)
-    private static boolean testAgainstUpperPyramidSlab(
-            Direction.Axis axis, BlockState adjState, Direction side
-    )
-    {
-        Direction adjDir = adjState.getValue(BlockStateProperties.FACING);
-        PillarConnection adjConnection = adjState.getValue(PropertyHolder.PILLAR_CONNECTION);
-
-        return (PillarDirs.Pillar.isPillarDir(axis, side) && SlopeDirs.UpperPyramidSlab.isPillarDir(adjDir, adjConnection, side.getOpposite()));
     }
 }

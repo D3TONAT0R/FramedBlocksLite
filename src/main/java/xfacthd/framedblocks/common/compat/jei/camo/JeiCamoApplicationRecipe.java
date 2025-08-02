@@ -7,13 +7,30 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.PlacementInfo;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.display.RecipeDisplay;
+import net.minecraft.world.item.crafting.display.ShapedCraftingRecipeDisplay;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.level.Level;
 import xfacthd.framedblocks.common.FBContent;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
-public final class JeiCamoApplicationRecipe implements CraftingRecipe
+public record JeiCamoApplicationRecipe(
+        Ingredient frame,
+        Ingredient copyTool,
+        Ingredient camoOne,
+        Ingredient camoTwo,
+        Optional<ItemStack> result
+) implements CraftingRecipe
 {
     public static final MapCodec<JeiCamoApplicationRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             Ingredient.CODEC_NONEMPTY.fieldOf("frame").forGetter(JeiCamoApplicationRecipe::getFrame),
@@ -101,19 +118,25 @@ public final class JeiCamoApplicationRecipe implements CraftingRecipe
     }
 
     @Override
-    public boolean canCraftInDimensions(int i, int i1)
+    public PlacementInfo placementInfo()
     {
-        return false;
+        return PlacementInfo.NOT_PLACEABLE;
     }
 
     @Override
-    public ItemStack getResultItem(HolderLookup.Provider provider)
+    public List<RecipeDisplay> display()
     {
-        return results.isEmpty() ? ItemStack.EMPTY : results.getFirst();
+        return List.of(new ShapedCraftingRecipeDisplay(
+                2,
+                2,
+                Stream.of(frame, copyTool, camoOne, camoTwo).map(Ingredient::display).toList(),
+                result.<SlotDisplay>map(SlotDisplay.ItemStackSlotDisplay::new).orElse(SlotDisplay.Empty.INSTANCE),
+                new SlotDisplay.ItemSlotDisplay(Items.CRAFTING_TABLE)
+        ));
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer()
+    public RecipeSerializer<JeiCamoApplicationRecipe> getSerializer()
     {
         return FBContent.RECIPE_SERIALIZER_JEI_CAMO.value();
     }

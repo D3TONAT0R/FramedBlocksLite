@@ -1,42 +1,43 @@
 package xfacthd.framedblocks.common.block.slab;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import xfacthd.framedblocks.api.block.FramedProperties;
+import xfacthd.framedblocks.api.block.doubleblock.CamoGetter;
+import xfacthd.framedblocks.api.block.doubleblock.DoubleBlockParts;
+import xfacthd.framedblocks.api.block.doubleblock.DoubleBlockTopInteractionMode;
+import xfacthd.framedblocks.api.block.doubleblock.SolidityCheck;
 import xfacthd.framedblocks.common.FBContent;
-import xfacthd.framedblocks.common.block.AbstractFramedDoubleBlock;
-import xfacthd.framedblocks.common.blockentity.doubled.FramedDoubleBlockEntity;
+import xfacthd.framedblocks.common.block.FramedDoubleBlock;
 import xfacthd.framedblocks.common.data.BlockType;
-import xfacthd.framedblocks.common.data.doubleblock.CamoGetter;
-import xfacthd.framedblocks.common.data.doubleblock.SolidityCheck;
-import xfacthd.framedblocks.common.data.doubleblock.DoubleBlockTopInteractionMode;
 
-public class FramedDoubleSlabBlock extends AbstractFramedDoubleBlock
+public class FramedDoubleSlabBlock extends FramedDoubleBlock
 {
-    public FramedDoubleSlabBlock()
+    public FramedDoubleSlabBlock(Properties props)
     {
-        super(BlockType.FRAMED_DOUBLE_SLAB);
+        super(BlockType.FRAMED_DOUBLE_SLAB, props);
     }
 
     @Override
-    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player)
+    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData, Player player)
     {
+        if (includeData)
+        {
+            return super.getCloneItemStack(level, pos, state, true, player);
+        }
         return new ItemStack(FBContent.BLOCK_FRAMED_SLAB.value());
     }
 
     @Override
-    public Tuple<BlockState, BlockState> calculateBlockPair(BlockState state)
+    public DoubleBlockParts calculateParts(BlockState state)
     {
         BlockState defState = FBContent.BLOCK_FRAMED_SLAB.value().defaultBlockState();
-        return new Tuple<>(
+        return new DoubleBlockParts(
                 defState.setValue(FramedProperties.TOP, false),
                 defState.setValue(FramedProperties.TOP, true)
         );
@@ -79,12 +80,6 @@ public class FramedDoubleSlabBlock extends AbstractFramedDoubleBlock
             case UP -> SolidityCheck.SECOND;
             default -> SolidityCheck.BOTH;
         };
-    }
-
-    @Override
-    public final BlockEntity newBlockEntity(BlockPos pos, BlockState state)
-    {
-        return new FramedDoubleBlockEntity(pos, state);
     }
 
     @Override

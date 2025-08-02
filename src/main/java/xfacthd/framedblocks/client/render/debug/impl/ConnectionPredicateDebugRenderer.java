@@ -3,18 +3,22 @@ package xfacthd.framedblocks.client.render.debug.impl;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.texture.*;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.BlockHitResult;
 import xfacthd.framedblocks.api.block.blockentity.FramedBlockEntity;
+import xfacthd.framedblocks.api.block.cache.DoubleBlockStateCache;
 import xfacthd.framedblocks.api.block.cache.StateCache;
+import xfacthd.framedblocks.api.block.doubleblock.CamoGetter;
 import xfacthd.framedblocks.api.render.Quaternions;
 import xfacthd.framedblocks.api.render.debug.BlockDebugRenderer;
 import xfacthd.framedblocks.api.util.ClientUtils;
 import xfacthd.framedblocks.common.config.DevToolsConfig;
-import xfacthd.framedblocks.common.data.doubleblock.CamoGetter;
-import xfacthd.framedblocks.common.data.doubleblock.DoubleBlockStateCache;
 
 public class ConnectionPredicateDebugRenderer implements BlockDebugRenderer<FramedBlockEntity>
 {
@@ -41,7 +45,7 @@ public class ConnectionPredicateDebugRenderer implements BlockDebugRenderer<Fram
         poseStack.translate(.5, .5, .5);
 
         Direction face = blockHit.getDirection();
-        StateCache cache = be.getBlock().getCache(be.getBlockState());
+        StateCache cache = be.getBlockState().framedblocks$getCache();
         switch (face)
         {
             case UP ->

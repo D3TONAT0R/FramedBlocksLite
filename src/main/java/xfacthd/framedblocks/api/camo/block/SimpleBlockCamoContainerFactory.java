@@ -3,8 +3,8 @@ package xfacthd.framedblocks.api.camo.block;
 import com.mojang.serialization.MapCodec;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
@@ -14,7 +14,10 @@ import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import xfacthd.framedblocks.api.util.ConfigView;
+import xfacthd.framedblocks.api.util.Utils;
 
 /**
  * Basic block camo container factory for simple camos based on only a {@link BlockState} which only need minimal
@@ -23,6 +26,9 @@ import xfacthd.framedblocks.api.util.ConfigView;
  */
 public abstract class SimpleBlockCamoContainerFactory extends AbstractBlockCamoContainerFactory<SimpleBlockCamoContainer>
 {
+    public static final Component MSG_BLOCK_ENTITY = Utils.translate("msg", "camo.block_entity");
+    public static final Component MSG_NON_SOLID = Utils.translate("msg", "camo.non_solid");
+
     private final MapCodec<SimpleBlockCamoContainer> codec = BlockState.CODEC
             .xmap(state -> new SimpleBlockCamoContainer(state, this), SimpleBlockCamoContainer::getState).fieldOf("state");
     private final StreamCodec<ByteBuf, SimpleBlockCamoContainer> streamCodec = ByteBufCodecs.idMapper(Block.BLOCK_STATE_REGISTRY)
@@ -94,15 +100,15 @@ public abstract class SimpleBlockCamoContainerFactory extends AbstractBlockCamoC
     }
 
     @Override
-    protected final void writeToNetwork(CompoundTag tag, SimpleBlockCamoContainer container)
+    protected final void writeToNetwork(ValueOutput valueOutput, SimpleBlockCamoContainer container)
     {
-        tag.putInt("state", Block.getId(container.getState()));
+        valueOutput.putInt("state", Block.getId(container.getState()));
     }
 
     @Override
-    protected final SimpleBlockCamoContainer readFromNetwork(CompoundTag tag)
+    protected final SimpleBlockCamoContainer readFromNetwork(ValueInput valueInput)
     {
-        return new SimpleBlockCamoContainer(Block.stateById(tag.getInt("state")), this);
+        return new SimpleBlockCamoContainer(Block.stateById(valueInput.getIntOr("state", -1)), this);
     }
 
     @Override

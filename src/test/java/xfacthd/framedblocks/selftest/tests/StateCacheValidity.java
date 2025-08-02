@@ -2,13 +2,11 @@ package xfacthd.framedblocks.selftest.tests;
 
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Direction;
-import net.minecraft.util.Tuple;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import xfacthd.framedblocks.api.block.IFramedBlock;
+import xfacthd.framedblocks.api.block.cache.DoubleBlockStateCache;
 import xfacthd.framedblocks.api.block.cache.StateCache;
-import xfacthd.framedblocks.common.data.doubleblock.DoubleBlockStateCache;
+import xfacthd.framedblocks.api.block.doubleblock.DoubleBlockParts;
 import xfacthd.framedblocks.selftest.SelfTestReporter;
 
 import java.util.Arrays;
@@ -27,7 +25,7 @@ public final class StateCacheValidity
                 .map(StateDefinition::getPossibleStates)
                 .flatMap(List::stream).forEach(state ->
                 {
-                    StateCache cache = ((IFramedBlock) state.getBlock()).getCache(state);
+                    StateCache cache = state.framedblocks$getCache();
 
                     boolean anyFullFace = Arrays.stream(DIRECTIONS).anyMatch(cache::isFullFace);
                     if (anyFullFace != cache.hasAnyFullFace())
@@ -50,9 +48,9 @@ public final class StateCacheValidity
                             reporter.error("DoubleBlockStateCache of BlockState '{}' has invalid top interaction mode", state);
                         }
 
-                        Tuple<BlockState, BlockState> states = doubleCache.getBlockPair();
+                        DoubleBlockParts parts = doubleCache.getParts();
                         //noinspection ConstantConditions
-                        if (states == null || states.getA() == null || states.getB() == null)
+                        if (parts == null || parts.stateOne() == null || parts.stateTwo() == null)
                         {
                             reporter.error("DoubleBlockStateCache of BlockState '{}' has invalid block pair", state);
                         }

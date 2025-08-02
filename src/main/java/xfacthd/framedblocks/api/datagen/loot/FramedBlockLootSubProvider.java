@@ -14,9 +14,9 @@ import net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
 import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import xfacthd.framedblocks.common.FBContent;
 import xfacthd.framedblocks.api.datagen.loot.objects.NonTrivialCamoLootCondition;
 import xfacthd.framedblocks.api.datagen.loot.objects.SplitCamoLootFunction;
+import xfacthd.framedblocks.api.util.Utils;
 
 import java.util.Set;
 import java.util.function.Consumer;
@@ -62,12 +62,13 @@ public abstract class FramedBlockLootSubProvider extends BlockLootSubProvider
 
     protected final void dropDoorWithCamo(Block block)
     {
-        dropWithCamo(block, block, builder -> builder.when(LootItemBlockStatePropertyCondition
-                .hasBlockStateProperties(block)
-                .setProperties(StatePropertiesPredicate.Builder
-                        .properties()
-                        .hasProperty(DoorBlock.HALF, DoubleBlockHalf.LOWER)
-                )
+        dropWithCamo(block, block, builder -> builder.when(
+                LootItemBlockStatePropertyCondition
+                        .hasBlockStateProperties(block)
+                        .setProperties(StatePropertiesPredicate.Builder
+                                .properties()
+                                .hasProperty(DoorBlock.HALF, DoubleBlockHalf.LOWER)
+                        )
         ));
     }
 
@@ -90,7 +91,7 @@ public abstract class FramedBlockLootSubProvider extends BlockLootSubProvider
     {
         LootPoolSingletonContainer.Builder<?> tableItem = LootItem.lootTableItem(drop)
                 .apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
-                        .include(FBContent.DC_TYPE_CAMO_LIST.value())
+                        .include(Utils.DC_TYPE_CAMO_LIST.value())
                         .when(NonTrivialCamoLootCondition.BUILDER)
                 );
         itemModifier.accept(tableItem);

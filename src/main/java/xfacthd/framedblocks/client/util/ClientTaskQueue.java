@@ -4,19 +4,23 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public final class ClientTaskQueue
 {
     private static final List<ClientTask> tasks = new ArrayList<>();
+    @Nullable
     private static ResourceKey<Level> lastDimension = null;
 
     public static void enqueueClientTask(long delay, Runnable task)
     {
         if (delay == 0)
         {
-            Minecraft.getInstance().tell(task);
+            Minecraft.getInstance().schedule(task);
             return;
         }
 

@@ -2,7 +2,9 @@ package xfacthd.framedblocks.api.blueprint;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -10,7 +12,7 @@ import net.minecraft.world.level.block.state.properties.Property;
 import xfacthd.framedblocks.api.block.FramedProperties;
 import xfacthd.framedblocks.api.block.IFramedBlock;
 import xfacthd.framedblocks.api.block.blockentity.FramedBlockEntity;
-import xfacthd.framedblocks.api.util.CamoList;
+import xfacthd.framedblocks.api.camo.CamoList;
 
 import java.util.List;
 
@@ -110,6 +112,18 @@ public interface BlueprintCopyBehaviour
     }
 
     /**
+     * Provide a custom amount of the glow paste item when placing the block,
+     * i.e. when placing a "multi-block" like doors
+     *
+     * @param data The {@link BlueprintData} stored on the held blueprint stack
+     * @return The amount of items to consume
+     */
+    default int getEmissiveCount(BlueprintData data)
+    {
+        return data.emissive() ? 1 : 0;
+    }
+
+    /**
      * Add additional materials to be consumed when placing the block
      *
      * @param data The {@link BlueprintData} stored on the held blueprint stack
@@ -130,7 +144,7 @@ public interface BlueprintCopyBehaviour
      * @param data The {@link BlueprintData} stored on the held blueprint stack
      * @param dummyStack The dummy {@link ItemStack} used to place the Block
      */
-    default void postProcessPaste(Level level, BlockPos pos, Player player, BlueprintData data, ItemStack dummyStack) { }
+    default void postProcessPaste(Level level, BlockPos pos, @Nullable Player player, BlueprintData data, ItemStack dummyStack) { }
 
     /**
      * Attach additional data stored in the given {@link BlueprintData} to the given {@link ItemStack}

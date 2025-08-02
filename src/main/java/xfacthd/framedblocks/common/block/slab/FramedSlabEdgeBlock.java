@@ -1,13 +1,17 @@
 package xfacthd.framedblocks.common.block.slab;
 
 import net.minecraft.tags.FluidTags;
-import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import org.jetbrains.annotations.Nullable;
+import xfacthd.framedblocks.api.block.BlockUtils;
 import xfacthd.framedblocks.api.block.FramedProperties;
 import xfacthd.framedblocks.api.block.PlacementStateBuilder;
 import xfacthd.framedblocks.common.block.FramedBlock;
@@ -16,9 +20,9 @@ import xfacthd.framedblocks.api.util.Utils;
 
 public class FramedSlabEdgeBlock extends FramedBlock
 {
-    public FramedSlabEdgeBlock()
+    public FramedSlabEdgeBlock(Properties props)
     {
-        super(BlockType.FRAMED_SLAB_EDGE);
+        super(BlockType.FRAMED_SLAB_EDGE, props);
         registerDefaultState(defaultBlockState().setValue(FramedProperties.TOP, false));
     }
 
@@ -30,6 +34,7 @@ public class FramedSlabEdgeBlock extends FramedBlock
     }
 
     @Override
+    @Nullable
     public BlockState getStateForPlacement(BlockPlaceContext ctx)
     {
         return PlacementStateBuilder.of(this, ctx)
@@ -69,7 +74,7 @@ public class FramedSlabEdgeBlock extends FramedBlock
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror)
     {
-        return Utils.mirrorFaceBlock(state, mirror);
+        return BlockUtils.mirrorFaceBlock(state, mirror);
     }
 
     @Override

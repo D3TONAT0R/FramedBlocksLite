@@ -8,7 +8,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import xfacthd.framedblocks.api.block.IFramedBlock;
 import xfacthd.framedblocks.api.block.FramedProperties;
-import xfacthd.framedblocks.common.block.sign.AbstractFramedSignBlock;
 import xfacthd.framedblocks.common.data.BlockType;
 
 public final class FramedBlockMovementChecks implements
@@ -23,14 +22,7 @@ public final class FramedBlockMovementChecks implements
     {
         if (state.getBlock() instanceof IFramedBlock block && block.getBlockType() instanceof BlockType type)
         {
-            return switch (type)
-            {
-                case FRAMED_SIGN, FRAMED_FLOWER_POT -> result(side == Direction.DOWN);
-                case FRAMED_FLOOR_BOARD -> result(side == (state.getValue(FramedProperties.TOP) ? Direction.UP : Direction.DOWN));
-                case FRAMED_WALL_SIGN -> result(state.getValue(FramedProperties.FACING_HOR) == side.getOpposite());
-                case FRAMED_WALL_BOARD -> result(state.getValue(FramedProperties.FACING_HOR) == side);
-                default -> BlockMovementChecks.CheckResult.PASS;
-            };
+            return BlockMovementChecks.CheckResult.PASS;
         }
         return BlockMovementChecks.CheckResult.PASS;
     }
@@ -39,10 +31,6 @@ public final class FramedBlockMovementChecks implements
     public BlockMovementChecks.CheckResult isBrittle(BlockState state)
     {
         Block block = state.getBlock();
-        if (block instanceof AbstractFramedSignBlock)
-        {
-            return BlockMovementChecks.CheckResult.SUCCESS;
-        }
         return BlockMovementChecks.CheckResult.PASS;
     }
 

@@ -2,14 +2,13 @@ package xfacthd.framedblocks.api.render;
 
 import com.google.common.base.Preconditions;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import org.joml.*;
+import org.joml.Quaternionf;
+import org.joml.Quaternionfc;
 import xfacthd.framedblocks.api.block.FramedProperties;
 
 /**
@@ -19,27 +18,29 @@ import xfacthd.framedblocks.api.block.FramedProperties;
  */
 public interface OutlineRenderer
 {
+    OutlineRenderer NO_OP = new NoopOutlineRenderer();
+
     /**
-     * Array of {@link Quaternionf}s for rotating around the Y axis according to the horizontal direction.<br>
+     * Array of {@link Quaternionfc}s for rotating around the Y axis according to the horizontal direction.<br>
      * Must be indexed with {@link Direction#get2DDataValue()}
      */
-    Quaternionf[] YN_DIR = makeQuaternionArray();
+    Quaternionfc[] YN_DIR = makeQuaternionArray();
 
     /**
      * Draw the outlines of the block. Provides access to the {@link BlockState}, {@link Level} and {@link BlockPos}
      * of the block being targeted for cases that require access to the block's
      * {@link net.minecraft.world.level.block.entity.BlockEntity}
      */
-    default void draw(BlockState state, Level level, BlockPos pos, PoseStack poseStack, VertexConsumer builder)
+    default void draw(BlockState state, Level level, BlockPos pos, LineDrawer drawer)
     {
-        draw(state, poseStack, builder);
+        draw(state, drawer);
     }
 
     /**
      * Draw the outlines of the block. Provides access to the {@link BlockState} of the block being targeted,
      * sufficient for most blocks
      */
-    void draw(BlockState state, PoseStack poseStack, VertexConsumer builder);
+    void draw(BlockState state, LineDrawer drawer);
 
     /**
      * Get the horizontal {@link Direction} the block is facing in
@@ -75,27 +76,6 @@ public interface OutlineRenderer
         }
     }
 
-    /**
-     * Draw a line between the two points given by the two sets of 3D coordinates
-     */
-    static void drawLine(VertexConsumer builder, PoseStack poseStack, float x1, float y1, float z1, float x2, float y2, float z2)
-    {
-        float nX = x2 - x1;
-        float nY = y2 - y1;
-        float nZ = z2 - z1;
-        float nLen = Mth.sqrt(nX * nX + nY * nY + nZ * nZ);
-
-        nX = nX / nLen;
-        nY = nY / nLen;
-        nZ = nZ / nLen;
-
-        var pose = poseStack.last();
-        builder.addVertex(pose, x1, y1, z1).setColor(0, 0, 0, 102).setNormal(pose, nX, nY, nZ);
-        builder.addVertex(pose, x2, y2, z2).setColor(0, 0, 0, 102).setNormal(pose, nX, nY, nZ);
-    }
-
-
-
     static Quaternionf[] makeQuaternionArray()
     {
         Quaternionf[] array = new Quaternionf[4];
@@ -104,5 +84,10 @@ public interface OutlineRenderer
             array[dir.get2DDataValue()] = Axis.YN.rotationDegrees(dir.toYRot());
         }
         return array;
+    }
+
+    interface LineDrawer
+    {
+        void drawLine(float x1, float y1, float z1, float x2, float y2, float z2);
     }
 }
