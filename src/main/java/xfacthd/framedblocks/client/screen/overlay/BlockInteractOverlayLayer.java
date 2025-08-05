@@ -12,12 +12,9 @@ public final class BlockInteractOverlayLayer implements LayeredDraw.Layer
 {
     private static final List<BlockInteractOverlay> OVERLAYS = List.of(
             new StateLockOverlay(),
-            new ToggleWaterloggableOverlay(),
             new ToggleYSlopeOverlay(),
             new ReinforcementOverlay(),
-            new PrismOffsetOverlay(),
             new SplitLineOverlay(),
-            new OneWayWindowOverlay(),
             new FrameBackgroundOverlay(),
             new CamoRotationOverlay(),
             new TrapdoorTextureRotationOverlay()

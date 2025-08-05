@@ -152,7 +152,7 @@ public class FramedPressurePlateBlock extends PressurePlateBlock implements IFra
         );
     }
 
-    public static FramedPressurePlateBlock stone(Properties props)
+    public static FramedPressurePlateBlock stone()
     {
         return new FramedPressurePlateBlock(
                 BlockType.FRAMED_STONE_PRESSURE_PLATE,

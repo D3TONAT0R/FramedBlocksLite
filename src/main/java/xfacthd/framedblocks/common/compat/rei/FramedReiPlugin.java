@@ -11,8 +11,7 @@ import me.shedaniel.rei.api.common.util.EntryStacks;
 import me.shedaniel.rei.forge.REIPluginClient;
 import net.minecraft.resources.ResourceLocation;
 import xfacthd.framedblocks.api.util.Utils;
-import xfacthd.framedblocks.client.screen.FramingSawWithEncoderScreen;
-import xfacthd.framedblocks.client.screen.PoweredFramingSawScreen;
+import xfacthd.framedblocks.client.screen.FramingSawScreen;
 import xfacthd.framedblocks.common.FBContent;
 
 @REIPluginClient
@@ -26,8 +25,7 @@ public final class FramedReiPlugin implements REIClientPlugin
         registry.add(new FramingSawRecipeCategory());
         registry.addWorkstations(
                 FramingSawRecipeCategory.SAW_CATEGORY,
-                EntryStacks.of(FBContent.BLOCK_FRAMING_SAW.value()),
-                EntryStacks.of(FBContent.BLOCK_POWERED_FRAMING_SAW.value())
+                EntryStacks.of(FBContent.BLOCK_FRAMING_SAW.value())
         );
     }
 
@@ -47,15 +45,15 @@ public final class FramedReiPlugin implements REIClientPlugin
     public void registerScreens(ScreenRegistry registry)
     {
         registry.registerDraggableStackVisitor(new FramingSawDraggableStackVisitor());
-        registry.registerDraggableStackVisitor(new PoweredFramingSawDraggableStackVisitor());
+        registry.registerDraggableStackVisitor(new FramingSawDraggableStackVisitor());
         registry.registerContainerClickArea(
                 new Rectangle(
-                        PoweredFramingSawScreen.PROGRESS_X,
-                        PoweredFramingSawScreen.PROGRESS_Y,
-                        PoweredFramingSawScreen.PROGRESS_WIDTH,
-                        PoweredFramingSawScreen.PROGRESS_HEIGHT
+                        FramingSawScreen.PROGRESS_X,
+                        FramingSawScreen.PROGRESS_Y,
+                        FramingSawScreen.PROGRESS_WIDTH,
+                        FramingSawScreen.PROGRESS_HEIGHT
                 ),
-                PoweredFramingSawScreen.class,
+                FramingSawScreen.class,
                 FramingSawRecipeCategory.SAW_CATEGORY
         );
         registry.registerFocusedStack(new FramingSawFocusedStackProvider());
@@ -64,6 +62,6 @@ public final class FramedReiPlugin implements REIClientPlugin
     @Override
     public void registerExclusionZones(ExclusionZones zones)
     {
-        zones.register(FramingSawWithEncoderScreen.class, new FramingSawExclusionZoneProvider());
+        zones.register(FramingSawScreen.class, new FramingSawExclusionZoneProvider());
     }
 }

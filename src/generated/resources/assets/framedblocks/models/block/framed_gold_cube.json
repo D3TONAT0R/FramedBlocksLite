@@ -1,6 +1,5 @@
 {
   "parent": "minecraft:block/block",
-  "ambientocclusion": false,
   "elements": [
     {
       "faces": {
@@ -34,11 +33,6 @@
         0,
         0
       ],
-      "neoforge_data": {
-        "block_light": 15,
-        "sky_light": 15
-      },
-      "shade": false,
       "to": [
         16,
         16,
@@ -77,11 +71,6 @@
         0,
         0
       ],
-      "neoforge_data": {
-        "block_light": 15,
-        "sky_light": 15
-      },
-      "shade": false,
       "to": [
         16,
         16,
@@ -93,6 +82,6 @@
   "textures": {
     "frame": "framedblocks:block/framed_block",
     "particle": "framedblocks:block/framed_block",
-    "underlay": "neoforge:white"
+    "underlay": "minecraft:block/gold_block"
   }
 }

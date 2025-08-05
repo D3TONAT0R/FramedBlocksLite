@@ -11,10 +11,10 @@ import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import xfacthd.framedblocks.common.FBContent;
-import xfacthd.framedblocks.common.crafting.saw.FramingSawRecipe;
-import xfacthd.framedblocks.common.crafting.saw.FramingSawRecipeCache;
-import xfacthd.framedblocks.common.crafting.saw.FramingSawRecipeCalculation;
-import xfacthd.framedblocks.common.crafting.saw.FramingSawRecipeMatchResult;
+import xfacthd.framedblocks.common.crafting.FramingSawRecipe;
+import xfacthd.framedblocks.common.crafting.FramingSawRecipeCache;
+import xfacthd.framedblocks.common.crafting.FramingSawRecipeCalculation;
+import xfacthd.framedblocks.common.crafting.FramingSawRecipeMatchResult;
 import xfacthd.framedblocks.common.util.FramedUtils;
 
 import java.util.Arrays;
@@ -280,17 +280,6 @@ public class FramingSawMenu extends AbstractContainerMenu implements IFramingSaw
     protected boolean isCraftingEnabled()
     {
         return true;
-    }
-
-
-
-    public static FramingSawMenu create(int containerId, Inventory inv, ContainerLevelAccess levelAccess)
-    {
-        if (AppliedEnergisticsCompat.isLoaded())
-        {
-            return new FramingSawWithEncoderMenu(containerId, inv, levelAccess);
-        }
-        return new FramingSawMenu(containerId, inv, levelAccess);
     }
 
 

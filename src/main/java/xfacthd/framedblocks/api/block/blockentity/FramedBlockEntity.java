@@ -11,6 +11,7 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -117,14 +118,6 @@ public class FramedBlockEntity extends BlockEntity
         {
             return rotateCamo(camo, secondary);
         }
-        else if (!reinforced && stack.is(Utils.FRAMED_REINFORCEMENT.value()))
-        {
-            return applyReinforcement(player, stack);
-        }
-        else if (reinforced && canRemoveReinforcement(stack))
-        {
-            return removeReinforcement(player, stack, hand);
-        }
 
         CamoContainer<?, ?> newCamo = CamoContainerHelper.handleCamoInteraction(level(), worldPosition, player, camo, stack, hand);
         if (camo != newCamo)
@@ -139,7 +132,7 @@ public class FramedBlockEntity extends BlockEntity
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
-    private InteractionResult setCamo(Player player, ItemStack stack, CamoContainerFactory<?> factory, boolean secondary)
+    private ItemInteractionResult setCamo(Player player, ItemStack stack, CamoContainerFactory<?> factory, boolean secondary)
     {
         CamoContainer<?, ?> camo = factory.applyCamo(level(), worldPosition, player, stack);
         if (camo != null)
@@ -199,7 +192,7 @@ public class FramedBlockEntity extends BlockEntity
         return ItemInteractionResult.FAIL;
     }
 
-    private InteractionResult applyReinforcement(Player player, ItemStack stack)
+    private ItemInteractionResult applyReinforcement(Player player, ItemStack stack)
     {
         if (!level().isClientSide())
         {

@@ -103,30 +103,7 @@ public final class BeaconTintTests
 
         return switch ((BlockType) type)
         {
-            case FRAMED_DIVIDED_SLAB,
-                 FRAMED_DOUBLE_PANEL,
-                 FRAMED_DOUBLE_SLOPE_PANEL,
-                 FRAMED_INV_DOUBLE_SLOPE_PANEL,
-                 FRAMED_EXTENDED_DOUBLE_SLOPE_PANEL,
-                 FRAMED_FLAT_DOUBLE_SLOPE_PANEL_CORNER,
-                 FRAMED_FLAT_INV_DOUBLE_SLOPE_PANEL_CORNER,
-                 FRAMED_FLAT_EXT_DOUBLE_SLOPE_PANEL_CORNER,
-                 FRAMED_FLAT_EXT_INNER_DOUBLE_SLOPE_PANEL_CORNER,
-                 FRAMED_STACKED_SLOPE_PANEL,
-                 FRAMED_FLAT_STACKED_SLOPE_PANEL_CORNER,
-                 FRAMED_FLAT_STACKED_INNER_SLOPE_PANEL_CORNER,
-                 FRAMED_SMALL_DOUBLE_CORNER_SLOPE_PANEL_W,
-                 FRAMED_EXT_DOUBLE_CORNER_SLOPE_PANEL,
-                 FRAMED_EXT_INNER_DOUBLE_CORNER_SLOPE_PANEL_W,
-                 FRAMED_VERTICAL_DOUBLE_HALF_SLOPE -> List.of(Direction.NORTH, Direction.SOUTH);
-
-            case FRAMED_DIVIDED_PANEL_VERTICAL,
-                 FRAMED_DIVIDED_SLOPE,
-                 FRAMED_DIVIDED_STAIRS,
-                 FRAMED_SLICED_STAIRS_SLAB -> List.of(Direction.EAST, Direction.WEST);
-
-            case FRAMED_CHECKERED_SLAB -> List.of(Direction.NORTH, Direction.WEST);
-
+            case FRAMED_DOUBLE_PANEL -> List.of(Direction.NORTH, Direction.SOUTH);
             default -> List.of(Direction.DOWN, Direction.UP);
         };
     }

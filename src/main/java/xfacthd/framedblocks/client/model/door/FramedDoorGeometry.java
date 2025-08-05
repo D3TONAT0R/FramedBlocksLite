@@ -21,14 +21,12 @@ public class FramedDoorGeometry extends Geometry
     private final Direction dir;
     private final boolean hingeRight;
     private final boolean open;
-    private final boolean gate;
 
     public FramedDoorGeometry(GeometryFactory.Context ctx)
     {
         this.dir = ctx.state().getValue(BlockStateProperties.HORIZONTAL_FACING);
         this.hingeRight = ctx.state().getValue(BlockStateProperties.DOOR_HINGE) == DoorHingeSide.RIGHT;
         this.open = ctx.state().getValue(BlockStateProperties.OPEN);
-        this.gate = ctx.state().is(FBContent.BLOCK_FRAMED_GATE) || ctx.state().is(FBContent.BLOCK_FRAMED_IRON_GATE);
     }
 
     @Override
@@ -64,6 +62,6 @@ public class FramedDoorGeometry extends Geometry
     @Override
     public ItemModelInfo getItemModelInfo()
     {
-        return gate ? ITEM_MODEL_INFO : super.getItemModelInfo();
+        return super.getItemModelInfo();
     }
 }

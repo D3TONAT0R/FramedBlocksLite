@@ -2,9 +2,8 @@ package xfacthd.framedblocks.common.net;
 
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.HandlerThread;
-import net.neoforged.neoforge.network.registration.PayloadRegistrar;
-import xfacthd.framedblocks.common.net.payload.clientbound.ClientboundCullingUpdatePayload;
-import xfacthd.framedblocks.common.net.payload.serverbound.ServerboundSelectFramingSawRecipePayload;
+import xfacthd.framedblocks.common.data.cullupdate.ClientCullingUpdateTracker;
+import xfacthd.framedblocks.common.net.payload.*;
 
 public final class NetworkHandler
 {
@@ -14,11 +13,6 @@ public final class NetworkHandler
     {
         event.registrar(PROTOCOL_VERSION)
                 .executesOn(HandlerThread.NETWORK)
-                .playToServer(
-                        ServerboundSignUpdatePayload.TYPE,
-                        ServerboundSignUpdatePayload.CODEC,
-                        ServerboundSignUpdatePayload::handle
-                )
                 .playToClient(
                         ClientboundCullingUpdatePayload.TYPE,
                         ClientboundCullingUpdatePayload.CODEC,

@@ -23,6 +23,8 @@ import net.minecraft.world.level.storage.loot.providers.number.LootNumberProvide
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.crafting.IngredientType;
+import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
+import net.neoforged.neoforge.network.IContainerFactory;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
@@ -38,27 +40,18 @@ import xfacthd.framedblocks.api.util.*;
 import xfacthd.framedblocks.api.util.registration.*;
 import xfacthd.framedblocks.common.block.interactive.button.*;
 import xfacthd.framedblocks.common.block.interactive.pressureplate.*;
-import xfacthd.framedblocks.common.block.rail.fancy.*;
-import xfacthd.framedblocks.common.block.rail.vanillaslope.*;
-import xfacthd.framedblocks.common.block.sign.*;
-import xfacthd.framedblocks.common.block.slopeedge.*;
 import xfacthd.framedblocks.common.block.special.FramingSawBlock;
-import xfacthd.framedblocks.common.block.special.PoweredFramingSawBlock;
 import xfacthd.framedblocks.common.block.cube.*;
 import xfacthd.framedblocks.common.block.door.*;
 import xfacthd.framedblocks.common.block.interactive.*;
 import xfacthd.framedblocks.common.block.interactive.button.*;
 import xfacthd.framedblocks.common.block.interactive.pressureplate.*;
 import xfacthd.framedblocks.common.block.pillar.*;
-import xfacthd.framedblocks.common.block.prism.*;
 import xfacthd.framedblocks.common.block.slab.*;
-import xfacthd.framedblocks.common.block.slope.*;
-import xfacthd.framedblocks.common.block.slopepanel.*;
-import xfacthd.framedblocks.common.block.slopepanelcorner.*;
-import xfacthd.framedblocks.common.block.slopeslab.*;
 import xfacthd.framedblocks.common.block.special.*;
 import xfacthd.framedblocks.common.block.stairs.standard.*;
 import xfacthd.framedblocks.common.block.stairs.vertical.*;
+import xfacthd.framedblocks.common.blockentity.doubled.FramedDoubleBlockEntity;
 import xfacthd.framedblocks.common.blockentity.special.*;
 import xfacthd.framedblocks.common.compat.jei.camo.JeiCamoApplicationRecipe;
 import xfacthd.framedblocks.common.crafting.CamoApplicationRecipe;
@@ -73,7 +66,6 @@ import xfacthd.framedblocks.common.data.component.*;
 import xfacthd.framedblocks.api.datagen.loot.objects.NonTrivialCamoLootCondition;
 import xfacthd.framedblocks.api.datagen.loot.objects.SplitCamoLootFunction;
 import xfacthd.framedblocks.common.data.component.FramedMap;
-import xfacthd.framedblocks.common.data.loot.BoardAdditionalItemCountNumberProvider;
 import xfacthd.framedblocks.common.data.loot.LayeredCubeAdditionalItemCountNumberProvider;
 import xfacthd.framedblocks.common.item.*;
 import xfacthd.framedblocks.common.menu.*;
@@ -212,8 +204,9 @@ public final class FBContent
     // endregion
 
     // region MenuTypes
-    public static final DeferredMenuType<FramingSawMenu> MENU_TYPE_FRAMING_SAW = MENU_TYPES.registerSimpleMenuType(
-            "framing_saw", FramingSawMenu::createClient
+    public static final DeferredHolder<MenuType<?>, MenuType<FramingSawMenu>> MENU_TYPE_FRAMING_SAW = registerMenuType(
+            (id, inv, buf) -> FramingSawMenu.create(id, inv, ContainerLevelAccess.NULL),
+            "framing_saw"
     );
     // endregion
 

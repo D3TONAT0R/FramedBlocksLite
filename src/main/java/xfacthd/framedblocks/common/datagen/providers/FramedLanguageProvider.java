@@ -10,14 +10,8 @@ import xfacthd.framedblocks.api.block.IFramedBlock;
 import xfacthd.framedblocks.api.camo.empty.EmptyCamoContainer;
 import xfacthd.framedblocks.api.util.FramedConstants;
 import xfacthd.framedblocks.api.util.Utils;
-import xfacthd.framedblocks.client.screen.FramingSawScreen;
-import xfacthd.framedblocks.client.screen.overlay.impl.CamoRotationOverlay;
-import xfacthd.framedblocks.client.screen.overlay.impl.FrameBackgroundOverlay;
-import xfacthd.framedblocks.client.screen.overlay.impl.ReinforcementOverlay;
-import xfacthd.framedblocks.client.screen.overlay.impl.SplitLineOverlay;
-import xfacthd.framedblocks.client.screen.overlay.impl.StateLockOverlay;
-import xfacthd.framedblocks.client.screen.overlay.impl.ToggleYSlopeOverlay;
-import xfacthd.framedblocks.client.screen.overlay.impl.TrapdoorTextureRotationOverlay;
+import xfacthd.framedblocks.client.screen.*;
+import xfacthd.framedblocks.client.screen.overlay.*;
 import xfacthd.framedblocks.common.compat.atlasviewer.AtlasViewerCompat;
 import xfacthd.framedblocks.common.compat.jade.JadeCompat;
 import xfacthd.framedblocks.common.compat.jei.JeiConstants;
@@ -25,15 +19,10 @@ import xfacthd.framedblocks.common.config.*;
 import xfacthd.framedblocks.client.util.KeyMappings;
 import xfacthd.framedblocks.common.FBContent;
 import xfacthd.framedblocks.common.block.special.FramingSawBlock;
-import xfacthd.framedblocks.common.config.ClientConfig;
-import xfacthd.framedblocks.common.config.DevToolsConfig;
-import xfacthd.framedblocks.common.config.ServerConfig;
-import xfacthd.framedblocks.common.crafting.saw.FramingSawRecipeMatchResult;
+import xfacthd.framedblocks.common.crafting.FramingSawRecipeMatchResult;
 import xfacthd.framedblocks.common.data.property.NullableDirection;
 import xfacthd.framedblocks.common.item.FramedBlueprintItem;
-import xfacthd.framedblocks.common.item.block.FramedMirroringBlockItem;
-
-import java.util.Objects;
+import xfacthd.framedblocks.api.block.blockentity.FramedBlockEntity;
 
 public final class FramedLanguageProvider extends LanguageProvider
 {
@@ -187,8 +176,6 @@ public final class FramedLanguageProvider extends LanguageProvider
         add(FramedBlueprintItem.CANT_COPY, "[Framed Blueprint] This block can currently not be copied!");
         add(FramedBlueprintItem.CANT_PLACE_FLUID_CAMO, "[Framed Blueprint] Copying blocks with fluid camos is currently not possible!");
         add(IFramedBlock.CAMO_LABEL, "Camo: %s");
-        add(IFramedBlock.CAMO_LABEL_MULTI, "Camos: %s");
-        add(FramedMirroringBlockItem.PLACE_UPSIDE_DOWN, "Hold sneak key to place upside down");
     }
 
     private void addOverlayTranslations()

@@ -6,27 +6,27 @@ import me.shedaniel.rei.api.client.gui.drag.*;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import xfacthd.framedblocks.client.screen.FramingSawWithEncoderScreen;
+import xfacthd.framedblocks.client.screen.FramingSawScreen;
 import xfacthd.framedblocks.common.crafting.*;
 import xfacthd.framedblocks.common.menu.FramingSawMenu;
 
 import java.util.List;
 import java.util.stream.Stream;
 
-public final class FramingSawDraggableStackVisitor implements DraggableStackVisitor<FramingSawWithEncoderScreen>
+public final class FramingSawDraggableStackVisitor implements DraggableStackVisitor<FramingSawScreen>
 {
     @Override
     public <R extends Screen> boolean isHandingScreen(R screen)
     {
-        return screen instanceof FramingSawWithEncoderScreen encoder && encoder.getMenu().isInEncoderMode();
+        return screen instanceof FramingSawScreen encoder;
     }
 
     @Override
-    public Stream<BoundsProvider> getDraggableAcceptingBounds(DraggingContext<FramingSawWithEncoderScreen> context, DraggableStack draggableStack)
+    public Stream<BoundsProvider> getDraggableAcceptingBounds(DraggingContext<FramingSawScreen> context, DraggableStack draggableStack)
     {
         if (draggableStack.getStack().getValue() instanceof ItemStack stack)
         {
-            FramingSawWithEncoderScreen screen = context.getScreen();
+            FramingSawScreen screen = context.getScreen();
 
             if (FramingSawRecipeCache.get(true).getMaterialValue(stack.getItem()) > 0)
             {
@@ -51,19 +51,19 @@ public final class FramingSawDraggableStackVisitor implements DraggableStackVisi
     }
 
     @Override
-    public DraggedAcceptorResult acceptDraggedStack(DraggingContext<FramingSawWithEncoderScreen> context, DraggableStack draggableStack)
+    public DraggedAcceptorResult acceptDraggedStack(DraggingContext<FramingSawScreen> context, DraggableStack draggableStack)
     {
         Point pos = context.getCurrentPosition();
         if (pos != null && draggableStack.getStack().getValue() instanceof ItemStack stack)
         {
-            FramingSawWithEncoderScreen screen = context.getScreen();
+            FramingSawScreen screen = context.getScreen();
             if (FramingSawRecipeCache.get(true).getMaterialValue(stack.getItem()) > 0)
             {
                 int sx = screen.getInputSlotX();
                 int sy = screen.getInputSlotY(FramingSawMenu.SLOT_INPUT);
                 if (pos.x >= sx && pos.x < sx + 18 && pos.y >= sy && pos.y < sy + 18)
                 {
-                    screen.acceptEncodingInput(FramingSawMenu.SLOT_INPUT, stack);
+                    //screen.acceptEncodingInput(FramingSawMenu.SLOT_INPUT, stack);
                     return DraggedAcceptorResult.ACCEPTED;
                 }
             }
@@ -78,7 +78,7 @@ public final class FramingSawDraggableStackVisitor implements DraggableStackVisi
                 {
                     if (additives.get(i).ingredient().test(stack))
                     {
-                        screen.acceptEncodingInput(i + 1, stack);
+                        //screen.acceptEncodingInput(i + 1, stack);
                         return DraggedAcceptorResult.ACCEPTED;
                     }
                 }

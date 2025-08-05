@@ -22,9 +22,12 @@ import java.util.concurrent.CompletableFuture;
 
 public final class FramedRecipeProvider extends RecipeProvider
 {
+    private PackOutput output;
+
     public FramedRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> providerFuture)
     {
         super(output, providerFuture);
+        this.output = output;
     }
 
     @Override
@@ -228,20 +231,6 @@ public final class FramedRecipeProvider extends RecipeProvider
                 .unlockedBy(FBContent.BLOCK_FRAMED_CUBE)
                 .save(consumer);
 
-        shapelessBuildingBlock(FBContent.BLOCK_FRAMED_SLAB.value())
-                .requires(FBContent.BLOCK_FRAMED_CUBE.value())
-                .requires(FBContent.ITEM_FRAMED_HAMMER.value())
-                .unlockedBy(FBContent.BLOCK_FRAMED_CUBE)
-                .save(output, key("framed_slab_from_framed_centered_slab"));
-
-        shapelessBuildingBlock(FBContent.BLOCK_FRAMED_PANEL.value())
-                .requires(FBContent.BLOCK_FRAMED_CUBE.value())
-                .requires(FBContent.ITEM_FRAMED_HAMMER.value())
-                .unlockedBy(FBContent.BLOCK_FRAMED_CUBE)
-                .save(output, key("framed_panel_from_framed_centered_panel"));
-
-
-
         shapedRecipe(RecipeCategory.TOOLS, FBContent.BLOCK_FRAMING_SAW.value())
                 .pattern(" I ")
                 .pattern("FFF")
@@ -309,8 +298,8 @@ public final class FramedRecipeProvider extends RecipeProvider
 
 
 
-        makeRotationRecipe(FBContent.BLOCK_FRAMED_SLAB, FBContent.BLOCK_FRAMED_PANEL, output);
-        makeRotationRecipe(FBContent.BLOCK_FRAMED_STAIRS, FBContent.BLOCK_FRAMED_VERTICAL_STAIRS, output);
+        makeRotationRecipe(FBContent.BLOCK_FRAMED_SLAB, FBContent.BLOCK_FRAMED_PANEL, consumer);
+        makeRotationRecipe(FBContent.BLOCK_FRAMED_STAIRS, FBContent.BLOCK_FRAMED_VERTICAL_STAIRS, consumer);
 
 
 

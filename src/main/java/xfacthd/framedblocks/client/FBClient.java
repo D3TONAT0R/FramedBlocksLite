@@ -35,47 +35,32 @@ import xfacthd.framedblocks.api.type.IBlockType;
 import xfacthd.framedblocks.api.util.FramedConstants;
 import xfacthd.framedblocks.api.util.Utils;
 import xfacthd.framedblocks.client.data.*;
-import xfacthd.framedblocks.client.data.GhostRenderBehaviours;
-import xfacthd.framedblocks.client.data.extensions.block.NoEffectsClientBlockExtensions;
-import xfacthd.framedblocks.client.model.FluidModel;
-import xfacthd.framedblocks.client.model.ReinforcementModel;
-import xfacthd.framedblocks.client.model.baked.FramedBlockModel;
-import xfacthd.framedblocks.client.model.geometry.cube.*;
-import xfacthd.framedblocks.client.model.geometry.door.*;
-import xfacthd.framedblocks.client.model.geometry.interactive.*;
-import xfacthd.framedblocks.client.model.geometry.pillar.*;
-import xfacthd.framedblocks.client.model.geometry.slab.*;
-import xfacthd.framedblocks.client.model.geometry.stairs.*;
-import xfacthd.framedblocks.client.model.item.BlockItemModelProviders;
-import xfacthd.framedblocks.client.model.item.DynamicItemTintProviders;
-import xfacthd.framedblocks.client.model.item.FramedBlockItemModel;
-import xfacthd.framedblocks.client.model.item.modelprovider.FenceBlockItemModelProvider;
-import xfacthd.framedblocks.client.model.loader.fallback.FallbackLoader;
-import xfacthd.framedblocks.client.model.overlaygen.OverlayQuadGenerator;
-import xfacthd.framedblocks.client.model.unbaked.FramedBlockModelDefinition;
-import xfacthd.framedblocks.client.model.wrapping.ModelWrappingManager;
-import xfacthd.framedblocks.client.net.ClientNetworkHandler;
+import xfacthd.framedblocks.client.loader.fallback.FallbackLoader;
+import xfacthd.framedblocks.client.loader.overlay.OverlayLoader;
+import xfacthd.framedblocks.client.model.*;
+import xfacthd.framedblocks.client.model.cube.*;
+import xfacthd.framedblocks.client.model.door.*;
+import xfacthd.framedblocks.client.model.interactive.*;
+import xfacthd.framedblocks.client.model.pane.*;
+import xfacthd.framedblocks.client.model.pillar.*;
+import xfacthd.framedblocks.client.model.slab.*;
+import xfacthd.framedblocks.client.model.slopepanelcorner.*;
+import xfacthd.framedblocks.client.model.stairs.*;
+import xfacthd.framedblocks.client.modelwrapping.ModelWrappingManager;
+import xfacthd.framedblocks.client.modelwrapping.StateLocationCache;
+import xfacthd.framedblocks.client.overlaygen.OverlayQuadGenerator;
 import xfacthd.framedblocks.client.render.debug.FramedBlockDebugRenderer;
-import xfacthd.framedblocks.client.render.debug.impl.ConnectionPredicateDebugRenderer;
-import xfacthd.framedblocks.client.render.debug.impl.DoubleBlockPartDebugRenderer;
-import xfacthd.framedblocks.client.render.debug.impl.QuadWindingDebugRenderer;
-import xfacthd.framedblocks.client.render.item.BlueprintProperty;
+import xfacthd.framedblocks.client.render.debug.impl.*;
+import xfacthd.framedblocks.client.render.item.BlueprintPropertyOverride;
 import xfacthd.framedblocks.client.render.particle.FluidSpriteParticle;
-import xfacthd.framedblocks.client.render.special.BlockOutlineRenderer;
-import xfacthd.framedblocks.client.render.special.GhostBlockRenderer;
+import xfacthd.framedblocks.client.render.special.*;
 import xfacthd.framedblocks.client.render.util.AnimationSplitterSource;
-import xfacthd.framedblocks.client.render.util.FramedRenderPipelines;
-import xfacthd.framedblocks.client.screen.FramingSawScreen;
+import xfacthd.framedblocks.client.screen.*;
 import xfacthd.framedblocks.client.screen.overlay.BlockInteractOverlayLayer;
-import xfacthd.framedblocks.client.screen.overlay.impl.*;
-import xfacthd.framedblocks.client.screen.pip.BlockPictureInPictureRenderer;
-import xfacthd.framedblocks.client.screen.pip.SpinningItemPictureInPictureRenderer;
 import xfacthd.framedblocks.client.screen.widget.BlockPreviewTooltipComponent;
 import xfacthd.framedblocks.client.util.*;
 import xfacthd.framedblocks.common.FBContent;
 import xfacthd.framedblocks.common.block.IFramedDoubleBlock;
-import xfacthd.framedblocks.common.block.cube.FramedMiniCubeBlock;
-import xfacthd.framedblocks.common.block.cube.FramedOneWayWindowBlock;
 import xfacthd.framedblocks.common.block.door.FramedDoorBlock;
 import xfacthd.framedblocks.common.block.door.FramedFenceGateBlock;
 import xfacthd.framedblocks.common.block.interactive.button.FramedButtonBlock;
@@ -116,9 +101,6 @@ public final class FBClient
         modBus.addListener(FBClient::onRegisterParticleProviders);
         modBus.addListener(FBClient::onRegisterClientExtensions);
         modBus.addListener(FBClient::onRegisterClientTooltipComponentFactories);
-        modBus.addListener(BlockOutlineRenderers::onRegisterOutlineRenderers);
-        modBus.addListener(FBClient::onRegisterPictureInPictureRenderers);
-        modBus.addListener(KeyMappings::onRegisterKeyMappings);
         modBus.addListener(GhostRenderBehaviours::onRegisterGhostRenderBehaviours);
 
         NeoForge.EVENT_BUS.addListener(ClientTaskQueue::onClientTick);
@@ -136,16 +118,7 @@ public final class FBClient
         event.enqueueWork(BlueprintPropertyOverride::register);
     }
 
-    private static void onRegisterItemModels(RegisterItemModelsEvent event)
-    {
-        event.register(FramedBlockItemModel.Unbaked.ID, FramedBlockItemModel.Unbaked.CODEC);
-    }
-
-    private static void onRegisterSpecialModelRenderers(RegisterSpecialModelRendererEvent event)
-    {
-    }
-
-    private static void onRegisterMenuScreens(RegisterMenuScreensEvent event)
+    private static void onRegisterMenuScreens(final RegisterMenuScreensEvent event)
     {
         event.register(FBContent.MENU_TYPE_FRAMING_SAW.value(), FramingSawScreen::create);
     }
@@ -209,20 +182,10 @@ public final class FBClient
                 .toArray(ItemLike[]::new);
 
         event.register(FramedBlockColor.INSTANCE, blocks);
-
-        event.register(FramedTargetBlockColor.INSTANCE, FBContent.BLOCK_FRAMED_TARGET.value());
     }
 
     private static void onOverlayRegister(final RegisterGuiLayersEvent event)
     {
-        event.register(Utils.rl("single"), FramedBlockItemTintProvider.INSTANCE_SINGLE);
-        event.register(Utils.rl("double"), FramedBlockItemTintProvider.INSTANCE_DOUBLE);
-    }
-
-    private static void onRegisterGuiLayers(RegisterGuiLayersEvent event)
-    {
-        BlockInteractOverlayLayer.init();
-
         event.registerAboveAll(Utils.rl("block_interact"), new BlockInteractOverlayLayer());
     }
 
@@ -242,7 +205,7 @@ public final class FBClient
         WrapHelper.wrap(FBContent.BLOCK_FRAMED_PANEL, FramedPanelGeometry::new, WrapHelper.IGNORE_DEFAULT);
         wrapDoubleModel(FBContent.BLOCK_FRAMED_DOUBLE_PANEL, NullCullPredicate.ALWAYS, WrapHelper.IGNORE_SOLID);
         WrapHelper.wrap(FBContent.BLOCK_FRAMED_CORNER_PILLAR, FramedCornerPillarGeometry::new, WrapHelper.IGNORE_WATERLOGGED);
-        WrapHelper.wrap(FBContent.BLOCK_FRAMED_STAIRS, FramedStairsGeometry::new, FramedStairsBlock.STATE_MERGER);
+        WrapHelper.wrap(FBContent.BLOCK_FRAMED_STAIRS, FramedStairsGeometry::new, new FramedStairsBlock.StairStateMerger());
         WrapHelper.wrap(FBContent.BLOCK_FRAMED_HALF_STAIRS, FramedHalfStairsGeometry::new, WrapHelper.IGNORE_WATERLOGGED);
         WrapHelper.wrap(FBContent.BLOCK_FRAMED_VERTICAL_STAIRS, FramedVerticalStairsGeometry::new, WrapHelper.IGNORE_DEFAULT_LOCK);
         WrapHelper.wrap(FBContent.BLOCK_FRAMED_VERTICAL_HALF_STAIRS, FramedVerticalHalfStairsGeometry::new, WrapHelper.IGNORE_WATERLOGGED);
@@ -270,10 +233,6 @@ public final class FBClient
         event.register(FramedMarkedCubeGeometry.SLIME_FRAME_LOCATION);
         event.register(FramedMarkedCubeGeometry.REDSTONE_FRAME_LOCATION);
         event.register(FramedTargetGeometry.OVERLAY_LOCATION);
-        event.register(FramedCollapsibleBlockGeometry.ALT_BASE_MODEL_LOC);
-        event.register(FramedCollapsibleCopycatBlockGeometry.ALT_BASE_MODEL_LOC);
-        event.register(FramedLanternGeometry.STANDING_CHAIN_LOCATION);
-        event.register(FramedLanternGeometry.HANGING_CHAIN_LOCATION);
         event.register(ErrorModel.LOCATION);
 
         if (AmendmentsCompat.isLoaded())
@@ -292,18 +251,14 @@ public final class FBClient
         TextureLookup textureLookup = TextureLookup.bindBlockAtlas(event.getTextureGetter());
 
         ModelWrappingManager.handleAll(registry, textureLookup);
-
-        FramedTankItemModel.wrap(registry);
     }
 
     private static void onModelsLoaded(final ModelEvent.BakingCompleted event)
     {
         StateLocationCache.clear();
         FluidCamoClientHandler.clearModelCache();
-        ReinforcementModel.reload(event.getBakingResult().standaloneModels());
-        FramedBlockModel.collectCubeBaseModels(event.getBakingResult().blockStateModels());
-
-        ModelWrappingManager.printWrappingInfo(event.getBakingResult().blockStateModels());
+        ReinforcementModel.reload(event.getModels());
+        ErrorModel.reload(event.getModels());
     }
 
     private static void onRegisterReloadListener(final RegisterClientReloadListenersEvent event)
@@ -344,12 +299,11 @@ public final class FBClient
                 .filter(IFramedBlock.class::isInstance)
                 .map(block -> Pair.of(block, switch (block)
                 {
-                    case IFramedDoubleBlock ignored -> FramedClientDoubleBlockExtensions.INSTANCE;
-                    default -> FramedClientBlockExtensions.INSTANCE;
+                    case IFramedDoubleBlock ignored -> FramedDoubleBlockRenderProperties.INSTANCE;
+                    default -> FramedBlockRenderProperties.INSTANCE;
                 }))
                 .forEach(pair -> event.registerBlock(pair.getSecond(), pair.getFirst()));
 
-        event.registerItem(new TankClientItemExtensions(), FBContent.BLOCK_FRAMED_TANK.value().asItem());
     }
 
     private static void onRegisterClientTooltipComponentFactories(RegisterClientTooltipComponentFactoriesEvent event)

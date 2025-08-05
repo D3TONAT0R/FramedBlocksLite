@@ -72,6 +72,10 @@ public class FramingSawScreen extends AbstractContainerScreen<FramingSawMenu> im
     private static final int SEARCH_HEIGHT = 14;
     private static final int SEARCH_X = IMAGE_WIDTH - SEARCH_WIDTH - 6;
     private static final int SEARCH_Y = 5;
+    public static final int PROGRESS_X = 115;
+    public static final int PROGRESS_Y = 46;
+    public static final int PROGRESS_WIDTH = 22;
+    public static final int PROGRESS_HEIGHT = 16;
 
     protected final FramingSawRecipeCache cache = FramingSawRecipeCache.get(true);
     protected final ItemStack cubeStack = new ItemStack(FBContent.BLOCK_FRAMED_CUBE.value());
@@ -695,5 +699,15 @@ public class FramingSawScreen extends AbstractContainerScreen<FramingSawMenu> im
         {
             this(recipe.id(), recipe.value(), new Rect2i(x, y, RECIPE_WIDTH, RECIPE_HEIGHT));
         }
+    }
+
+    public int getInputSlotX()
+    {
+        return leftPos + menu.getSlot(FramingSawMenu.SLOT_INPUT).x;
+    }
+
+    public int getInputSlotY(int slot)
+    {
+        return topPos + menu.getSlot(slot).y;
     }
 }

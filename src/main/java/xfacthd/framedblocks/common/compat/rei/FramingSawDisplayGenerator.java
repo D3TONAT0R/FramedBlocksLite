@@ -39,7 +39,7 @@ public final class FramingSawDisplayGenerator implements DynamicDisplayGenerator
         if (!entry.isEmpty() && entry.getType() == VanillaEntryTypes.ITEM)
         {
             ItemStack input = entry.castValue();
-            if (input.is(FBContent.BLOCK_FRAMING_SAW.value().asItem()) || input.is(FBContent.BLOCK_POWERED_FRAMING_SAW.value().asItem()))
+            if (input.is(FBContent.BLOCK_FRAMING_SAW.value().asItem()))
             {
                 return getUsageFor(EntryStacks.of(FBContent.BLOCK_FRAMED_CUBE.value()));
             }
