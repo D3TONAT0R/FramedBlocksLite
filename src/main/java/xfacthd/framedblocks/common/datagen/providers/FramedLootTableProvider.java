@@ -62,7 +62,6 @@ public final class FramedLootTableProvider extends LootTableProvider
                     .filter(block -> !map.containsKey(block.getLootTable()))
                     .forEach(this::dropSelfWithCamo);
 
-            dropSelf(FBContent.BLOCK_FRAMING_SAW.value());
         }
     }
 }

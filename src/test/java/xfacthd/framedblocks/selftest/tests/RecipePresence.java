@@ -13,7 +13,6 @@ import org.apache.commons.lang3.mutable.MutableInt;
 import xfacthd.framedblocks.api.block.IFramedBlock;
 import xfacthd.framedblocks.api.util.FramedConstants;
 import xfacthd.framedblocks.common.FBContent;
-import xfacthd.framedblocks.common.crafting.FramingSawRecipe;
 import xfacthd.framedblocks.common.data.BlockType;
 import xfacthd.framedblocks.selftest.SelfTestReporter;
 
@@ -52,29 +51,8 @@ public final class RecipePresence
                 .map(ItemLike.class::cast)
                 .collect(Collectors.toSet());
 
-        Set<ItemLike> sawResults = fbRecipes.stream()
-                .filter(FramingSawRecipe.class::isInstance)
-                .map(FramingSawRecipe.class::cast)
-                .peek(r -> sawCount.increment())
-                .map(FramingSawRecipe::getResult)
-                .map(ItemStack::getItem)
-                .map(ItemLike.class::cast)
-                .collect(Collectors.toSet());
-
         Set<ItemLike> blockItems = collectBlockTypedItems();
         Set<ItemLike> craftDiff = Sets.difference(blockItems, craftResults);
-        Set<ItemLike> sawDiff = Sets.difference(blockItems, sawResults);
-        for (ItemLike item : sawDiff)
-        {
-            if (craftDiff.contains(item))
-            {
-                reporter.warn("Block %s is uncraftable", item);
-            }
-            else
-            {
-                reporter.warn("Block %s has no saw recipe", item);
-            }
-        }
 
         Set<ItemLike> miscCraftDiff = Sets.difference(collectMiscItems(), craftResults);
         for (ItemLike item : miscCraftDiff)

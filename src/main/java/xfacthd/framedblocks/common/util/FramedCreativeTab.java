@@ -24,8 +24,6 @@ public final class FramedCreativeTab
                         }
                     }
 
-                    output.accept(FBContent.BLOCK_FRAMING_SAW.value());
-
                     for (FramedToolType tool : FramedToolType.values())
                     {
                         output.accept(FBContent.toolByType(tool));

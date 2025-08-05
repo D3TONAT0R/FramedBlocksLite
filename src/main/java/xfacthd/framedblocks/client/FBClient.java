@@ -55,7 +55,6 @@ import xfacthd.framedblocks.client.render.item.BlueprintPropertyOverride;
 import xfacthd.framedblocks.client.render.particle.FluidSpriteParticle;
 import xfacthd.framedblocks.client.render.special.*;
 import xfacthd.framedblocks.client.render.util.AnimationSplitterSource;
-import xfacthd.framedblocks.client.screen.*;
 import xfacthd.framedblocks.client.screen.overlay.BlockInteractOverlayLayer;
 import xfacthd.framedblocks.client.screen.widget.BlockPreviewTooltipComponent;
 import xfacthd.framedblocks.client.util.*;
@@ -120,7 +119,6 @@ public final class FBClient
 
     private static void onRegisterMenuScreens(final RegisterMenuScreensEvent event)
     {
-        event.register(FBContent.MENU_TYPE_FRAMING_SAW.value(), FramingSawScreen::create);
     }
 
     private static void onImcMessageReceived(final InterModProcessEvent event)

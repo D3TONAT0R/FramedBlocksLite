@@ -12,23 +12,17 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import org.jetbrains.annotations.Nullable;
 import xfacthd.framedblocks.api.util.Utils;
-import xfacthd.framedblocks.client.screen.FramingSawScreen;
 import xfacthd.framedblocks.common.FBContent;
 import xfacthd.framedblocks.common.compat.jei.camo.CamoCraftingHelper;
 import xfacthd.framedblocks.common.compat.jei.camo.CamoCraftingRecipeExtension;
 import xfacthd.framedblocks.common.compat.jei.camo.CamoRecipeManagerPlugin;
 import xfacthd.framedblocks.common.compat.jei.camo.JeiCamoApplicationRecipe;
-import xfacthd.framedblocks.common.crafting.FramingSawRecipe;
-import xfacthd.framedblocks.common.crafting.FramingSawRecipeCache;
 
 @JeiPlugin
 @REIPluginCompatIgnore
 public final class FramedJeiPlugin implements IModPlugin
 {
     private static final ResourceLocation ID = Utils.rl("jei_plugin");
-    static final RecipeType<FramingSawRecipe> FRAMING_SAW_RECIPE_TYPE = new RecipeType<>(
-            Utils.rl("framing_saw"), FramingSawRecipe.class
-    );
     @Nullable
     private CamoCraftingHelper camoCraftingHelperInstance;
 
@@ -44,7 +38,6 @@ public final class FramedJeiPlugin implements IModPlugin
     @Override
     public void registerCategories(IRecipeCategoryRegistration registration)
     {
-        registration.addRecipeCategories(new FramingSawRecipeCategory(registration.getJeiHelpers().getGuiHelper()));
     }
 
     @Override
@@ -62,38 +55,21 @@ public final class FramedJeiPlugin implements IModPlugin
     @Override
     public void registerRecipes(IRecipeRegistration registration)
     {
-        registration.addRecipes(
-                FRAMING_SAW_RECIPE_TYPE,
-                FramingSawRecipeCache.get(true).getRecipes().stream().map(RecipeHolder::value).toList()
-        );
     }
 
     @Override
     public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration)
     {
-        registration.addRecipeTransferHandler(
-                new FramingSawTransferHandler.FramingSaw(registration.getTransferHelper()),
-                FRAMING_SAW_RECIPE_TYPE
-        );
     }
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration)
     {
-        registration.addRecipeCatalyst(
-                new ItemStack(FBContent.BLOCK_FRAMING_SAW.value()),
-                FRAMING_SAW_RECIPE_TYPE
-        );
     }
 
     @Override
     public void registerGuiHandlers(IGuiHandlerRegistration registration)
     {
-        IIngredientManager ingredientManager = registration.getJeiHelpers().getIngredientManager();
-        registration.addGuiContainerHandler(
-                FramingSawScreen.class,
-                new FramingSawGuiContainerHandler<>(ingredientManager)
-        );
     }
 
     @Override

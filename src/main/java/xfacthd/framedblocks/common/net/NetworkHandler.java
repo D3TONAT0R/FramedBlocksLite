@@ -17,11 +17,6 @@ public final class NetworkHandler
                         ClientboundCullingUpdatePayload.TYPE,
                         ClientboundCullingUpdatePayload.CODEC,
                         ClientCullingUpdateTracker::handleCullingUpdates
-                )
-                .playToServer(
-                        ServerboundSelectFramingSawRecipePayload.TYPE,
-                        ServerboundSelectFramingSawRecipePayload.CODEC,
-                        ServerboundSelectFramingSawRecipePayload::handle
                 );
     }
 

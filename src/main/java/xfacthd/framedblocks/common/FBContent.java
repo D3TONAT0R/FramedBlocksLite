@@ -40,7 +40,6 @@ import xfacthd.framedblocks.api.util.*;
 import xfacthd.framedblocks.api.util.registration.*;
 import xfacthd.framedblocks.common.block.interactive.button.*;
 import xfacthd.framedblocks.common.block.interactive.pressureplate.*;
-import xfacthd.framedblocks.common.block.special.FramingSawBlock;
 import xfacthd.framedblocks.common.block.cube.*;
 import xfacthd.framedblocks.common.block.door.*;
 import xfacthd.framedblocks.common.block.interactive.*;
@@ -48,14 +47,12 @@ import xfacthd.framedblocks.common.block.interactive.button.*;
 import xfacthd.framedblocks.common.block.interactive.pressureplate.*;
 import xfacthd.framedblocks.common.block.pillar.*;
 import xfacthd.framedblocks.common.block.slab.*;
-import xfacthd.framedblocks.common.block.special.*;
 import xfacthd.framedblocks.common.block.stairs.standard.*;
 import xfacthd.framedblocks.common.block.stairs.vertical.*;
 import xfacthd.framedblocks.common.blockentity.doubled.FramedDoubleBlockEntity;
 import xfacthd.framedblocks.common.blockentity.special.*;
 import xfacthd.framedblocks.common.compat.jei.camo.JeiCamoApplicationRecipe;
 import xfacthd.framedblocks.common.crafting.CamoApplicationRecipe;
-import xfacthd.framedblocks.common.crafting.FramingSawRecipe;
 import xfacthd.framedblocks.common.crafting.ShapeRotationRecipe;
 import xfacthd.framedblocks.common.data.*;
 import xfacthd.framedblocks.common.data.blueprint.auxdata.DoorAuxBlueprintData;
@@ -68,11 +65,9 @@ import xfacthd.framedblocks.api.datagen.loot.objects.SplitCamoLootFunction;
 import xfacthd.framedblocks.common.data.component.FramedMap;
 import xfacthd.framedblocks.common.data.loot.LayeredCubeAdditionalItemCountNumberProvider;
 import xfacthd.framedblocks.common.item.*;
-import xfacthd.framedblocks.common.menu.*;
 import xfacthd.framedblocks.common.particle.BasicParticleType;
 import xfacthd.framedblocks.common.item.FramedBlueprintItem;
 import xfacthd.framedblocks.common.item.FramedToolItem;
-import xfacthd.framedblocks.common.menu.FramingSawMenu;
 import xfacthd.framedblocks.common.particle.FluidParticleOptions;
 import xfacthd.framedblocks.common.util.FramedCreativeTab;
 import xfacthd.framedblocks.common.util.registration.*;
@@ -146,7 +141,6 @@ public final class FBContent
     // endregion
 
     // region Special Blocks
-    public static final Holder<Block> BLOCK_FRAMING_SAW = registerBlock("framing_saw", FramingSawBlock::new);
     // endregion
 
     // region DataComponentTypes
@@ -204,20 +198,12 @@ public final class FBContent
     // endregion
 
     // region MenuTypes
-    public static final DeferredHolder<MenuType<?>, MenuType<FramingSawMenu>> MENU_TYPE_FRAMING_SAW = registerMenuType(
-            (id, inv, buf) -> FramingSawMenu.create(id, inv, ContainerLevelAccess.NULL),
-            "framing_saw"
-    );
     // endregion
 
     // region RecipeTypes
-    public static final DeferredHolder<RecipeType<?>, RecipeType<FramingSawRecipe>> RECIPE_TYPE_FRAMING_SAW_RECIPE = registerRecipeType("frame");
     // endregion
 
     // region RecipeSerializers
-    public static final Holder<RecipeSerializer<?>> RECIPE_SERIALIZER_FRAMING_SAW_RECIPE = registerRecipeSerializer(
-            "frame", FramingSawRecipe.CODEC, FramingSawRecipe.STREAM_CODEC
-    );
     public static final Holder<RecipeSerializer<?>> RECIPE_SERIALIZER_APPLY_CAMO = registerRecipeSerializer(
             "apply_camo", CamoApplicationRecipe.CODEC, CamoApplicationRecipe.STREAM_CODEC
     );

@@ -11,7 +11,6 @@ import me.shedaniel.rei.api.common.util.EntryStacks;
 import me.shedaniel.rei.forge.REIPluginClient;
 import net.minecraft.resources.ResourceLocation;
 import xfacthd.framedblocks.api.util.Utils;
-import xfacthd.framedblocks.client.screen.FramingSawScreen;
 import xfacthd.framedblocks.common.FBContent;
 
 @REIPluginClient
@@ -22,46 +21,25 @@ public final class FramedReiPlugin implements REIClientPlugin
     @Override
     public void registerCategories(CategoryRegistry registry)
     {
-        registry.add(new FramingSawRecipeCategory());
-        registry.addWorkstations(
-                FramingSawRecipeCategory.SAW_CATEGORY,
-                EntryStacks.of(FBContent.BLOCK_FRAMING_SAW.value())
-        );
     }
 
     @Override
     public void registerDisplays(DisplayRegistry registry)
     {
-        registry.registerDisplayGenerator(FramingSawRecipeCategory.SAW_CATEGORY, new FramingSawDisplayGenerator());
     }
 
     @Override
     public void registerTransferHandlers(TransferHandlerRegistry registry)
     {
-        registry.register(new FramingSawTransferHandler());
     }
 
     @Override
     public void registerScreens(ScreenRegistry registry)
     {
-        registry.registerDraggableStackVisitor(new FramingSawDraggableStackVisitor());
-        registry.registerDraggableStackVisitor(new FramingSawDraggableStackVisitor());
-        registry.registerContainerClickArea(
-                new Rectangle(
-                        FramingSawScreen.PROGRESS_X,
-                        FramingSawScreen.PROGRESS_Y,
-                        FramingSawScreen.PROGRESS_WIDTH,
-                        FramingSawScreen.PROGRESS_HEIGHT
-                ),
-                FramingSawScreen.class,
-                FramingSawRecipeCategory.SAW_CATEGORY
-        );
-        registry.registerFocusedStack(new FramingSawFocusedStackProvider());
     }
 
     @Override
     public void registerExclusionZones(ExclusionZones zones)
     {
-        zones.register(FramingSawScreen.class, new FramingSawExclusionZoneProvider());
     }
 }
