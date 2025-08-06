@@ -86,30 +86,6 @@ public interface BlueprintCopyBehaviour
     }
 
     /**
-     * Provide a custom amount of the intangibility marker item to consume when placing the block,
-     * i.e. when placing a "multi-block" like doors
-     *
-     * @param data The {@link BlueprintData} stored on the held blueprint stack
-     * @return The amount of items to consume
-     */
-    default int getIntangibleCount(BlueprintData data)
-    {
-        return data.intangible() ? 1 : 0;
-    }
-
-    /**
-     * Provide a custom amount of the reinforcement item when placing the block,
-     * i.e. when placing a "multi-block" like doors
-     *
-     * @param data The {@link BlueprintData} stored on the held blueprint stack
-     * @return The amount of items to consume
-     */
-    default int getReinforcementCount(BlueprintData data)
-    {
-        return data.reinforced() ? 1 : 0;
-    }
-
-    /**
      * Add additional materials to be consumed when placing the block
      *
      * @param data The {@link BlueprintData} stored on the held blueprint stack

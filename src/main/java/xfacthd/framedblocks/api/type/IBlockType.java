@@ -62,13 +62,6 @@ public interface IBlockType
     ConTexMode getMinimumConTexMode();
 
     /**
-     * @implNote If this method returns true, then the associated block must override {@link Block#initializeClient(java.util.function.Consumer)}
-     * and pass an instance of {@link FramedBlockRenderProperties} to the consumer to avoid crashing when the block is
-     * hit while it can be passed through
-     */
-    boolean allowMakingIntangible();
-
-    /**
      * @return true if this type represents a block that combines two models into one and allows those to have separate
      * camos applied.
      *

@@ -46,7 +46,6 @@ public final class FramedBlockModel extends AbstractFramedBlockModel
     private static final FramedBlockData DEFAULT_DATA = new FramedBlockData(EmptyCamoContent.EMPTY, false);
     private static final ChunkRenderTypeSet BASE_MODEL_RENDER_TYPES = ModelUtils.CUTOUT;
     private static final int FLAG_NO_CAMO_ATL_MODEL = 0b001;
-    private static final int FLAG_NO_CAMO_REINFORCED = 0b010;
     private static final int FLAG_NO_CAMO_SOLID_BG = 0b100;
     private static final BlockCamoContent[] DEFAULT_NO_CAMO_CONTENTS = makeNoCamoContents(FBContent.BLOCK_FRAMED_CUBE.value().defaultBlockState());
     private static final UnaryOperator<BakedQuad> EMISSIVE_PROCESSOR = QuadTransformers.settingMaxEmissivity()::process;
@@ -192,13 +191,11 @@ public final class FramedBlockModel extends AbstractFramedBlockModel
         boolean noProcessing = stateCache.isFullFace(side);
         boolean needCtCtx;
         CachedRenderTypes renderTypes;
-        boolean reinforce;
 
         if (camoContent == null)
         {
             needCtCtx = false;
             camoContent = getNoCamoModelSourceContent(fbData);
-            reinforce = useBaseModel && fbData.isReinforced() && renderType == RenderType.cutout() && side != null;
             noProcessing |= forceUngeneratedBaseModel && (nullLayer || BASE_MODEL_RENDER_TYPES.contains(renderType));
             camoModel = getCamoModel(camoContent, useBaseModel, fbData.useAltModel());
             camoData = ModelData.EMPTY;
@@ -210,19 +207,18 @@ public final class FramedBlockModel extends AbstractFramedBlockModel
             camoModel = getCamoModel(camoContent, false, false);
             camoData = needCtCtx ? ModelUtils.getCamoModelData(extraData) : ModelData.EMPTY;
             renderTypes = getCachedRenderTypes(camoContent, camoContent, rand, extraData);
-            reinforce = false;
         }
 
         if (noProcessing)
         {
             boolean camoInRenderType = nullLayer || renderTypes.camoTypes.contains(renderType);
             boolean additionalQuads = !nullLayer && renderTypes.additionalTypes.contains(renderType);
-            if (!camoInRenderType && !additionalQuads && !reinforce)
+            if (!camoInRenderType && !additionalQuads)
             {
                 return List.of();
             }
 
-            boolean needCopy = additionalQuads || reinforce || uncachedPostProcess;
+            boolean needCopy = additionalQuads || uncachedPostProcess;
             List<BakedQuad> quads = List.of();
             if (camoInRenderType)
             {
@@ -248,10 +244,6 @@ public final class FramedBlockModel extends AbstractFramedBlockModel
                 // List of quads is guaranteed to be an ArrayList by this point
                 geometry.getAdditionalQuads((ArrayList<BakedQuad>) quads, side, rand, extraData, renderType);
             }
-            if (reinforce)
-            {
-                quads.add(ReinforcementModel.getQuad(side));
-            }
             if (uncachedPostProcess)
             {
                 geometry.postProcessUncachedQuads(quads);
@@ -266,7 +258,7 @@ public final class FramedBlockModel extends AbstractFramedBlockModel
             if (quadTable == null)
             {
                 ModelData ctData = ctCtx != null ? camoData : ModelData.EMPTY;
-                quadTable = buildQuadCache(key.camo(), camoModel, rand, extraData, ctData, renderTypes, reinforce);
+                quadTable = buildQuadCache(key.camo(), camoModel, rand, extraData, ctData, renderTypes);
                 quadCache.put(key, quadTable);
             }
             return nullLayer ? quadTable.getAllQuads(side) : quadTable.getQuads(renderType, side);
@@ -292,8 +284,7 @@ public final class FramedBlockModel extends AbstractFramedBlockModel
             RandomSource rand,
             ModelData data,
             ModelData camoData,
-            CachedRenderTypes renderTypes,
-            boolean reinforce
+            CachedRenderTypes renderTypes
     )
     {
         QuadTable quadTable = new QuadTable();
@@ -304,10 +295,6 @@ public final class FramedBlockModel extends AbstractFramedBlockModel
             quadTable.initializeForLayer(renderType);
 
             ArrayList<BakedQuad> quads = ModelUtils.getCullableQuads(camoModel, camoContent.getAppearanceState(), rand, camoData, renderType, xformDirFilter);
-            if (reinforce && renderType == RenderType.cutout())
-            {
-                ReinforcementModel.getFiltered(quads, xformDirFilter);
-            }
             for (BakedQuad quad : quads)
             {
                 quad = preprocessor.apply(quad);
@@ -334,7 +321,6 @@ public final class FramedBlockModel extends AbstractFramedBlockModel
     {
         int idx = 0;
         if (fbData.useAltModel()) idx |= FLAG_NO_CAMO_ATL_MODEL;
-        if (fbData.isReinforced()) idx |= FLAG_NO_CAMO_REINFORCED;
         if (ClientConfig.VIEW.getSolidFrameMode().useSolidFrame(useSolidBase)) idx |= FLAG_NO_CAMO_SOLID_BG;
         return noCamoContents[idx];
     }
@@ -346,7 +332,6 @@ public final class FramedBlockModel extends AbstractFramedBlockModel
         {
             BlockState stateOut = state;
             if ((i & FLAG_NO_CAMO_ATL_MODEL) != 0) stateOut = stateOut.setValue(PropertyHolder.ALT, true);
-            if ((i & FLAG_NO_CAMO_REINFORCED) != 0) stateOut = stateOut.setValue(PropertyHolder.REINFORCED, true);
             if ((i & FLAG_NO_CAMO_SOLID_BG) != 0) stateOut = stateOut.setValue(PropertyHolder.SOLID_BG, true);
             contents[i] = new BlockCamoContent(stateOut);
         }

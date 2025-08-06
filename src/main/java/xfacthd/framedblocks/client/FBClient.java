@@ -227,7 +227,6 @@ public final class FBClient
     private static void onModelRegister(final ModelEvent.RegisterAdditional event)
     {
         event.register(FluidModel.BARE_MODEL);
-        event.register(ReinforcementModel.LOCATION);
         event.register(FramedMarkedCubeGeometry.SLIME_FRAME_LOCATION);
         event.register(FramedMarkedCubeGeometry.REDSTONE_FRAME_LOCATION);
         event.register(FramedTargetGeometry.OVERLAY_LOCATION);
@@ -255,7 +254,6 @@ public final class FBClient
     {
         StateLocationCache.clear();
         FluidCamoClientHandler.clearModelCache();
-        ReinforcementModel.reload(event.getModels());
         ErrorModel.reload(event.getModels());
     }
 

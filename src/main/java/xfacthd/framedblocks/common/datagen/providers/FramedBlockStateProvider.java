@@ -81,8 +81,6 @@ public final class FramedBlockStateProvider extends BlockStateProvider
                 .renderType("cutout");
         ModelFile altCube = models().cubeAll("framed_cube_alt", modLoc("block/framed_block_alt"))
                 .renderType("cutout");
-        ModelFile reinforcement = models().cubeAll("framed_reinforcement", modLoc("block/framed_reinforcement"))
-                .renderType("cutout");
 
         getMultipartBuilder(FBContent.BLOCK_FRAMED_CUBE.value())
                 .part()
@@ -99,11 +97,6 @@ public final class FramedBlockStateProvider extends BlockStateProvider
                     .modelFile(altCube)
                     .addModel()
                     .condition(PropertyHolder.ALT, true)
-                    .end()
-                .part()
-                    .modelFile(reinforcement)
-                    .addModel()
-                    .condition(PropertyHolder.REINFORCED, true)
                     .end();
 
         simpleBlockItem(FBContent.BLOCK_FRAMED_CUBE, cube);

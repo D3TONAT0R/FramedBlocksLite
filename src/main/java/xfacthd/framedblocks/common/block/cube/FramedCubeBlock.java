@@ -15,7 +15,6 @@ public class FramedCubeBlock extends FramedBlock
         super(BlockType.FRAMED_CUBE);
         registerDefaultState(defaultBlockState()
                 .setValue(PropertyHolder.ALT, false)
-                .setValue(PropertyHolder.REINFORCED, false)
                 .setValue(PropertyHolder.SOLID_BG, false)
         );
     }
@@ -24,7 +23,7 @@ public class FramedCubeBlock extends FramedBlock
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder)
     {
         super.createBlockStateDefinition(builder);
-        builder.add(FramedProperties.SOLID, PropertyHolder.ALT, PropertyHolder.REINFORCED, PropertyHolder.SOLID_BG);
+        builder.add(FramedProperties.SOLID, PropertyHolder.ALT, PropertyHolder.SOLID_BG);
     }
 
     @Override

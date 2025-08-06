@@ -14,14 +14,13 @@ public final class FramedBlockData
     private final CamoContent<?> camoContent;
     private final byte hidden;
     private final boolean altModel;
-    private final boolean reinforced;
 
     public FramedBlockData(CamoContent<?> camoContent, boolean altModel)
     {
-        this(camoContent, NO_CULLED_FACES, altModel, false);
+        this(camoContent, NO_CULLED_FACES, altModel);
     }
 
-    public FramedBlockData(CamoContent<?> camoContent, boolean[] hidden, boolean altModel, boolean reinforced)
+    public FramedBlockData(CamoContent<?> camoContent, boolean[] hidden, boolean altModel)
     {
         this.camoContent = camoContent;
         byte mask = 0;
@@ -34,7 +33,6 @@ public final class FramedBlockData
         }
         this.hidden = mask;
         this.altModel = altModel;
-        this.reinforced = reinforced;
     }
 
     public CamoContent<?> getCamoContent()
@@ -50,10 +48,5 @@ public final class FramedBlockData
     public boolean useAltModel()
     {
         return altModel;
-    }
-
-    public boolean isReinforced()
-    {
-        return reinforced;
     }
 }

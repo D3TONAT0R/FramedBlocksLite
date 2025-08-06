@@ -112,11 +112,6 @@ public final class FramedBlockModelProvider extends AbstractFramedBlockModelProv
                 TextureMapping.cube(TEXTURE_ALT),
                 blockModels.modelOutput
         );
-        ResourceLocation reinforcement = TEMPLATE_CUTOUT_CUBE.create(
-                Utils.rl("block/framed_reinforcement"),
-                TextureMapping.cube(Utils.rl("block/framed_reinforcement")),
-                blockModels.modelOutput
-        );
 
         framedMultiPart(blockModels, FBContent.BLOCK_FRAMED_CUBE, gen -> gen
                 .with(
@@ -130,10 +125,6 @@ public final class FramedBlockModelProvider extends AbstractFramedBlockModelProv
                 .with(
                         BlockModelGenerators.condition().term(PropertyHolder.ALT, true),
                         BlockModelGenerators.plainVariant(altCube)
-                )
-                .with(
-                        BlockModelGenerators.condition().term(PropertyHolder.REINFORCED, true),
-                        BlockModelGenerators.plainVariant(reinforcement)
                 )
         );
 

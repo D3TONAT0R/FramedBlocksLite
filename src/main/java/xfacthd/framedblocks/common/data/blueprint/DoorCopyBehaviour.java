@@ -54,24 +54,6 @@ public final class DoorCopyBehaviour implements BlueprintCopyBehaviour
     }
 
     @Override
-    public int getIntangibleCount(BlueprintData data)
-    {
-        // Doors don't support intangibility
-        return 0;
-    }
-
-    @Override
-    public int getReinforcementCount(BlueprintData data)
-    {
-        int count = BlueprintCopyBehaviour.super.getReinforcementCount(data);
-        if (getSecondData(data).reinforced())
-        {
-            count++;
-        }
-        return count;
-    }
-
-    @Override
     public void postProcessPaste(Level level, BlockPos pos, Player player, BlueprintData data, ItemStack dummyStack)
     {
         BlueprintData secData = getSecondData(data);

@@ -39,7 +39,6 @@ public final class ClientConfig
     private static final String KEY_STATE_LOCK_MODE = "stateLockMode";
     private static final String KEY_TOGGLE_WATERLOG_MODE = "toggleWaterlogMode";
     private static final String KEY_TOGGLE_Y_SLOPE_MODE = "toggleYSlopeMode";
-    private static final String KEY_REINFORCEMENT_MODE = "reinforcedMode";
     private static final String KEY_PRISM_OFFSET_MODE = "prismOffsetMode";
     private static final String KEY_SPLIT_LINES_MODE = "splitLineMode";
     private static final String KEY_ONE_WAY_WINDOW_MODE = "oneWayWindowMode";
@@ -66,7 +65,6 @@ public final class ClientConfig
     public static final String TRANSLATION_STATE_LOCK_MODE = translate(KEY_STATE_LOCK_MODE);
     public static final String TRANSLATION_TOGGLE_WATERLOG_MODE = translate(KEY_TOGGLE_WATERLOG_MODE);
     public static final String TRANSLATION_TOGGLE_Y_SLOPE_MODE = translate(KEY_TOGGLE_Y_SLOPE_MODE);
-    public static final String TRANSLATION_REINFORCEMENT_MODE = translate(KEY_REINFORCEMENT_MODE);
     public static final String TRANSLATION_PRISM_OFFSET_MODE = translate(KEY_PRISM_OFFSET_MODE);
     public static final String TRANSLATION_SPLIT_LINES_MODE = translate(KEY_SPLIT_LINES_MODE);
     public static final String TRANSLATION_ONE_WAY_WINDOW_MODE = translate(KEY_ONE_WAY_WINDOW_MODE);
@@ -97,7 +95,6 @@ public final class ClientConfig
     private static OverlayDisplayMode stateLockMode = OverlayDisplayMode.DETAILED;
     private static OverlayDisplayMode toggleWaterlogMode = OverlayDisplayMode.DETAILED;
     private static OverlayDisplayMode toggleYSlopeMode = OverlayDisplayMode.DETAILED;
-    private static OverlayDisplayMode reinforcementMode = OverlayDisplayMode.DETAILED;
     private static OverlayDisplayMode prismOffsetMode = OverlayDisplayMode.DETAILED;
     private static OverlayDisplayMode splitLineMode = OverlayDisplayMode.DETAILED;
     private static OverlayDisplayMode oneWayWindowMode = OverlayDisplayMode.DETAILED;
@@ -125,7 +122,6 @@ public final class ClientConfig
     private static final ModConfigSpec.EnumValue<OverlayDisplayMode> STATE_LOCK_MODE_VALUE;
     private static final ModConfigSpec.EnumValue<OverlayDisplayMode> TOGGLE_WATERLOG_MODE_VALUE;
     private static final ModConfigSpec.EnumValue<OverlayDisplayMode> TOGGLE_Y_SLOPE_MODE_VALUE;
-    private static final ModConfigSpec.EnumValue<OverlayDisplayMode> REINFORCEMENT_MODE_VALUE;
     private static final ModConfigSpec.EnumValue<OverlayDisplayMode> PRISM_OFFSET_MODE_VALUE;
     private static final ModConfigSpec.EnumValue<OverlayDisplayMode> SPLIT_LINE_MODE_VALUE;
     private static final ModConfigSpec.EnumValue<OverlayDisplayMode> ONE_WAY_WINDOW_MODE_VALUE;
@@ -263,12 +259,6 @@ public final class ClientConfig
                 .comment(COMMENT_OVERLAY_DETAILED.formatted("Toggle Slope Face"))
                 .translation(TRANSLATION_TOGGLE_Y_SLOPE_MODE)
                 .defineEnum(KEY_TOGGLE_Y_SLOPE_MODE, OverlayDisplayMode.DETAILED);
-        REINFORCEMENT_MODE_VALUE = builder
-                .comment(COMMENT_OVERLAY_HIDDEN.formatted("Reinforcement"))
-                .comment(COMMENT_OVERLAY_ICON.formatted("Reinforcement"))
-                .comment(COMMENT_OVERLAY_DETAILED.formatted("Reinforcement"))
-                .translation(TRANSLATION_REINFORCEMENT_MODE)
-                .defineEnum(KEY_REINFORCEMENT_MODE, OverlayDisplayMode.DETAILED);
         PRISM_OFFSET_MODE_VALUE = builder
                 .comment(COMMENT_OVERLAY_HIDDEN.formatted("Prism Offset"))
                 .comment(COMMENT_OVERLAY_ICON.formatted("Prism Offset"))
@@ -344,7 +334,6 @@ public final class ClientConfig
             stateLockMode = STATE_LOCK_MODE_VALUE.get();
             toggleWaterlogMode = TOGGLE_WATERLOG_MODE_VALUE.get();
             toggleYSlopeMode = TOGGLE_Y_SLOPE_MODE_VALUE.get();
-            reinforcementMode = REINFORCEMENT_MODE_VALUE.get();
             prismOffsetMode = PRISM_OFFSET_MODE_VALUE.get();
             splitLineMode = SPLIT_LINE_MODE_VALUE.get();
             oneWayWindowMode = ONE_WAY_WINDOW_MODE_VALUE.get();
@@ -472,12 +461,6 @@ public final class ClientConfig
         public OverlayDisplayMode getToggleYSlopeMode()
         {
             return toggleYSlopeMode;
-        }
-
-        @Override
-        public OverlayDisplayMode getReinforcementMode()
-        {
-            return reinforcementMode;
         }
 
         @Override

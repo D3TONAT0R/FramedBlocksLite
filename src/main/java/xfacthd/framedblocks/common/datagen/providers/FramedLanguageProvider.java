@@ -79,7 +79,6 @@ public final class FramedLanguageProvider extends LanguageProvider
         add(FBContent.ITEM_FRAMED_BLUEPRINT.value(), "Framed Blueprint");
         add(FBContent.ITEM_FRAMED_KEY.value(), "Framed Key");
         add(FBContent.ITEM_FRAMED_SCREWDRIVER.value(), "Framed Screwdriver");
-        add(FBContent.ITEM_FRAMED_REINFORCEMENT.value(), "Framed Reinforcement");
     }
 
     private void addSpecialTranslations()
@@ -106,7 +105,6 @@ public final class FramedLanguageProvider extends LanguageProvider
         add(JadeCompat.LABEL_CAMO_TWO, "Camo two: %s");
 
         add(Utils.TOOL_WRENCH, "Wrenches");
-        add(Utils.DISABLE_INTANGIBLE, "Disable Intangibility");
         add(Utils.GROUP_FULL_CUBE, "Full Framed Blocks");
     }
 
@@ -128,8 +126,6 @@ public final class FramedLanguageProvider extends LanguageProvider
         add(FramedBlueprintItem.CONTAINED_BLOCK, "Contained Block: %s");
         add(FramedBlueprintItem.CAMO_BLOCK, "Camo Block: %s");
         add(FramedBlueprintItem.IS_ILLUMINATED, "Illuminated: %s");
-        add(FramedBlueprintItem.IS_INTANGIBLE, "Intangible: %s");
-        add(FramedBlueprintItem.IS_REINFORCED, "Reinforced: %s");
         add(FramedBlueprintItem.MISSING_MATERIALS, "[Framed Blueprint] Missing required materials:");
         add(FramedBlueprintItem.BLOCK_NONE, "None");
         add(FramedBlueprintItem.BLOCK_INVALID, "Invalid");
@@ -155,10 +151,6 @@ public final class FramedLanguageProvider extends LanguageProvider
         add(ToggleYSlopeOverlay.SLOPE_FRONT, "front");
         add(ToggleYSlopeOverlay.SLOPE_SIDE, "right");
 
-        add(ReinforcementOverlay.REINFORCE_MESSAGE, "Block is %s.");
-        add(ReinforcementOverlay.STATE_NOT_REINFORCED, "not reinforced");
-        add(ReinforcementOverlay.STATE_REINFORCED, "reinforced");
-
         add(SplitLineOverlay.SPLIT_LINE_FALSE, "Split-line of the deformed face runs along the steep diagonal.");
         add(SplitLineOverlay.SPLIT_LINE_TRUE, "Split-line of the deformed face runs along the shallow diagonal.");
         add(SplitLineOverlay.MSG_SWITCH_SPLIT_LINE, "Hit with a Framed Wrench to switch the orientation of the split-line");
@@ -181,7 +173,6 @@ public final class FramedLanguageProvider extends LanguageProvider
         add("framedblocks.configuration.general", "General");
         add("framedblocks.configuration.powered_framing_saw", "Powered Framing Saw");
         add(ServerConfig.TRANSLATION_ALLOW_BLOCK_ENTITIES, "Allow BlockEntities");
-        add(ServerConfig.TRANSLATION_ENABLE_INTANGIBILITY, "Enable intangibility feature");
         add(ServerConfig.TRANSLATION_ONE_WAY_WINDOW_OWNABLE, "One-Way Window ownability");
         add(ServerConfig.TRANSLATION_CONSUME_CAMO_ITEM, "Consume camo item");
         add(ServerConfig.TRANSLATION_GLOWSTONE_LIGHT_LEVEL, "Glowstone Light Level");
@@ -212,7 +203,6 @@ public final class FramedLanguageProvider extends LanguageProvider
         add(ClientConfig.TRANSLATION_STATE_LOCK_MODE, "State lock overlay: Display mode");
         add(ClientConfig.TRANSLATION_TOGGLE_WATERLOG_MODE, "Toggle waterloggable overlay: Display mode");
         add(ClientConfig.TRANSLATION_TOGGLE_Y_SLOPE_MODE, "Toggle Y slope overlay: Display mode");
-        add(ClientConfig.TRANSLATION_REINFORCEMENT_MODE, "Reinforcement overlay: Display mode");
         add(ClientConfig.TRANSLATION_PRISM_OFFSET_MODE, "Prism offset overlay: Display mode");
         add(ClientConfig.TRANSLATION_SPLIT_LINES_MODE, "Collapsible block split lines overlay: Display mode");
         add(ClientConfig.TRANSLATION_ONE_WAY_WINDOW_MODE, "One-Way Window overlay: Display mode");

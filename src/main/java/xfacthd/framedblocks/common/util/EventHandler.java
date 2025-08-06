@@ -30,14 +30,6 @@ public final class EventHandler
                     ClientAccess.resetDestroyDelay();
                 }
             }
-
-            if (ServerConfig.VIEW.enableIntangibility() && !event.isCanceled() && block.getBlockType().allowMakingIntangible())
-            {
-                if (level.getBlockEntity(pos) instanceof FramedBlockEntity be && be.isIntangible(null))
-                {
-                    event.setCanceled(true);
-                }
-            }
         }
     }
 

@@ -125,12 +125,6 @@ final class FramedBlockEntityData extends NBTTileEntityData
             builder.add(UniqueItem.ofStack(new ItemStack(Items.GLOWSTONE_DUST)));
         }
 
-        //Add intangible marker item
-        if (be.isIntangible(CollisionContext.empty()))
-        {
-            builder.add(UniqueItem.ofStack(new ItemStack(ServerConfig.intangibleMarkerItem)));
-        }
-
         return builder.build();
     }
 }*/

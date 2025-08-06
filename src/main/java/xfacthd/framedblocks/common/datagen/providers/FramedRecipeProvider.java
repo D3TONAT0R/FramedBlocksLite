@@ -277,16 +277,6 @@ public final class FramedRecipeProvider extends RecipeProvider
                 .unlockedBy(FBContent.BLOCK_FRAMED_CUBE)
                 .save(consumer);
 
-        shapedRecipe(RecipeCategory.MISC, FBContent.ITEM_FRAMED_REINFORCEMENT.value(), 16)
-                .pattern("OSO")
-                .pattern("SFS")
-                .pattern("OSO")
-                .define('O', Tags.Items.OBSIDIANS)
-                .define('S', Items.STICK)
-                .define('F', FBContent.BLOCK_FRAMED_CUBE.value())
-                .unlockedBy(FBContent.BLOCK_FRAMED_CUBE)
-                .save(consumer);
-
 
 
 

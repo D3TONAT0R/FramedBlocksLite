@@ -47,10 +47,6 @@ public class FramedBlockEntityItemRequirement implements SchematicRequirementReg
             {
                 requirements.add(consume(Items.GLOWSTONE_DUST));
             }
-            if (fbe.isReinforced())
-            {
-                requirements.add(consume(Utils.FRAMED_REINFORCEMENT.value()));
-            }
 
             collectAdditionalRequirements(fbe, requirements);
 

@@ -114,10 +114,6 @@ public abstract class AbstractFramedBlock extends Block implements IFramedBlock,
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx)
     {
-        if (isIntangible(state, level, pos, ctx))
-        {
-            return Shapes.empty();
-        }
         return shapes.get(state);
     }
 

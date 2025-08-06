@@ -291,15 +291,7 @@ public interface IFramedBlock extends EntityBlock, IBlockExtension
             BlockGetter level, BlockPos pos, BlockState state, BlockPos adjPos, BlockState adjState
     )
     {
-        if (!ConfigView.Server.INSTANCE.enableIntangibility())
-        {
-            return false;
-        }
-        if (adjState.getBlock() instanceof IFramedBlock adjBlock && adjBlock.isIntangible(adjState, level, adjPos, null))
-        {
-            return false;
-        }
-        return isIntangible(state, level, pos, null);
+        return false;
     }
 
     @Override
@@ -396,15 +388,6 @@ public interface IFramedBlock extends EntityBlock, IBlockExtension
         return false;
     }
 
-    default boolean isIntangible(@SuppressWarnings("unused") BlockState state, BlockGetter level, BlockPos pos, @Nullable CollisionContext ctx)
-    {
-        if (!ConfigView.Server.INSTANCE.enableIntangibility() || !getBlockType().allowMakingIntangible())
-        {
-            return false;
-        }
-        return level.getBlockEntity(pos) instanceof FramedBlockEntity be && be.isIntangible(ctx);
-    }
-
     default boolean isCamoEmissiveRendering(@SuppressWarnings("unused") BlockState state, BlockGetter level, BlockPos pos)
     {
         ModelData modelData = level.getModelData(pos);
@@ -426,16 +409,6 @@ public interface IFramedBlock extends EntityBlock, IBlockExtension
     @SuppressWarnings("deprecation")
     default boolean isSuffocating(BlockState state, BlockGetter level, BlockPos pos)
     {
-        if (ConfigView.Server.INSTANCE.enableIntangibility() && getBlockType().allowMakingIntangible())
-        {
-            // The given BlockPos may be a neighboring block due to how Entity#isInWall() calls this
-            BlockState stateAtPos = level.getBlockState(pos);
-            if (state != stateAtPos || isIntangible(state, level, pos, null))
-            {
-                return false;
-            }
-        }
-
         // Copy of the default suffocation check
         return state.blocksMotion() && state.isCollisionShapeFullBlock(level, pos);
     }

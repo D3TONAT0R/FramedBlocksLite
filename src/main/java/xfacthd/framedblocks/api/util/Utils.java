@@ -59,8 +59,6 @@ public final class Utils
     public static final TagKey<Block> NON_OCCLUDEABLE = blockTag("non_occludeable");
     public static final TagKey<Item> TOOL_WRENCH = itemTag("c", "tools/wrench");
     public static final TagKey<Item> COMPLEX_WRENCH = itemTag("complex_wrench");
-    /** Allow other mods to add items that temporarily disable intangibility to allow interaction with the targeted block */
-    public static final TagKey<Item> DISABLE_INTANGIBLE = itemTag("disable_intangible");
     /** Group tag containing all full-cube blocks excluding ones that can deviate from that via player interaction */
     public static final TagKey<Block> GROUP_FULL_CUBE = blockTag("group/full");
 
@@ -91,7 +89,6 @@ public final class Utils
     public static final Holder<Item> FRAMED_WRENCH = DeferredItem.createItem(Utils.rl("framed_wrench"));
     public static final Holder<Item> FRAMED_KEY = DeferredItem.createItem(Utils.rl("framed_key"));
     public static final Holder<Item> FRAMED_SCREWDRIVER = DeferredItem.createItem(Utils.rl("framed_screwdriver"));
-    public static final Holder<Item> FRAMED_REINFORCEMENT = DeferredItem.createItem(Utils.rl("framed_reinforcement"));
 
     public static final DeferredDataComponentType<CamoList> DC_TYPE_CAMO_LIST = DeferredDataComponentType.createDataComponent(
             Utils.rl("camo_list")
@@ -515,15 +512,11 @@ public final class Utils
     {
         CamoContainer<?, ?> camo = EmptyCamoContainer.EMPTY;
         boolean glowing = false;
-        boolean intangible = false;
-        boolean reinforced = false;
 
         if (level.getBlockEntity(pos) instanceof FramedBlockEntity be)
         {
             camo = be.getCamo();
             glowing = be.isGlowing();
-            intangible = be.isIntangible(null);
-            reinforced = be.isReinforced();
         }
 
         action.run();
@@ -538,8 +531,6 @@ public final class Utils
         {
             be.setCamo(camo, writeToCamoTwo);
             be.setGlowing(glowing);
-            be.setIntangible(intangible);
-            be.setReinforced(reinforced);
         }
     }
 

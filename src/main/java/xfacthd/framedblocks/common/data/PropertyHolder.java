@@ -29,7 +29,6 @@ public final class PropertyHolder
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
     public static final BooleanProperty SECOND = BooleanProperty.create("second");
     public static final BooleanProperty ALT = BooleanProperty.create("alt");
-    public static final BooleanProperty REINFORCED = BooleanProperty.create("reinforced");
     public static final BooleanProperty SOLID_BG = BooleanProperty.create("solid_bg");
     public static final BooleanProperty ALT_TYPE = BooleanProperty.create("alt_type");
     public static final BooleanProperty SAW_ENCODER = BooleanProperty.create("saw_encoder");

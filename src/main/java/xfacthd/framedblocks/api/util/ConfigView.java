@@ -19,11 +19,6 @@ public final class ConfigView
         boolean allowBlockEntities();
 
         /**
-         * If true, certain blocks can be made intangible
-         */
-        boolean enableIntangibility();
-
-        /**
          * If true, the One-Way Window is owned by the player who placed it and can only be configured by said player
          */
         boolean isOneWayWindowOwnable();

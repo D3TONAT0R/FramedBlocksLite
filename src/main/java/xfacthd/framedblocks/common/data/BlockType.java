@@ -187,12 +187,6 @@ public enum BlockType implements IBlockType
     }
 
     @Override
-    public boolean allowMakingIntangible()
-    {
-        return allowIntangible;
-    }
-
-    @Override
     public boolean isDoubleBlock()
     {
         return doubleBlock;

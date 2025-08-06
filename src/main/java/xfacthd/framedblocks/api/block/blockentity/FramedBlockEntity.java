@@ -67,15 +67,11 @@ public class FramedBlockEntity extends BlockEntity
     private static final Direction[] DIRECTIONS = Direction.values();
     private static final int DATA_VERSION = 3;
     protected static final int FLAG_GLOWING = 1;
-    protected static final int FLAG_INTANGIBLE = 1 << 1;
-    protected static final int FLAG_REINFORCED = 1 << 2;
 
     private final boolean[] culledFaces = new boolean[6];
     private StateCache stateCache;
     private CamoContainer<?, ?> camoContainer = EmptyCamoContainer.EMPTY;
     private boolean glowing = false;
-    private boolean intangible = false;
-    private boolean reinforced = false;
     private boolean recheckStates = false;
     private boolean forceLightUpdate = false;
     private boolean cullStateDirty = false;
@@ -190,36 +186,6 @@ public class FramedBlockEntity extends BlockEntity
             return ItemInteractionResult.sidedSuccess(level().isClientSide());
         }
         return ItemInteractionResult.FAIL;
-    }
-
-    private ItemInteractionResult applyReinforcement(Player player, ItemStack stack)
-    {
-        if (!level().isClientSide())
-        {
-            if (!player.isCreative())
-            {
-                stack.shrink(1);
-            }
-
-            setReinforced(true);
-        }
-        return ItemInteractionResult.sidedSuccess(level().isClientSide());
-    }
-
-    private ItemInteractionResult removeReinforcement(Player player, ItemStack stack, InteractionHand hand)
-    {
-        if (!level().isClientSide())
-        {
-            setReinforced(false);
-
-            if (!player.isCreative())
-            {
-                stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
-            }
-
-            Utils.giveToPlayer(player, new ItemStack(Utils.FRAMED_REINFORCEMENT.value()), true);
-        }
-        return ItemInteractionResult.sidedSuccess(level().isClientSide());
     }
 
     /**
@@ -365,7 +331,7 @@ public class FramedBlockEntity extends BlockEntity
         if (updateSolid && getBlock().getBlockType().canOccludeWithSolidCamo())
         {
             boolean wasSolid = getBlockState().getValue(FramedProperties.SOLID);
-            boolean solid = !intangible && isCamoSolid();
+            boolean solid = isCamoSolid();
 
             if (solid != wasSolid)
             {
@@ -451,37 +417,21 @@ public class FramedBlockEntity extends BlockEntity
     public float getCamoExplosionResistance(Explosion explosion)
     {
         float camoRes = camoContainer.getContent().getExplosionResistance(level(), worldPosition, explosion);
-        if (reinforced)
-        {
-            camoRes = Math.max(camoRes, Blocks.OBSIDIAN.getExplosionResistance());
-        }
         return camoRes;
     }
 
     public boolean isCamoFlammable(Direction face)
     {
-        if (reinforced)
-        {
-            return false;
-        }
         return camoContainer.isEmpty() || camoContainer.getContent().isFlammable(level(), worldPosition, face);
     }
 
     public int getCamoFlammability(Direction face)
     {
-        if (reinforced)
-        {
-            return 0;
-        }
         return camoContainer.isEmpty() ? -1 : camoContainer.getContent().getFlammability(level(), worldPosition, face);
     }
 
     public int getCamoFireSpreadSpeed(Direction face)
     {
-        if (reinforced)
-        {
-            return 0;
-        }
         return camoContainer.isEmpty() ? -1 : camoContainer.getContent().getFireSpreadSpeed(level(), worldPosition, face);
     }
 
@@ -520,67 +470,12 @@ public class FramedBlockEntity extends BlockEntity
         return Math.max(baseLight, camoContainer.getContent().getLightEmission());
     }
 
-    public void setIntangible(boolean intangible)
-    {
-        if (this.intangible != intangible)
-        {
-            this.intangible = intangible;
-
-            setChangedWithoutSignalUpdate();
-
-            if (!updateDynamicStates(true, false, false))
-            {
-                level().sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
-            }
-        }
-    }
-
-    public boolean isIntangible(@Nullable CollisionContext ctx)
-    {
-        if (!ConfigView.Server.INSTANCE.enableIntangibility() || !intangible)
-        {
-            return false;
-        }
-
-        if (ctx instanceof EntityCollisionContext ectx && ectx.getEntity() instanceof Player player)
-        {
-            ItemStack mainItem = player.getMainHandItem();
-            if (mainItem.isEmpty())
-            {
-                return true;
-            }
-            if (mainItem.is(Utils.DISABLE_INTANGIBLE) || Utils.isWrenchRotationTool(mainItem) || Utils.isConfigurationTool(mainItem))
-            {
-                return false;
-            }
-            return !isValidRemovalToolForAnyCamo(mainItem);
-        }
-
-        return true;
-    }
-
     /**
      * {@return whether any of the camos applied to this block can be removed with the given item}
      */
     protected boolean isValidRemovalToolForAnyCamo(ItemStack stack)
     {
         return CamoContainerHelper.isValidRemovalTool(camoContainer, stack);
-    }
-
-    public void setReinforced(boolean reinforced)
-    {
-        if (this.reinforced != reinforced)
-        {
-            this.reinforced = reinforced;
-
-            level().sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
-            setChangedWithoutSignalUpdate();
-        }
-    }
-
-    public boolean isReinforced()
-    {
-        return reinforced;
     }
 
     protected final void doLightUpdate()
@@ -641,10 +536,6 @@ public class FramedBlockEntity extends BlockEntity
         {
             addCamoDrops(drops);
         }
-        if (reinforced)
-        {
-            drops.add(new ItemStack(Utils.FRAMED_REINFORCEMENT.value()));
-        }
     }
 
     protected void addCamoDrops(List<ItemStack> drops)
@@ -697,10 +588,6 @@ public class FramedBlockEntity extends BlockEntity
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean canEntityDestroyCamo(Entity entity)
     {
-        if (reinforced && !Blocks.OBSIDIAN.defaultBlockState().canEntityDestroy(level(), worldPosition, entity))
-        {
-            return false;
-        }
         return camoContainer.getContent().canEntityDestroy(level(), worldPosition, entity);
     }
 
@@ -791,21 +678,6 @@ public class FramedBlockEntity extends BlockEntity
             doLightUpdate();
         }
 
-        boolean newIntangible = readFlag(flags, FLAG_INTANGIBLE);
-        if (newIntangible != intangible)
-        {
-            intangible = newIntangible;
-            needUpdate = true;
-            needCullingUpdate = true;
-        }
-
-        boolean newReinforced = readFlag(flags, FLAG_REINFORCED);
-        if (newReinforced != reinforced)
-        {
-            reinforced = newReinforced;
-            needUpdate = true;
-        }
-
         if (needCullingUpdate)
         {
             updateCulling(true, false);
@@ -835,13 +707,6 @@ public class FramedBlockEntity extends BlockEntity
 
         byte flags = nbt.getByte("flags");
         glowing = readFlag(flags, FLAG_GLOWING);
-        intangible = readFlag(flags, FLAG_INTANGIBLE);
-
-        boolean newReinforced = readFlag(flags, FLAG_REINFORCED);
-        if (newReinforced != reinforced)
-        {
-            reinforced = newReinforced;
-        }
 
         requestModelDataUpdate();
     }
@@ -861,8 +726,6 @@ public class FramedBlockEntity extends BlockEntity
     {
         byte flags = 0;
         if (glowing) flags |= FLAG_GLOWING;
-        if (intangible) flags |= FLAG_INTANGIBLE;
-        if (reinforced) flags |= FLAG_REINFORCED;
         return flags;
     }
 
@@ -892,7 +755,7 @@ public class FramedBlockEntity extends BlockEntity
     public ModelData getModelData(boolean includeCullInfo)
     {
         boolean[] cullData = includeCullInfo ? culledFaces : FramedBlockData.NO_CULLED_FACES;
-        FramedBlockData modelData = new FramedBlockData(camoContainer.getContent(), cullData, false, isReinforced());
+        FramedBlockData modelData = new FramedBlockData(camoContainer.getContent(), cullData, false);
         ModelData.Builder builder = ModelData.builder().with(FramedBlockData.PROPERTY, modelData);
         attachAdditionalModelData(builder);
         return builder.build();
@@ -910,8 +773,8 @@ public class FramedBlockEntity extends BlockEntity
                 getBlockState().getBlock(),
                 collectCamosForBlueprint(),
                 glowing,
-                intangible,
-                reinforced,
+                false,
+                false,
                 BlockItemStateProperties.EMPTY,
                 collectAuxBlueprintData()
         );
@@ -931,8 +794,6 @@ public class FramedBlockEntity extends BlockEntity
     {
         applyCamosFromBlueprint(blueprintData);
         setGlowing(blueprintData.glowing());
-        setIntangible(blueprintData.intangible());
-        setReinforced(blueprintData.reinforced());
         blueprintData.auxData().ifPresent(this::applyAuxDataFromBlueprint);
     }
 
@@ -952,8 +813,6 @@ public class FramedBlockEntity extends BlockEntity
     {
         tag.remove(CAMO_NBT_KEY);
         tag.remove("glowing");
-        tag.remove("intangible");
-        tag.remove("reinforced");
         tag.remove("updated");
     }
 
@@ -963,7 +822,7 @@ public class FramedBlockEntity extends BlockEntity
         collectCamoComponents(builder);
         collectMiscComponents(builder);
 
-        FrameConfig cfg = new FrameConfig(glowing, intangible, reinforced);
+        FrameConfig cfg = new FrameConfig(glowing);
         if (!cfg.equals(FrameConfig.DEFAULT))
         {
             builder.set(Utils.DC_TYPE_FRAME_CONFIG, cfg);
@@ -1002,8 +861,6 @@ public class FramedBlockEntity extends BlockEntity
     {
         nbt.put(CAMO_NBT_KEY, CamoContainerHelper.writeToDisk(camoContainer));
         nbt.putBoolean("glowing", glowing);
-        nbt.putBoolean("intangible", intangible);
-        nbt.putBoolean("reinforced", reinforced);
         nbt.putByte("updated", (byte) DATA_VERSION);
 
         super.saveAdditional(nbt, provider);
@@ -1016,8 +873,6 @@ public class FramedBlockEntity extends BlockEntity
 
         camoContainer = loadAndValidateCamo(nbt, CAMO_NBT_KEY);
         glowing = nbt.getBoolean("glowing");
-        intangible = nbt.getBoolean("intangible");
-        reinforced = nbt.getBoolean("reinforced");
 
         if (glowing)
         {

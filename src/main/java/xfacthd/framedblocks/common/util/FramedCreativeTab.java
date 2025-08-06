@@ -28,8 +28,6 @@ public final class FramedCreativeTab
                     {
                         output.accept(FBContent.toolByType(tool));
                     }
-
-                    output.accept(FBContent.ITEM_FRAMED_REINFORCEMENT.value());
                 })
                 .build();
     }
