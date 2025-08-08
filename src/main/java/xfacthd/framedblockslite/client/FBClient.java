@@ -45,10 +45,8 @@ import xfacthd.framedblockslite.client.model.*;
 import xfacthd.framedblockslite.client.model.cube.*;
 import xfacthd.framedblockslite.client.model.door.*;
 import xfacthd.framedblockslite.client.model.interactive.*;
-import xfacthd.framedblockslite.client.model.pane.*;
 import xfacthd.framedblockslite.client.model.pillar.*;
 import xfacthd.framedblockslite.client.model.slab.*;
-import xfacthd.framedblockslite.client.model.slopepanelcorner.*;
 import xfacthd.framedblockslite.client.model.stairs.*;
 import xfacthd.framedblockslite.client.model.DoubleBlockItemModelInfo;
 import xfacthd.framedblockslite.client.model.FluidModel;
@@ -56,7 +54,6 @@ import xfacthd.framedblockslite.client.model.FramedDoubleBlockModel;
 import xfacthd.framedblockslite.client.model.cube.FramedBookshelfGeometry;
 import xfacthd.framedblockslite.client.model.cube.FramedCubeGeometry;
 import xfacthd.framedblockslite.client.model.cube.FramedMarkedCubeGeometry;
-import xfacthd.framedblockslite.client.model.cube.FramedTargetGeometry;
 import xfacthd.framedblockslite.client.model.door.*;
 import xfacthd.framedblockslite.client.model.interactive.FramedButtonGeometry;
 import xfacthd.framedblockslite.client.model.interactive.FramedMarkedPressurePlateGeometry;
@@ -261,7 +258,6 @@ public final class FBClient
         event.register(FluidModel.BARE_MODEL);
         event.register(FramedMarkedCubeGeometry.SLIME_FRAME_LOCATION);
         event.register(FramedMarkedCubeGeometry.REDSTONE_FRAME_LOCATION);
-        event.register(FramedTargetGeometry.OVERLAY_LOCATION);
         event.register(ErrorModel.LOCATION);
 
         if (AmendmentsCompat.isLoaded())
