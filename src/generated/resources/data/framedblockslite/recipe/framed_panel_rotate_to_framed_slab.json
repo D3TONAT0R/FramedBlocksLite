@@ -1,0 +1,13 @@
+{
+  "type": "framedblockslite:rotate_shape",
+  "block": {
+    "item": "framedblockslite:framed_panel"
+  },
+  "result": {
+    "count": 1,
+    "id": "framedblockslite:framed_slab"
+  },
+  "tool": {
+    "tag": "c:tools/wrench"
+  }
+}

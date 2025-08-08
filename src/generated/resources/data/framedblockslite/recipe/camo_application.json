@@ -1,0 +1,7 @@
+{
+  "type": "framedblockslite:apply_camo",
+  "category": "misc",
+  "copy_tool": {
+    "item": "minecraft:brush"
+  }
+}

@@ -5,10 +5,10 @@ plugins {
 }
 
 version = mod_version
-group = 'xfacthd.framedblocks'
+group = 'xfacthd.framedblockslite'
 
 base {
-    archivesName = 'FramedBlocks'
+    archivesName = 'FramedBlocksLite'
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
@@ -24,7 +24,7 @@ neoForge {
     runs {
         configureEach {
             // systemProperty  'neoforge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            systemProperty 'neoforge.enabledGameTestNamespaces', 'framedblocks'
+            systemProperty 'neoforge.enabledGameTestNamespaces', 'framedblockslite'
             systemProperty 'terminal.ansi', 'true'
 
             logLevel = org.slf4j.event.Level.DEBUG
@@ -49,7 +49,7 @@ neoForge {
             gameDirectory = project.file('run')
 
             programArguments.addAll(
-                    '--mod', 'framedblocks',
+                    '--mod', 'framedblockslite',
                     '--all',
                     '--output', file('src/generated/resources/').getAbsolutePath(),
                     '--existing', file('src/main/resources/').getAbsolutePath(),
@@ -64,7 +64,7 @@ neoForge {
     }
 
     mods {
-        framedblocks {
+        framedblockslite {
             sourceSet(project.sourceSets.main)
             sourceSet(project.sourceSets.test)
         }

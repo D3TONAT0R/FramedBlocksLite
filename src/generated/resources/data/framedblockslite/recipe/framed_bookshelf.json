@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "B": {
+      "item": "minecraft:book"
+    },
+    "F": {
+      "item": "framedblockslite:framed_cube"
+    }
+  },
+  "pattern": [
+    "FFF",
+    "BBB",
+    "FFF"
+  ],
+  "result": {
+    "count": 1,
+    "id": "framedblockslite:framed_bookshelf"
+  }
+}

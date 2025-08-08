@@ -1,0 +1,28 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "framedblockslite:block/framed_underlay"
+      },
+      "when": {
+        "solid_bg": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "framedblockslite:block/framed_cube"
+      },
+      "when": {
+        "alt": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "framedblockslite:block/framed_cube_alt"
+      },
+      "when": {
+        "alt": "true"
+      }
+    }
+  ]
+}

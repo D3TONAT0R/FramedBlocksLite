@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/slab",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "bottom": "framedblockslite:block/framed_block",
+    "side": "framedblockslite:block/framed_block",
+    "top": "framedblockslite:block/framed_block"
+  }
+}

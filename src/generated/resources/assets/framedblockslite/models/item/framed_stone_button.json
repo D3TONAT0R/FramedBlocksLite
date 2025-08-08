@@ -1,0 +1,4 @@
+{
+  "parent": "framedblockslite:block/framed_stone_cube",
+  "render_type": "minecraft:cutout"
+}

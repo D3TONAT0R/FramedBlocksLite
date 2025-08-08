@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "framedblockslite:framed_slab_corner"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "framedblockslite:framed_half_pillar"
+  }
+}

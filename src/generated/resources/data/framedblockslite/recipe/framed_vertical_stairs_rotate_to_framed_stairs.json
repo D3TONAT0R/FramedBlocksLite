@@ -1,0 +1,13 @@
+{
+  "type": "framedblockslite:rotate_shape",
+  "block": {
+    "item": "framedblockslite:framed_vertical_stairs"
+  },
+  "result": {
+    "count": 1,
+    "id": "framedblockslite:framed_stairs"
+  },
+  "tool": {
+    "tag": "c:tools/wrench"
+  }
+}

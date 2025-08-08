@@ -1,117 +1,117 @@
 modLoader="javafml"
 loaderVersion="[1,)"
-issueTrackerURL="https://www.github.com/xfacthd/framedblocks"
+issueTrackerURL="https://www.github.com/xfacthd/framedblockslite"
 license="LGPL v3"
 
 [[mods]]
-    modId="framedblocks"
+    modId="framedblockslite"
     version="${mod_version}"
-    displayName="FramedBlocks"
-    displayURL="https://www.curseforge.com/minecraft/mc-mods/framedblocks"
+    displayName="FramedBlocksLite"
+    displayURL="https://www.curseforge.com/minecraft/mc-mods/framedblockslite"
     logoFile="logo.png"
     logoBlur=false
-    authors="XFactHD"
+    authors="XFactHD, D3TONAT0R"
     description='''Fancy building blocks'''
 
 
 
 [[mixins]]
-    config="framedblocks.mixin.json"
+    config="framedblockslite.mixin.json"
 
 
 
-[[dependencies.framedblocks]]
+[[dependencies.framedblockslite]]
     modId="neoforge"
     type="required"
     versionRange="${neoforge_version_range}"
     ordering="NONE"
     side="BOTH"
 
-[[dependencies.framedblocks]]
+[[dependencies.framedblockslite]]
     modId="minecraft"
     type="required"
     versionRange="${minecraft_version_range}"
     ordering="NONE"
     side="BOTH"
 
-[[dependencies.framedblocks]]
+[[dependencies.framedblockslite]]
     modId="athena"
     type="optional"
     versionRange="[${athena_version},)"
     ordering="NONE"
     side="CLIENT"
 
-[[dependencies.framedblocks]]
+[[dependencies.framedblockslite]]
     modId="atlasviewer"
     type="optional"
     versionRange="[${atlasviewer_version},)"
     ordering="NONE"
     side="CLIENT"
 
-[[dependencies.framedblocks]]
+[[dependencies.framedblockslite]]
     modId="buildinggadgets"
     type="optional"
     versionRange="[${buildinggadgets_version},)"
     ordering="AFTER"
     side="BOTH"
 
-[[dependencies.framedblocks]]
+[[dependencies.framedblockslite]]
     modId="create"
     type="optional"
     versionRange="[${create_version},)"
     ordering="AFTER"
     side="BOTH"
 
-[[dependencies.framedblocks]]
+[[dependencies.framedblockslite]]
     modId="diagonalblocks"
     type="optional"
     versionRange="[${diag_blocks_version},)"
     ordering="AFTER"
     side="BOTH"
 
-[[dependencies.framedblocks]]
+[[dependencies.framedblockslite]]
     modId="emi"
     type="optional"
     versionRange="[${emi_version},)"
     ordering="NONE"
     side="BOTH"
 
-[[dependencies.framedblocks]]
+[[dependencies.framedblockslite]]
     modId="jei"
     type="optional"
     versionRange="[${jei_version},)"
     ordering="NONE"
     side="BOTH"
 
-[[dependencies.framedblocks]]
+[[dependencies.framedblockslite]]
     modId="rei"
     type="optional"
     versionRange="[${rei_version},)"
     ordering="NONE"
     side="BOTH"
 
-[[dependencies.framedblocks]]
+[[dependencies.framedblockslite]]
     modId="amendments"
     type="optional"
     versionRange="[${amendments_version},)"
     ordering="NONE"
     side="BOTH"
 
-[[dependencies.framedblocks]]
+[[dependencies.framedblockslite]]
     modId="ae2"
     type="optional"
     versionRange="[${ae2_version},)"
     ordering="NONE"
     side="BOTH"
 
-[[dependencies.framedblocks]]
+[[dependencies.framedblockslite]]
     modId="searchables"
     type="optional"
     versionRange="[${searchables_version},)"
     ordering="NONE"
     side="CLIENT"
 
-[[dependencies.framedblocks]]
+[[dependencies.framedblockslite]]
     modId="additionalplacements"
     type="optional"
     versionRange="[${additionalplacements_version},)"

@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "hasFramedDoor": {
+      "conditions": {
+        "items": [
+          {
+            "items": "framedblockslite:framed_door"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "framedblockslite:framed_iron_door"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "hasFramedDoor"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "framedblockslite:framed_iron_door"
+    ]
+  }
+}

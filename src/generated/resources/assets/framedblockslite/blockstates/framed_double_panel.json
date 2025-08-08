@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "framedblockslite:block/framed_cube"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "framedblockslite:block/framed_cube"
+      }
+    }
+  ]
+}
