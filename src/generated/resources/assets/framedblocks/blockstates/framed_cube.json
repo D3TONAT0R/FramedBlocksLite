@@ -23,14 +23,6 @@
       "when": {
         "alt": "true"
       }
-    },
-    {
-      "apply": {
-        "model": "framedblocks:block/framed_reinforcement"
-      },
-      "when": {
-        "reinforced": "true"
-      }
     }
   ]
 }
