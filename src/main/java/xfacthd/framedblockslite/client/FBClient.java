@@ -96,7 +96,6 @@ import xfacthd.framedblockslite.common.block.interactive.button.FramedButtonBloc
 import xfacthd.framedblockslite.common.block.stairs.standard.FramedStairsBlock;
 import xfacthd.framedblockslite.common.compat.amendments.AmendmentsCompat;
 import xfacthd.framedblockslite.common.data.StateCacheBuilder;
-import xfacthd.framedblockslite.common.data.camo.fluid.FluidCamoClientHandler;
 import xfacthd.framedblockslite.common.data.doubleblock.FramedDoubleBlockRenderProperties;
 import xfacthd.framedblockslite.common.data.doubleblock.NullCullPredicate;
 
@@ -281,7 +280,6 @@ public final class FBClient
     private static void onModelsLoaded(final ModelEvent.BakingCompleted event)
     {
         StateLocationCache.clear();
-        FluidCamoClientHandler.clearModelCache();
         ErrorModel.reload(event.getModels());
     }
 

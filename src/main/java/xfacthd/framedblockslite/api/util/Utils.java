@@ -52,7 +52,6 @@ public final class Utils
     private static final Direction[] HORIZONTAL_DIRECTIONS = Direction.Plane.HORIZONTAL.stream().toArray(Direction[]::new);
     public static final TagKey<Block> FRAMEABLE = blockTag("frameable");
     public static final TagKey<Block> BLOCK_BLACKLIST = blockTag("blacklisted");
-    public static final TagKey<Fluid> FLUID_BLACKLIST = TagKey.create(Registries.FLUID, rl("blacklisted"));
     /** Allow other mods to whitelist their BEs, circumventing the config setting */
     public static final TagKey<Block> BE_WHITELIST = blockTag("blockentity_whitelisted");
     /** Blocks tagged with this will not be occluded by framed blocks using them as camo, both as camo and directly placed */

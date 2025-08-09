@@ -32,10 +32,6 @@ public final class CamoContainerFactories
 
         // Register builtin handling last to make sure the predicates actually act as broad fallbacks after addon ones
 
-        TriggerRegistrar fluidRegistrar = new TriggerRegistrarImpl(FBContent.FACTORY_FLUID.value());
-        fluidRegistrar.registerApplicationPredicate(stack -> stack.getCapability(Capabilities.FluidHandler.ITEM) != null);
-        fluidRegistrar.registerRemovalPredicate(stack -> stack.getCapability(Capabilities.FluidHandler.ITEM) != null);
-
         TriggerRegistrar blockRegistrar = new TriggerRegistrarImpl(FBContent.FACTORY_BLOCK.value());
         blockRegistrar.registerApplicationPredicate(stack -> stack.getItem() instanceof BlockItem);
         blockRegistrar.registerRemovalPredicate(TriggerRegistrar.DEFAULT_REMOVAL);

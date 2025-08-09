@@ -74,7 +74,6 @@ import xfacthd.framedblockslite.common.data.BlockType;
 import xfacthd.framedblockslite.common.data.FramedToolType;
 import xfacthd.framedblockslite.common.data.blueprint.auxdata.DoorAuxBlueprintData;
 import xfacthd.framedblockslite.common.data.camo.block.BlockCamoContainerFactory;
-import xfacthd.framedblockslite.common.data.camo.fluid.FluidCamoContainerFactory;
 import xfacthd.framedblockslite.api.blueprint.BlueprintData;
 import xfacthd.framedblockslite.common.data.component.*;
 import xfacthd.framedblockslite.api.datagen.loot.objects.NonTrivialCamoLootCondition;
@@ -270,10 +269,6 @@ public final class FBContent
     public static final DeferredHolder<CamoContainerFactory<?>, BlockCamoContainerFactory> FACTORY_BLOCK = CAMO_CONTAINER_FACTORIES.register(
             "block",
             BlockCamoContainerFactory::new
-    );
-    public static final DeferredHolder<CamoContainerFactory<?>, FluidCamoContainerFactory> FACTORY_FLUID = CAMO_CONTAINER_FACTORIES.register(
-            "fluid",
-            FluidCamoContainerFactory::new
     );
     // endregion
 
