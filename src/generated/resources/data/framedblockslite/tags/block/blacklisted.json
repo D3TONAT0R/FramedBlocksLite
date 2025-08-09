@@ -2,6 +2,22 @@
   "values": [
     "minecraft:piston",
     "minecraft:sticky_piston",
-    "minecraft:composter"
+    "minecraft:composter",
+    {
+      "id": "twilightforest:giant_cobblestone",
+      "required": false
+    },
+    {
+      "id": "twilightforest:giant_log",
+      "required": false
+    },
+    {
+      "id": "twilightforest:giant_leaves",
+      "required": false
+    },
+    {
+      "id": "twilightforest:giant_obsidian",
+      "required": false
+    }
   ]
 }

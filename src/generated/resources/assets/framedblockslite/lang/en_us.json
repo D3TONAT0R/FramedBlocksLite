@@ -63,7 +63,6 @@
   "config.framedblockslite.server.craftingDuration": "Crafting Duration",
   "config.framedblockslite.server.energyCapacity": "Energy Capacity",
   "config.framedblockslite.server.fireproofBlocks": "Fireproof blocks",
-  "config.framedblockslite.server.glowstoneLightLevel": "Glowstone Light Level",
   "config.framedblockslite.server.maxReceive": "Max input",
   "config.framedblockslite.server.oneWayWindowOwnable": "One-Way Window ownability",
   "config.jade.plugin_framedblockslite.framed_block_generic": "FramedBlocks camo",

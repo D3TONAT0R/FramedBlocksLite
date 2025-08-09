@@ -3,6 +3,9 @@ package xfacthd.framedblockslite.common.datagen.providers;
 import net.minecraft.core.*;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.TagsProvider;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagEntry;
 import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -92,6 +95,10 @@ public final class FramedBlockTagProvider extends BlockTagsProvider
                 Blocks.STICKY_PISTON,
                 Blocks.COMPOSTER
         );
+        tag(Utils.BLOCK_BLACKLIST).addOptional(Utils.rl("twilightforest", "giant_cobblestone"));
+        tag(Utils.BLOCK_BLACKLIST).addOptional(Utils.rl("twilightforest", "giant_log"));
+        tag(Utils.BLOCK_BLACKLIST).addOptional(Utils.rl("twilightforest", "giant_leaves"));
+        tag(Utils.BLOCK_BLACKLIST).addOptional(Utils.rl("twilightforest", "giant_obsidian"));
 
         tag(Utils.BE_WHITELIST);
 
