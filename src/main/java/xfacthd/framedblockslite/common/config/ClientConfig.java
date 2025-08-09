@@ -98,9 +98,7 @@ public final class ClientConfig
     private static OverlayDisplayMode stateLockMode = OverlayDisplayMode.DETAILED;
     private static OverlayDisplayMode toggleWaterlogMode = OverlayDisplayMode.DETAILED;
     private static OverlayDisplayMode toggleYSlopeMode = OverlayDisplayMode.DETAILED;
-    private static OverlayDisplayMode prismOffsetMode = OverlayDisplayMode.DETAILED;
     private static OverlayDisplayMode splitLineMode = OverlayDisplayMode.DETAILED;
-    private static OverlayDisplayMode oneWayWindowMode = OverlayDisplayMode.DETAILED;
     private static OverlayDisplayMode frameBackgroundMode = OverlayDisplayMode.DETAILED;
     private static OverlayDisplayMode camoRotationMode = OverlayDisplayMode.DETAILED;
     private static OverlayDisplayMode trapdoorTextureRotationMode = OverlayDisplayMode.DETAILED;
@@ -337,9 +335,7 @@ public final class ClientConfig
             stateLockMode = STATE_LOCK_MODE_VALUE.get();
             toggleWaterlogMode = TOGGLE_WATERLOG_MODE_VALUE.get();
             toggleYSlopeMode = TOGGLE_Y_SLOPE_MODE_VALUE.get();
-            prismOffsetMode = PRISM_OFFSET_MODE_VALUE.get();
             splitLineMode = SPLIT_LINE_MODE_VALUE.get();
-            oneWayWindowMode = ONE_WAY_WINDOW_MODE_VALUE.get();
             frameBackgroundMode = FRAME_BACKGROUND_MODE_VALUE.get();
             camoRotationMode = CAMO_ROTATION_MODE_VALUE.get();
             trapdoorTextureRotationMode = TRAPDOOR_TEXTURE_ROTATION_MODE_VALUE.get();
@@ -467,21 +463,9 @@ public final class ClientConfig
         }
 
         @Override
-        public OverlayDisplayMode getPrismOffsetMode()
-        {
-            return prismOffsetMode;
-        }
-
-        @Override
         public OverlayDisplayMode getSplitLineMode()
         {
             return splitLineMode;
-        }
-
-        @Override
-        public OverlayDisplayMode getOneWayWindowMode()
-        {
-            return oneWayWindowMode;
         }
 
         @Override

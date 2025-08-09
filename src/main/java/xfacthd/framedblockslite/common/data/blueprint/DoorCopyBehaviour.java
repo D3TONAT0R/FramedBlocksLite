@@ -43,17 +43,6 @@ public final class DoorCopyBehaviour implements BlueprintCopyBehaviour
     }
 
     @Override
-    public int getGlowstoneCount(BlueprintData data)
-    {
-        int count = BlueprintCopyBehaviour.super.getGlowstoneCount(data);
-        if (getSecondData(data).glowing())
-        {
-            count++;
-        }
-        return count;
-    }
-
-    @Override
     public void postProcessPaste(Level level, BlockPos pos, Player player, BlueprintData data, ItemStack dummyStack)
     {
         BlueprintData secData = getSecondData(data);

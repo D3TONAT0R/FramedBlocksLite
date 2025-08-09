@@ -511,12 +511,10 @@ public final class Utils
     )
     {
         CamoContainer<?, ?> camo = EmptyCamoContainer.EMPTY;
-        boolean glowing = false;
 
         if (level.getBlockEntity(pos) instanceof FramedBlockEntity be)
         {
             camo = be.getCamo();
-            glowing = be.isGlowing();
         }
 
         action.run();
@@ -530,7 +528,6 @@ public final class Utils
         if (level.getBlockEntity(pos) instanceof FramedBlockEntity be)
         {
             be.setCamo(camo, writeToCamoTwo);
-            be.setGlowing(glowing);
         }
     }
 

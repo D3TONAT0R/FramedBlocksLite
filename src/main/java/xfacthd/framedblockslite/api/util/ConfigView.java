@@ -28,11 +28,6 @@ public final class ConfigView
         boolean shouldConsumeCamoItem();
 
         /**
-         * {@return the light value to use when glowstone is applied to a block}
-         */
-        int getGlowstoneLightLevel();
-
-        /**
          * Returns the current value of the {@code fireproofBlocks} setting in the common config
          */
         boolean areBlocksFireproof();

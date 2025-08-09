@@ -21,6 +21,6 @@ public record FrameConfig(boolean glowing)
 
     public void apply(FramedBlockEntity be)
     {
-        be.setGlowing(glowing);
+
     }
 }

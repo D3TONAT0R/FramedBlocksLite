@@ -298,12 +298,6 @@ public class FramedBlueprintItem extends FramedToolItem
         }
 
         BlueprintCopyBehaviour behaviour = getBehaviour(data.block());
-
-        int glowstone = behaviour.getGlowstoneCount(data);
-        if (glowstone > 0)
-        {
-            materials.add(new ItemStack(Items.GLOWSTONE_DUST, glowstone));
-        }
         materials.addAll(behaviour.getAdditionalConsumedMaterials(data));
         return materials;
     }

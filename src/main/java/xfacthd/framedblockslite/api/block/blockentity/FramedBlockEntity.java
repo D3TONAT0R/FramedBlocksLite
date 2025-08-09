@@ -108,10 +108,6 @@ public class FramedBlockEntity extends BlockEntity
         {
             return clearCamo(player, stack, camo, secondary);
         }
-        else if (stack.is(Tags.Items.DUSTS_GLOWSTONE) && !glowing)
-        {
-            return applyGlowstone(player, stack);
-        }
         else if (!camo.isEmpty() && !player.isShiftKeyDown() && Utils.isConfigurationTool(stack))
         {
             return rotateCamo(camo, secondary);
@@ -157,20 +153,6 @@ public class FramedBlockEntity extends BlockEntity
         }
         // Abuse CONSUME_PARTIAL to communicate failed camo removal to the caller
         return ItemInteractionResult.CONSUME_PARTIAL;
-    }
-
-    private ItemInteractionResult applyGlowstone(Player player, ItemStack stack)
-    {
-        if (!level().isClientSide())
-        {
-            if (!player.isCreative())
-            {
-                stack.shrink(1);
-            }
-
-            setGlowing(true);
-        }
-        return ItemInteractionResult.sidedSuccess(level().isClientSide());
     }
 
     private ItemInteractionResult rotateCamo(CamoContainer<?, ?> camo, boolean secondary)
@@ -442,34 +424,9 @@ public class FramedBlockEntity extends BlockEntity
         return camoContainer.getContent().getShadeBrightness(level(), worldPosition, ownShade);
     }
 
-    public final void setGlowing(boolean glowing)
-    {
-        if (this.glowing != glowing)
-        {
-            int oldLight = getLightValue();
-            this.glowing = glowing;
-            if (oldLight != getLightValue())
-            {
-                doLightUpdate();
-            }
-
-            setChangedWithoutSignalUpdate();
-            if (!updateDynamicStates(false, true, false))
-            {
-                level().sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
-            }
-        }
-    }
-
-    public final boolean isGlowing()
-    {
-        return glowing;
-    }
-
     protected int getLightValue()
     {
-        int baseLight = glowing ? ConfigView.Server.INSTANCE.getGlowstoneLightLevel() : 0;
-        return Math.max(baseLight, camoContainer.getContent().getLightEmission());
+        return camoContainer.getContent().getLightEmission();
     }
 
     /**
@@ -795,7 +752,6 @@ public class FramedBlockEntity extends BlockEntity
     public final void applyBlueprintData(BlueprintData blueprintData)
     {
         applyCamosFromBlueprint(blueprintData);
-        setGlowing(blueprintData.glowing());
         blueprintData.auxData().ifPresent(this::applyAuxDataFromBlueprint);
     }
 

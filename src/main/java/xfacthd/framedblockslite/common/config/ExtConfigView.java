@@ -38,11 +38,7 @@ public final class ExtConfigView
 
         OverlayDisplayMode getToggleYSlopeMode();
 
-        OverlayDisplayMode getPrismOffsetMode();
-
         OverlayDisplayMode getSplitLineMode();
-
-        OverlayDisplayMode getOneWayWindowMode();
 
         OverlayDisplayMode getFrameBackgroundMode();
 

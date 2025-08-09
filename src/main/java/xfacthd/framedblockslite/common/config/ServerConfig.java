@@ -16,7 +16,6 @@ public final class ServerConfig
     private static final String KEY_ALLOW_BLOCK_ENTITIES = "allowBlockEntities";
     private static final String KEY_ONE_WAY_WINDOW_OWNABLE = "oneWayWindowOwnable";
     private static final String KEY_CONSUME_CAMO_ITEM = "consumeCamoItem";
-    private static final String KEY_GLOWSTONE_LIGHT_LEVEL = "glowstoneLightLevel";
     private static final String KEY_FIREPROOF_BLOCKS = "fireproofBlocks";
     private static final String KEY_POWERED_SAW_ENERGY_CAPACITY = "energyCapacity";
     private static final String KEY_POWERED_SAW_MAX_RECEIVE = "maxReceive";
@@ -26,7 +25,6 @@ public final class ServerConfig
     public static final String TRANSLATION_ALLOW_BLOCK_ENTITIES = translate(KEY_ALLOW_BLOCK_ENTITIES);
     public static final String TRANSLATION_ONE_WAY_WINDOW_OWNABLE = translate(KEY_ONE_WAY_WINDOW_OWNABLE);
     public static final String TRANSLATION_CONSUME_CAMO_ITEM = translate(KEY_CONSUME_CAMO_ITEM);
-    public static final String TRANSLATION_GLOWSTONE_LIGHT_LEVEL = translate(KEY_GLOWSTONE_LIGHT_LEVEL);
     public static final String TRANSLATION_FIREPROOF_BLOCKS = translate(KEY_FIREPROOF_BLOCKS);
     public static final String TRANSLATION_POWERED_SAW_ENERGY_CAPACITY = translate(KEY_POWERED_SAW_ENERGY_CAPACITY);
     public static final String TRANSLATION_POWERED_SAW_MAX_RECEIVE = translate(KEY_POWERED_SAW_MAX_RECEIVE);
@@ -36,13 +34,11 @@ public final class ServerConfig
     private static boolean allowBlockEntities = false;
     private static boolean oneWayWindowOwnable = true;
     private static boolean consumeCamoItem = true;
-    private static int glowstoneLightLevel = 15;
     private static boolean fireproofBlocks = false;
 
     private static final ModConfigSpec.BooleanValue ALLOW_BLOCK_ENTITIES_VALUE;
     private static final ModConfigSpec.BooleanValue ONE_WAY_WINDOW_OWNABLE_VALUE;
     private static final ModConfigSpec.BooleanValue CONSUME_CAMO_ITEM_VALUE;
-    private static final ModConfigSpec.IntValue GLOWSTONE_LIGHT_LEVEL_VALUE;
     private static final ModConfigSpec.BooleanValue FIREPROOF_BLOCKS_VALUE;
 
     public static void init(IEventBus modBus, ModContainer modContainer)
@@ -69,10 +65,6 @@ public final class ServerConfig
                 .comment("If true, applying a camo will consume the item and removing the camo will drop it again")
                 .translation(TRANSLATION_CONSUME_CAMO_ITEM)
                 .define(KEY_CONSUME_CAMO_ITEM, true);
-        GLOWSTONE_LIGHT_LEVEL_VALUE = builder
-                .comment("The light level to emit when glowstone dust is applied to a framed block")
-                .translation(TRANSLATION_GLOWSTONE_LIGHT_LEVEL)
-                .defineInRange(KEY_GLOWSTONE_LIGHT_LEVEL, 15, 0, 15);
         FIREPROOF_BLOCKS_VALUE = builder
                 .comment("If true, framed blocks are completely fire proof")
                 .translation(TRANSLATION_FIREPROOF_BLOCKS)
@@ -94,7 +86,6 @@ public final class ServerConfig
             allowBlockEntities = ALLOW_BLOCK_ENTITIES_VALUE.get();
             oneWayWindowOwnable = ONE_WAY_WINDOW_OWNABLE_VALUE.get();
             consumeCamoItem = CONSUME_CAMO_ITEM_VALUE.get();
-            glowstoneLightLevel = GLOWSTONE_LIGHT_LEVEL_VALUE.get();
             fireproofBlocks = FIREPROOF_BLOCKS_VALUE.get();
         }
     }
@@ -121,12 +112,6 @@ public final class ServerConfig
         public boolean shouldConsumeCamoItem()
         {
             return consumeCamoItem;
-        }
-
-        @Override
-        public int getGlowstoneLightLevel()
-        {
-            return glowstoneLightLevel;
         }
 
         @Override

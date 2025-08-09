@@ -42,11 +42,6 @@ public class FramedBlockEntityItemRequirement implements SchematicRequirementReg
                 }
             }
 
-            if (fbe.isGlowing())
-            {
-                requirements.add(consume(Items.GLOWSTONE_DUST));
-            }
-
             collectAdditionalRequirements(fbe, requirements);
 
             return new ItemRequirement(requirements);

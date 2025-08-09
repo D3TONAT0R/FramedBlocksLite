@@ -177,7 +177,6 @@ public final class FramedLanguageProvider extends LanguageProvider
         add(ServerConfig.TRANSLATION_ALLOW_BLOCK_ENTITIES, "Allow BlockEntities");
         add(ServerConfig.TRANSLATION_ONE_WAY_WINDOW_OWNABLE, "One-Way Window ownability");
         add(ServerConfig.TRANSLATION_CONSUME_CAMO_ITEM, "Consume camo item");
-        add(ServerConfig.TRANSLATION_GLOWSTONE_LIGHT_LEVEL, "Glowstone Light Level");
         add(ServerConfig.TRANSLATION_FIREPROOF_BLOCKS, "Fireproof blocks");
         add(ServerConfig.TRANSLATION_POWERED_SAW_ENERGY_CAPACITY, "Energy Capacity");
         add(ServerConfig.TRANSLATION_POWERED_SAW_MAX_RECEIVE, "Max input");
